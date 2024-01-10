@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FirstTable from 'components/FirstTable';
 import Header from "components/Header";
-import { useGetFirstsQuery, useGetScoreQuery } from "state/api";
+import { useGetFirstsQuery, useGetScoreQuery, useGetMemberQuery, useGetMembersQuery } from "state/api";
 import {
   Box,
   Button,

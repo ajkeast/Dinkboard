@@ -1,4 +1,4 @@
-import  pool  from "./database"
+import { pool }  from "./database.js";
 
 export async function queryFirsts(limit){
     const [rows] = await pool.query(

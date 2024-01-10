@@ -1,12 +1,12 @@
-// import express from "express";
-// import {
-//     getFirsts,
-//     getScore,
-// } from "../controllers/client.js";
+import express from "express";
+import {
+    getMembers,
+    getMember,
+} from "../controllers/members.js";
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.get("/score", getScore);
-// router.get("/firsts/:limit", getFirsts);
+router.get("/members", getMembers);
+router.get("/member/:id", getMember);
 
-// export default router;
+export default router;

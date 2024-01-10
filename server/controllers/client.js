@@ -1,4 +1,4 @@
-import { queryFirsts, queryScore } from '../models/firstsModel';
+import { queryFirsts, queryScore } from '../models/firstModel.js';
 
 export const getFirsts = async (req, res) => {
     const limit = req.params.limit;

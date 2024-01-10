@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import chatRoutes from "./routes/chat.js";
 import clientRoutes from "./routes/client.js";
-//import memberRoutes from "./routes/member.js"
+import memberRoutes from "./routes/members.js"
 
 // CONFIGURATION
 dotenv.config();
