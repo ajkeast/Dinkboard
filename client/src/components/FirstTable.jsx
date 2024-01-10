@@ -5,9 +5,9 @@ import { Box, colors, LinearProgress } from '@mui/material';
 const FirstTable = ({ data, isLoading }) => {
   // Define columns for the DataGrid
   const columns = [
-    { field: 'user_id', headerName: 'User ID', flex: 1 },
-    { field: 'firsts', headerName: 'Firsts', flex: 1 },
-    { field: 'days_since_first', headerName: 'Days Since First', flex: 1 },
+    { field: 'user_name', headerName: 'Name', flex: 1, headerClassName: 'first-table-column-header' },
+    { field: 'firsts', headerName: 'Firsts', flex: 1, headerClassName: 'first-table-column-header' },
+    { field: 'days_since_first', headerName: 'Days Since First', flex: 1, headerClassName: 'first-table-column-header' },
   ];
 
   if (!data || isLoading) return (
@@ -17,6 +17,7 @@ const FirstTable = ({ data, isLoading }) => {
         slots={{loadingOverlay: LinearProgress}}
         loading
         {...data}
+        sx = {{'& .first-table-column-header': {fontWeight: 'bold !important'}}}
       />
   )
 
@@ -25,7 +26,7 @@ const FirstTable = ({ data, isLoading }) => {
     // Map the data to rows
     const rows = data.map((item, index) => ({
       id: index + 1,
-      user_id: item.user_id,
+      user_name: item.user_name,
       firsts: item.firsts,
       days_since_first: item.days_since_first,
     }));
@@ -39,6 +40,7 @@ const FirstTable = ({ data, isLoading }) => {
             pagination: { paginationModel: { pageSize: 10 } }
           }}
           autoHeight
+          sx = {{'& .first-table-column-header': {fontWeight: 'bold !important'}}}
         />
       </Box>
     );

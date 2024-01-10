@@ -1,35 +1,4 @@
-import mysql from "mysql2"
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const pool = mysql.createPool({
-        host:process.env.SQL_HOST,
-        user:process.env.SQL_USER,
-        password:process.env.SQL_PASSWORD,
-        database:process.env.SQL_DATABASE
-    }).promise();
-
-export async function queryFirsts(limit){
-    const [rows] = await pool.query(
-        `SELECT * 
-        FROM firstlist_id
-        ORDER BY timesent DESC
-        LIMIT ?;`, limit);
-    return rows;
-}
-
-export async function queryScore(){
-    const [rows] = await pool.query(
-        `SELECT 
-            user_id, 
-            count(*) as firsts,
-            DATEDIFF(NOW(), MAX(timesent)) AS days_since_first
-        FROM firstlist_id
-        GROUP BY user_id
-        ORDER BY firsts DESC;`);
-    return rows;
-}
+import { queryFirsts, queryScore } from '../models/firstsModel';
 
 export const getFirsts = async (req, res) => {
     const limit = req.params.limit;
