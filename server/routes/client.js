@@ -1,12 +1,23 @@
 import express from "express";
 import {
-    getFirsts,
-    getScore,
+    getFirstsAll,
+    getFirstsById,
+    getFirstsScore,
+    getFirstsSome,
 } from "../controllers/client.js";
 
 const router = express.Router();
 
-router.get("/score", getScore);
-router.get("/firsts/:limit", getFirsts);
+// FIRSTS
+router.get("/score", getFirstsScore);
+router.get("/firsts", getFirstsAll);
+router.get("/first/:id", getFirstsById);
+router.get("/firsts/limit/:limit", getFirstsSome);
+
+// MEMBERS
+
+// JUICE
+
+// MESSAGES
 
 export default router;
