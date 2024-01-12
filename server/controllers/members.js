@@ -1,15 +1,17 @@
-import { queryMembers, queryMember } from '../models/memberModel.js';
+import { Member } from '../models/model.members.js';
 
-export const getMembers = async (req, res) => {
+const member = new Member
+
+export const getMembersAll = async (req, res) => {
     try{
-        const result = await queryMembers()
+        const result = await member.getAll()
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
 };
 
-export const getMember = async (req, res) => {
+export const getMemberById = async (req, res) => {
     const id = req.params.id;
     try{
         const result = await queryMember(id);   // must cast as number 

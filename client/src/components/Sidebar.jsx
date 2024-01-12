@@ -61,20 +61,12 @@ const navItems = [
     icon: <SmartToyOutlined />,
   },
   {
-    text: "First Leaderboard",
+    text: "Leaderboards",
     icon: null,
   },
   {
-    text: "Overview",
+    text: "Firsts",
     icon: <LeaderboardRounded />,
-  },
-  {
-    text: "Daily",
-    icon: <Today />,
-  },
-  {
-    text: "Monthly",
-    icon: <CalendarMonth />,
   },
   {
     text: "Juice",

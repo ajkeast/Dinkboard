@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({
-    // baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_BASE_URL }),
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5001" }),
+    baseQuery: fetchBaseQuery({ baseUrl: process.env.REACT_APP_BASE_URL }),
     reducerPath: "adminApi",
-    tagTypes: ["Score","Firsts","Member","Members"],
+    tagTypes: ["Score","Firsts","CumCount","Member","Members"],
     endpoints: (build) => ({
         getFirsts: build.query({
             query: (limit) => `client/firsts/${limit}`,
@@ -13,6 +12,10 @@ export const api = createApi({
         getScore: build.query({
             query: () => "client/score",
             providesTags:  ["Score"]
+        }),
+        getCumCount: build.query({
+            query: () => "client/cumcount",
+            providesTags:  ["CumCount"]
         }),
         getMember: build.query({
             query: (id) => `members/member/${id}`,
@@ -25,4 +28,4 @@ export const api = createApi({
     })
 })
 
-export const { useGetFirstsQuery, useGetScoreQuery, useGetMemberQuery, useGetMembersQuery } = api
+export const { useGetFirstsQuery, useGetScoreQuery, useGetCumCountQuery, useGetMemberQuery, useGetMembersQuery } = api

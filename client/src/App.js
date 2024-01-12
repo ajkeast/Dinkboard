@@ -8,6 +8,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { themeSettings } from "theme";
 import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
+import Members from "scenes/members"
+import FirstLeaderboard from "scenes/firsts";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -15,12 +17,14 @@ function App() {
   return (
     <div className="app">
         <BrowserRouter>
-          <ThemeProvider theme ={theme}>
+          <ThemeProvider theme={theme}>
             <CssBaseline />
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element= {<Dashboard />} />
+                <Route path="/members" element = {<Members />} />
+                <Route path="/firsts" element = {<FirstLeaderboard />} />
               </Route>
             </Routes>
           </ThemeProvider>

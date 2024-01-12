@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FirstTable from 'components/FirstTable';
 import Header from "components/Header";
-import { useGetFirstsQuery, useGetScoreQuery, useGetMemberQuery, useGetMembersQuery } from "state/api";
+import { useGetScoreQuery } from "state/api";
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
   const { data, isLoading } = useGetScoreQuery();
+  console.log(process.env.SERVER_APP_BASE_URL)
 
   return (
     <Box m="1.5rem 2.5rem"> 
