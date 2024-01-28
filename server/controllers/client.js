@@ -43,7 +43,18 @@ export const getFirstsScore = async (req, res) => {
 export const getCumCount = async (req, res) => {
     try{
         const result = await firsts.getCumCount()
-        res.status(200).json(result);
+
+        const reorganizedData = {};
+
+        Object.values(result).forEach(entry => {
+            const { user_name, timesent, cum_count } = entry;
+            if (!reorganizedData[user_name]) {
+                reorganizedData[user_name] = { name: user_name, data: [] };
+            }
+            reorganizedData[user_name].data.push({ timesent, cum_count });
+            });
+        const resultArray = Object.values(reorganizedData);
+        res.status(200).json(resultArray);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

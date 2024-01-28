@@ -60,7 +60,7 @@ export class Firsts {
         const [rows] = await this.connection.query(
             `SELECT
                 COALESCE(display_name,user_name) AS user_name,
-                timesent,
+                UNIX_TIMESTAMP(timesent) / (24 * 60 * 60) AS timesent,
                 ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY timesent) AS cum_count
             FROM
                 firstlist_id
