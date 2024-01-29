@@ -15,39 +15,34 @@ import {
 import Header from "components/Header";
 import { useGetCumCountQuery } from 'state/api';
 
-function generatePurpleGradient(n) {
-  const purpleGradient = [];
-
+function generateColorShades(n) {
+  const colorGradient = [];
   for (let i = 0; i < n; i++) {
-    // Calculate the lightness value based on the position in the gradient
-    const lightness = (i / (n - 1)) * 100;
-
-    // Create an HSL color string with a fixed hue for purple (you can adjust it if needed)
-    const purpleShade = `hsl(275, 100%, ${lightness}%)`;
-
+    // Calculate the hue value based on the position in the gradient
+    const hue = (i / (n - 1)) * 360;
+    // Create an HSL color string with a saturation and lightness
+    const colorShade = `hsl(${hue}, 60%, 60%)`;
     // Add the color to the gradient array
-    purpleGradient.push(purpleShade);
+    colorGradient.push(colorShade);
   }
-
-  return purpleGradient;
+  return colorGradient;
 }
 
 const FirstLeaderboard = () => {
   const { data, isLoading } = useGetCumCountQuery();
-  const [purpleShades, setPurpleShades] = useState([]);
+  const [colorShades, setColorShades] = useState([]);
 
   useEffect(() => {
     if (!isLoading && data) {
-      // Call the generatePurpleGradient function when data is loaded
-      const shades = generatePurpleGradient(data.length);
-      setPurpleShades(shades);
+      // Call the generateColorGradient function when data is loaded
+      const shades = generateColorShades(data.length);
+      setColorShades(shades);
     }
   }, [data, isLoading]);
-  console.log(purpleShades)
   return (
-    <Box m="1.5rem 2.5rem" height="80%" width="90%">
-      <Header title="Firsts" subtitle=""/>
-      {data || !isLoading ? (
+    <Box m="1.5rem 2.5rem" height="80%" width="95%">
+      <Header title="Firsts" subtitle="Cumulative count of firsts"/>
+      {data && !isLoading ? (
         <ResponsiveContainer>
           <LineChart
             data={data}
@@ -65,8 +60,8 @@ const FirstLeaderboard = () => {
               allowDuplicatedCategory={true}
               domain={[18980, 19760]}/>
             <YAxis dataKey="cum_count" />
-            <Tooltip content={<p className="label">{`Test`}</p>}/>
-            <Legend />
+            <Tooltip />
+            <Legend layout="vertical" verticalAlign="center" align="right" wrapperStyle={{padding: "1.5rem"}}/>
             {data.map((s,index) => (
               <Line 
                 dataKey="cum_count" 
@@ -74,9 +69,9 @@ const FirstLeaderboard = () => {
                 name={s.name} 
                 key={s.name}
                 type={'monotoneX'} 
-                fill={purpleShades[index]}
-                stroke={purpleShades[index]}
-                strokeWidth={4}
+                fill={colorShades[index]}
+                stroke={colorShades[index]}
+                strokeWidth={3}
                 dot={false}
                 line
                 >
