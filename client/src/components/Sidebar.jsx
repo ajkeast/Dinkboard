@@ -122,9 +122,10 @@ const Sidebar = ({
           }}
         >
           <Box width="100%">
-            <Box m="1.5rem 2rem 2rem 3rem">
+            <Box m="1.5rem 0rem 2rem 0.5rem">
               <FlexBetween color={theme.palette.secondary.main}>
                 <Box display="flex" alignItems="center" gap="0.5rem">
+                  <img src="image.webp" style={{ maxWidth: '40%', height: 'auto' }} alt="Peter Dinkboard" />
                   <Typography variant="h4" fontWeight="bold">
                   PETER DINKBOARD
                   </Typography>

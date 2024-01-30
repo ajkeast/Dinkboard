@@ -60,7 +60,7 @@ const FirstLeaderboard = () => {
               allowDuplicatedCategory={true}
               domain={[18980, 19760]}/>
             <YAxis dataKey="cum_count" />
-            <Tooltip />
+            {/* <Tooltip /> */}
             <Legend layout="vertical" verticalAlign="center" align="right" wrapperStyle={{padding: "1.5rem"}}/>
             {data.map((s,index) => (
               <Line 
