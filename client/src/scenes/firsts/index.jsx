@@ -1,5 +1,5 @@
 import React, { useState, PureComponent, useEffect } from 'react';
-import { AreaChart, LineChart, LabelList, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, LabelList, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ResponsiveContainer } from 'recharts';
 import {
   Box,
   Card,
@@ -44,15 +44,7 @@ const FirstLeaderboard = () => {
       <Header title="Firsts" subtitle="Cumulative count of firsts"/>
       {data && !isLoading ? (
         <ResponsiveContainer>
-          <LineChart
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="timesent" 

@@ -1,4 +1,11 @@
 import { Firsts } from '../models/model.firsts.js';
+import { Emojis } from '../models/model.emojis.js';
+import { Member } from '../models/model.members.js';
+import { Messages } from '../models/model.messages.js';
+
+// =======================================================================
+//                                  FIRSTS
+// =======================================================================
 
 const firsts = new Firsts;
 
@@ -55,6 +62,90 @@ export const getCumCount = async (req, res) => {
             });
         const resultArray = Object.values(reorganizedData);
         res.status(200).json(resultArray);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+// =======================================================================
+//                                  EMOJIS
+// =======================================================================
+
+const emojis = new Emojis;
+
+export const getEmojisAll = async (req, res) => {
+    try{
+        const result = await emojis.getAll()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+export const getEmojisCount = async (req, res) => {
+    try{
+        const result = await emojis.getCount()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+export const getEmojisById = async (req, res) => {
+    const limit = req.params.id;
+    try{
+        const result = await emojis.getById(id);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+// =======================================================================
+//                                  MEMBERS
+// =======================================================================
+
+const member = new Member
+
+export const getMembersAll = async (req, res) => {
+    try{
+        const result = await member.getAll()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+export const getMemberById = async (req, res) => {
+    const id = req.params.id;
+    try{
+        const result = await queryMember(id);   // must cast as number 
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+// =======================================================================
+//                                  MESSAGES
+// =======================================================================
+
+const messages = new Messages
+
+export const getMessagesAll = async (req, res) => {
+    try{
+        const result = await messages.getAll()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+};
+
+export const getMessageById = async (req, res) => {
+    const id = req.params.id;
+    try{
+        const result = await messages.getById(id);   // must cast as number 
+        res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }

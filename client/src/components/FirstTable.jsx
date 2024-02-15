@@ -37,7 +37,7 @@ const FirstTable = ({ data, isLoading }) => {
           rows={rows}
           columns={columns}
           initialState={{
-            pagination: { paginationModel: { pageSize: 10 } }
+            pagination: { paginationModel: { pageSize: 5 } }
           }}
           autoHeight
           sx = {{'& .first-table-column-header': {fontWeight: 'bold !important'}}}

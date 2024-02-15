@@ -7,7 +7,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import chatRoutes from "./routes/chat.js";
 import clientRoutes from "./routes/client.js";
-import memberRoutes from "./routes/members.js"
 
 // CONFIGURATION
 dotenv.config();
@@ -21,9 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors());
 
 // ROUTES
-app.use("/chat", chatRoutes);
 app.use("/client", clientRoutes);
-app.use("/members", memberRoutes)
 
 // LISTEN
 
