@@ -7,8 +7,8 @@ The frontend components were built using Material UI, Material UI Data Grid, Rec
 
 To run this app locally:
 1. Clone the repo
-2. CD into server and client folders and run ```npm install``.
-3. CD into the server folder run ```node . `
+2. CD into server and client folders and run ```npm install```.
+3. CD into the server folder run ```node . ```
 4. CD into the client folder run ```npm run start```
 
 The web app will run in http://localhost:3000/dashboard
