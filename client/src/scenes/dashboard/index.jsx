@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import FirstTable from 'components/FirstTable';
 import EmojiPieChart from 'components/EmojiPieChart';
 import Header from "components/Header";
-import { useGetScoreQuery, useGetEmojisCountQuery } from "state/api";
+import MessagesBarChart from 'components/MessagesBarChart';
+import { useGetScoreQuery, useGetEmojisCountQuery, useGetMessagesByDayQuery } from "state/api";
 import {
   Box,
   Button,
@@ -24,7 +25,7 @@ const Dashboard = () => {
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const { data: emojiData, isLoading: isEmojiLoading } = useGetEmojisCountQuery();
   const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
-  console.log(process.env.SERVER_APP_BASE_URL)
+  const { data: messagesByDayData, isLoading: isMessagesByDayLoading } = useGetMessagesByDayQuery();
 
   return (
     <Box m="1.5rem"> 
@@ -40,6 +41,25 @@ const Dashboard = () => {
             "& > div": {gridColumn: isNonMobile ? undefined : "span 5"}
         }}
         >
+        {/* MessagesBarChart */}
+        <Card
+          sx={{
+            backgroundImage: "none",
+            backgroundColor: theme.palette.background.alt,
+            borderRadius: "0.55rem",
+            gridColumn: 'span 5',
+            gridRow: 'span 1',
+        }}
+        >
+          <CardContent>
+            <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
+              <MessageRounded/> Messages
+            </Typography>
+            <Box height={300} width="100%">
+              <MessagesBarChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
+            </Box>
+          </CardContent>
+        </Card>
           {/* First Table */}
         <Card
           sx={{
@@ -95,24 +115,6 @@ const Dashboard = () => {
             <Box height={400} width="100%">
               {/* <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} /> */}
             </Box>
-          </CardContent>
-        </Card>        
-
-        {/* Message Stats */}
-        <Card
-          sx={{
-            backgroundImage: "none",
-            backgroundColor: theme.palette.background.alt,
-            borderRadius: "0.55rem",
-            gridColumn: 'span 5',
-            gridRow: 'span 1',
-        }}
-        >
-          <CardContent>
-            <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-              <MessageRounded/> Messages
-            </Typography>
-          <FirstTable data={scoreData} isLoading={isScoreLoading} ></FirstTable>
           </CardContent>
         </Card>        
       </Box>

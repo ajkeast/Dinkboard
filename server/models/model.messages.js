@@ -37,4 +37,16 @@ export class Messages {
             WHERE messages.id = ?`,id)
         return rows;
     }
+
+    async getByDay(){
+        const [rows] = await this.connection.query(
+            `SELECT
+                DATE_FORMAT(DATE(messages.created_at), '%Y-%m-%d') AS 'day',
+                COALESCE(display_name, user_name) AS user_name,
+                COUNT(*) AS 'messages'
+            FROM messages
+            JOIN members ON messages.member_id = members.id
+            GROUP BY DATE(messages.created_at), user_name;`)
+            return rows;
+    }
 }

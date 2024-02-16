@@ -150,3 +150,42 @@ export const getMessageById = async (req, res) => {
         res.status(404).json({ message: error.message });
     }
 };
+
+export const getMessagesByDay = async (req, res) => {
+    try {
+      const inputData = await messages.getByDay();
+  
+      function transformData(data) {
+        // Create an object to store the transformed data
+        const transformedData = {};
+  
+        // Iterate through the original data
+        data.forEach((entry) => {
+          const { day, user_name, messages } = entry;
+  
+          // If the day is not a key in transformedData, create an object for that day
+          if (!transformedData[day]) {
+            transformedData[day] = {};
+          }
+  
+          // Assign the messages count to the user_name for that day
+          transformedData[day][user_name] = messages;
+        });
+  
+        // Convert the transformed data object into an array of objects
+        const result = Object.keys(transformedData).map((day) => ({
+          day,
+          ...transformedData[day],
+        }));
+  
+        return result;
+      }
+  
+      const transformedData = transformData(inputData);
+  
+      res.status(200).json(transformedData);
+    } catch (error) {
+      res.status(404).json({ message: error.message });
+    }
+};
+  

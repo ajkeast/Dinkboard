@@ -47,12 +47,17 @@ export const api = createApi({
         // MESSAGES
         getMessage: build.query({
             query: (id) => `client/message/${id}`,
-            providesTags: ["Members"],
+            providesTags: ["Messages"],
         }),
         getMessages: build.query({
             query: () => "client/messages",
-            providesTags: ["Members"],
+            providesTags: ["Messages"],
         }),
+
+        getMessagesByDay: build.query({
+            query: () => "client/messages/day",
+            providesTags: ["Messages"],
+        })
     })
 })
 
@@ -66,5 +71,6 @@ export const {
     useGetEmojisQuery,
     useGetEmojisCountQuery,
     useGetMessageQuery,
-    useGetMessagesQuery
+    useGetMessagesQuery,
+    useGetMessagesByDayQuery,
 } = api

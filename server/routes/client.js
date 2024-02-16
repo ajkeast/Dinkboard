@@ -11,7 +11,8 @@ import {
     getEmojisById,
     getEmojisCount,
     getMessagesAll,
-    getMessageById
+    getMessageById,
+    getMessagesByDay
 } from "../controllers/client.js";
 
 const router = express.Router();
@@ -35,9 +36,8 @@ router.get("/emoji/:id", getEmojisById)
 // MESSAGES
 router.get("/messages", getMessagesAll)
 router.get("/message/:id", getMessageById)
+router.get("/messages/day", getMessagesByDay)
 
 // JUICE
-
-
 
 export default router;

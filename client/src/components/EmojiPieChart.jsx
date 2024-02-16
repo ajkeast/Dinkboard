@@ -3,7 +3,6 @@ import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip } from 'recha
 import { Box, useTheme} from '@mui/material';
 
 const EmojiPieChart = ({ data, isLoading }) => {
-  // Define columns for the DataGrid
     const theme = useTheme();
     const COLORS = [theme.palette.secondary[300], '#4d2ea1', theme.palette.neutral[100], theme.palette.secondary[500]];
     let renderLabel = function(entry) {
@@ -32,6 +31,11 @@ const EmojiPieChart = ({ data, isLoading }) => {
                         dataKey="occurences"
                         label={renderLabel}
                         labelLine={false}
+
+                        animationBegin={0}
+                        animationDuration={800}
+                        animationEasing='ease'
+
                     >
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
