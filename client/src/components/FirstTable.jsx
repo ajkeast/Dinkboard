@@ -17,7 +17,9 @@ const FirstTable = ({ data, isLoading }) => {
         slots={{loadingOverlay: LinearProgress}}
         loading
         {...data}
-        sx = {{'& .first-table-column-header': {fontWeight: 'bold !important'}}}
+        sx = {{
+          '& .first-table-column-header': {fontWeight: 'bold !important'},
+        }}
       />
   )
 
@@ -40,7 +42,14 @@ const FirstTable = ({ data, isLoading }) => {
             pagination: { paginationModel: { pageSize: 5 } }
           }}
           autoHeight
-          sx = {{'& .first-table-column-header': {fontWeight: 'bold !important'}}}
+          sx = {{
+            '& .first-table-column-header': {fontWeight: 'bold !important',},
+            '& .MuiDataGrid-row:hover': {
+              transform: 'translateY(2px)', // Move down by 3 pixels
+              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Add a subtle box shadow on hover
+              transition: 'transform 0.25s, box-shadow 0.25s', // Add a smooth transition effect for multiple properties
+            },
+        }}
         />
       </Box>
     );

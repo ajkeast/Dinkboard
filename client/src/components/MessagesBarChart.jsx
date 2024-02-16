@@ -17,10 +17,10 @@ const MessagesBarChart = ({ data, isLoading }) => {
         return (
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid vertical={false} />
                 <XAxis dataKey="day" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: theme.palette.background.alt }} />
                 <Legend />
                 {/* {data.map((entry, index) => (} */}
                 <Bar dataKey="samtyclaws" stackId="a" fill="rgb(92, 214, 92)" animationDuration={animationDuration} />

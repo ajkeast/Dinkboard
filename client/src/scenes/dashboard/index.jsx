@@ -12,6 +12,7 @@ import {
   useTheme,
   useMediaQuery,
   CardContent,
+  Grow,
 } from "@mui/material";
 import {
   MessageRounded,
@@ -21,6 +22,7 @@ import FlexBetween from 'components/FlexBetween';
 
 const Dashboard = () => {
 
+  const isCardVisible = true;
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const { data: emojiData, isLoading: isEmojiLoading } = useGetEmojisCountQuery();
@@ -42,61 +44,68 @@ const Dashboard = () => {
         }}
         >
         {/* MessagesBarChart */}
-        <Card
-          sx={{
-            backgroundImage: "none",
-            backgroundColor: theme.palette.background.alt,
-            borderRadius: "0.55rem",
-            gridColumn: 'span 5',
-            gridRow: 'span 1',
-        }}
-        >
-          <CardContent>
-            <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-              <MessageRounded/> Messages
-            </Typography>
-            <Box height={300} width="100%">
-              <MessagesBarChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
-            </Box>
-          </CardContent>
-        </Card>
-          {/* First Table */}
-        <Card
-          sx={{
-            backgroundImage: "none",
-            backgroundColor: theme.palette.background.alt,
-            borderRadius: "0.55rem",
-            gridColumn: 'span 2',
-            gridRow: 'span 1',
+        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
+          <Card
+            sx={{
+              backgroundImage: "none",
+              backgroundColor: theme.palette.background.alt,
+              borderRadius: "0.55rem",
+              gridColumn: 'span 5',
+              gridRow: 'span 1',
           }}
           >
-          <CardContent>
-            <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-              <LeaderboardRounded/> Firsts
-            </Typography>
-            <FirstTable data={scoreData} isLoading={isScoreLoading} ></FirstTable>
-          </CardContent>
-        </Card>
+            <CardContent>
+              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
+                <MessageRounded/> Messages
+              </Typography>
+              <Box height={300} width="100%">
+                <MessagesBarChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grow>
+
+          {/* First Table */}
+        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
+          <Card
+            sx={{
+              backgroundImage: "none",
+              backgroundColor: theme.palette.background.alt,
+              borderRadius: "0.55rem",
+              gridColumn: 'span 2',
+              gridRow: 'span 1',
+            }}
+            >
+            <CardContent>
+              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
+                <LeaderboardRounded/> Firsts
+              </Typography>
+              <FirstTable data={scoreData} isLoading={isScoreLoading} ></FirstTable>
+            </CardContent>
+          </Card>
+        </Grow>
 
         {/* EmojiPieChart */}
-        <Card
-          sx={{
-            backgroundImage: "none",
-            backgroundColor: theme.palette.background.alt,
-            borderRadius: "0.55rem",
-            gridColumn: 'span 2',
-            gridRow: 'span 1',
-        }}
-        >
-          <CardContent>
-            <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
-              <LeaderboardRounded/> Emojis
-            </Typography>
-            <Box height={400} width="100%">
-              <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} />
-            </Box>
-          </CardContent>
-        </Card>
+        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
+          <Card
+            sx={{
+              backgroundImage: "none",
+              backgroundColor: theme.palette.background.alt,
+              borderRadius: "0.55rem",
+              gridColumn: 'span 2',
+              gridRow: 'span 1',
+          }}
+          >
+            <CardContent>
+              <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
+                <LeaderboardRounded/> Emojis
+              </Typography>
+              <Box height={400} width="100%">
+                <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grow>
 
         {/* EmojiPieChart */}
         <Card

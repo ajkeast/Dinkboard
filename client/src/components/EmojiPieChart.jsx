@@ -41,7 +41,8 @@ const EmojiPieChart = ({ data, isLoading }) => {
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
-                    <Tooltip/>
+                    <Tooltip contentStyle={{ backgroundColor: theme.palette.background.alt }}
+                        itemStyle={{ color: 'theme.palette.background.primary' }}/>
                 </PieChart>
             </ResponsiveContainer>
         );

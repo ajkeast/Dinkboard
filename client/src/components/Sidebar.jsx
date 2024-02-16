@@ -155,7 +155,17 @@ const Sidebar = ({
                 const lcText = text.toLowerCase();
 
                 return (
-                  <ListItem key={text} disablePadding>
+                  <ListItem 
+                    key={text} 
+                    disablePadding
+                    sx={{
+                      '&:hover': {
+                        transform: 'translateY(2px)', // Move down by 3 pixels
+                        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Add a subtle box shadow on hover
+                        transition: 'transform 0.25s, box-shadow 0.25s', // Add a smooth transition effect for multiple properties
+                      },
+                    }}
+                  >
                     <ListItemButton
                       onClick={() => {
                         navigate(`/${lcText}`);

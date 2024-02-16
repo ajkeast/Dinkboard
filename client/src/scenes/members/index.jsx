@@ -10,11 +10,13 @@ import {
     Rating,
     useTheme,
     useMediaQuery,
+    Grow,
     } from "@mui/material";
     import Header from "components/Header";
     import { useGetMembersQuery } from "state/api";
 
 const Member = ({
+    index,
     id,
     user_name,
     display_name,
@@ -24,59 +26,66 @@ const Member = ({
 }) => {
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
+    const isCardVisible = true;
     return (
-        <Card
-            sx={{
-                backgroundImage: "none",
-                backgroundColor: theme.palette.background.alt,
-                borderRadius: "0.55rem"
-            }}
-        >
-            <CardContent>
-                <Typography sx={{ fontSize: 14 }} color={theme.palette.secondary[300]} gutterBottom>
-                    @{user_name}
-                </Typography>
-                <Box sx={{ justifyContent: "space-between", display: "flex" }}>
-                    <Typography variant='h5'>
-                        {display_name}
-                    </Typography>
-                    <Box 
-                        component="img"
-                        alt="profile"
-                        src={avatar}
-                        height="80px"
-                        width="80px"
-                        borderRadius="50%"
-                        sx={{ objectFit: "cover" }}
-                    />
-                </Box>
-                <Typography sx={{ mb: "1.5rem"}} color={theme.palette.secondary[300]}>
-                    Joined {created_at}
-                </Typography>
-            </CardContent>
-            <CardActions>
-                <Button
-                    variant="primary"
-                    size="small"
-                    onClick={() => setIsExpanded(!isExpanded)}
-                >
-                    See more
-                </Button>
-            </CardActions>
-            <Collapse
-                in={isExpanded}
-                timeout="auto"
-                unmountOnExit
+        <Grow 
+            in={isCardVisible} 
+            style={{ transformOrigin: '0 0 0' }} 
+            {...(isCardVisible ? { timeout: 100*index } : {})}
+            >
+            <Card
                 sx={{
-                    color: theme.palette.grey[300]
+                    backgroundImage: "none",
+                    backgroundColor: theme.palette.background.alt,
+                    borderRadius: "0.55rem"
                 }}
             >
                 <CardContent>
-                    <Typography>id: {id}</Typography>
-                    <Typography>updated: {last_updated}</Typography>
+                    <Typography sx={{ fontSize: 14 }} color={theme.palette.secondary[300]} gutterBottom>
+                        @{user_name}
+                    </Typography>
+                    <Box sx={{ justifyContent: "space-between", display: "flex" }}>
+                        <Typography variant='h5'>
+                            {display_name}
+                        </Typography>
+                        <Box 
+                            component="img"
+                            alt="profile"
+                            src={avatar}
+                            height="80px"
+                            width="80px"
+                            borderRadius="50%"
+                            sx={{ objectFit: "cover" }}
+                        />
+                    </Box>
+                    <Typography sx={{ mb: "1.5rem"}} color={theme.palette.secondary[300]}>
+                        Joined {created_at}
+                    </Typography>
                 </CardContent>
-            </Collapse>
-        </Card>
+                <CardActions>
+                    <Button
+                        variant="primary"
+                        size="small"
+                        onClick={() => setIsExpanded(!isExpanded)}
+                    >
+                        See more
+                    </Button>
+                </CardActions>
+                <Collapse
+                    in={isExpanded}
+                    timeout="auto"
+                    unmountOnExit
+                    sx={{
+                        color: theme.palette.grey[300]
+                    }}
+                >
+                    <CardContent>
+                        <Typography>id: {id}</Typography>
+                        <Typography>updated: {last_updated}</Typography>
+                    </CardContent>
+                </Collapse>
+            </Card>
+        </Grow>
     )
 }
 const Members = () => {
@@ -105,8 +114,9 @@ const Members = () => {
                     avatar,
                     created_at,
                     last_updated,
-                }) => (
-                    <Member 
+                },index) => (
+                    <Member
+                    index={index} 
                     id={id}
                     user_name={user_name}
                     display_name={display_name}
