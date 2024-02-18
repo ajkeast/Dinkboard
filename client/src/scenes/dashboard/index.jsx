@@ -60,6 +60,7 @@ const Dashboard = () => {
               borderRadius: "0.55rem",
               gridColumn: 'span 5',
               gridRow: 'span 1',
+              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
           }}
           >
             <CardContent>
@@ -82,6 +83,7 @@ const Dashboard = () => {
               borderRadius: "0.55rem",
               gridColumn: 'span 2',
               gridRow: 'span 1',
+              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
             }}
             >
             <CardContent>
@@ -102,6 +104,7 @@ const Dashboard = () => {
               borderRadius: "0.55rem",
               gridColumn: 'span 2',
               gridRow: 'span 1',
+              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
           }}
           >
             <CardContent>
@@ -123,6 +126,7 @@ const Dashboard = () => {
             borderRadius: "0.55rem",
             gridColumn: 'span 1',
             gridRow: 'span 1',
+            boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
         }}
         >
           <CardContent>

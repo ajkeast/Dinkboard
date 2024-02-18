@@ -8,7 +8,7 @@ const EmojiPieChart = ({ data, isLoading }) => {
     
     // Filter the data based on occurrences > 0
     let renderLabel = function(entry) {
-        if(entry.occurences > 1){
+        if(entry.occurences > 2){
             return entry.emoji_name;
         }
     }

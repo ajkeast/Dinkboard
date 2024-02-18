@@ -43,12 +43,14 @@ const FirstTable = ({ data, isLoading }) => {
           }}
           autoHeight
           sx = {{
+            fontSize: '0.9rem',
+            border: '1.5px solid #ccc',
             '& .MuiDataGrid-columnHeader': {fontWeight: 'bold !important',},
             '& .MuiDataGrid-row:hover': {
               boxShadow: `0px 2px 4px rgba(0, 0, 0, 0.1)`, // Add a subtle box shadow on hover
               transition: 'box-shadow 0.25s', // Add a smooth transition effect for multiple properties
             },
-            '& .MuiDataGrid-row:hover .MuiDataGrid-cell': {
+            '& .MuiDataGrid-columnHeader:hover, & .MuiDataGrid-row:hover .MuiDataGrid-cell': {
               transform: 'translateY(2px)', // Move down by 2 pixels
               transition: 'transform 0.25s',
             }

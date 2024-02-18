@@ -20,24 +20,26 @@ const Member = ({
     id,
     user_name,
     display_name,
+    messages,
+    firsts,
     avatar,
     created_at,
     last_updated
 }) => {
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
-    const isCardVisible = true;
     return (
         <Grow 
-            in={isCardVisible} 
+            in={true} 
             style={{ transformOrigin: '0 0 0' }} 
-            {...(isCardVisible ? { timeout: 100*index } : {})}
+            timeout={{ enter: 100 * index }}
             >
             <Card
                 sx={{
                     backgroundImage: "none",
                     backgroundColor: theme.palette.background.alt,
-                    borderRadius: "0.55rem"
+                    borderRadius: "0.55rem",
+                    boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.1)'}`,
                 }}
             >
                 <CardContent>
@@ -45,9 +47,15 @@ const Member = ({
                         @{user_name}
                     </Typography>
                     <Box sx={{ justifyContent: "space-between", display: "flex" }}>
-                        <Typography variant='h5'>
-                            {display_name}
-                        </Typography>
+                        <Box sx={{ justifyContent: "space-between", display: "flex" }}>
+                                <Typography variant='h5'>
+                                    {display_name}
+                                    <br/><br/><br/>
+                                    Messages: {messages}
+                                    <br/><br/>
+                                    Firsts: {firsts}
+                                </Typography>
+                        </Box>
                         <Box 
                             component="img"
                             alt="profile"
@@ -111,6 +119,8 @@ const Members = () => {
                     id,
                     user_name,
                     display_name,
+                    messages,
+                    firsts,
                     avatar,
                     created_at,
                     last_updated,
@@ -120,6 +130,8 @@ const Members = () => {
                     id={id}
                     user_name={user_name}
                     display_name={display_name}
+                    messages={messages}
+                    firsts={firsts}
                     avatar={avatar}
                     created_at={created_at}
                     last_updated={last_updated}/>

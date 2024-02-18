@@ -52,6 +52,8 @@ const EmojisDataGrid = ({ data, isLoading }) => {
           }}
           //autoHeight
           sx = {{
+            fontSize: '0.9rem',
+            border: '1.5px solid #ccc',
             '& .MuiDataGrid-columnHeader': {fontWeight: 'bold !important',},
             '& .MuiDataGrid-row:hover': {
               boxShadow: `0px 2px 4px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,

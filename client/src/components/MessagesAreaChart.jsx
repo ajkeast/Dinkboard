@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const MessagesAreaChart = ({ data, isLoading }) => {
     const theme = useTheme();
-    const animationDuration = 1000;
+    const animationDuration = 1500;
     const animationBegin = 100
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
 
