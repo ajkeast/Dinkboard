@@ -6,6 +6,7 @@ import MessagesBarChart from 'components/MessagesBarChart';
 import MessagesAreaChart from 'components/MessagesAreaChart';
 import { 
   useGetScoreQuery, 
+  useGetEmojisQuery,
   useGetEmojisCountQuery, 
   useGetMessagesByDayQuery,
   useGetMessagesByDayByMemberQuery 
@@ -31,7 +32,7 @@ const Dashboard = () => {
   const isCardVisible = true;
   const theme = useTheme();
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
-  const { data: emojiData, isLoading: isEmojiLoading } = useGetEmojisCountQuery();
+  const { data: emojiCountData, isLoading: isEmojiCountLoading } = useGetEmojisCountQuery();
   const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
   const { data: messagesByDayData, isLoading: isMessagesByDayLoading } = useGetMessagesByDayQuery();
   const { data: messagesByDayByMemberData, isLoading: isMessagesByDayByMemberLoading} = useGetMessagesByDayByMemberQuery();
@@ -108,7 +109,7 @@ const Dashboard = () => {
                 <LeaderboardRounded/> Emojis
               </Typography>
               <Box height={350} width="100%">
-                <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} />
+                <EmojiPieChart data={emojiCountData} isLoading={isEmojiCountLoading} />
               </Box>
             </CardContent>
           </Card>

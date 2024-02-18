@@ -10,6 +10,7 @@ import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
 import Members from "scenes/members"
 import Messages from "scenes/messages"
+import Emojis from "scenes/emojis";
 import Firsts from "scenes/firsts";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element= {<Dashboard />} />
                 <Route path="/messages" element= {<Messages />} />
+                <Route path="/Emojis" element= {<Emojis />} />
                 <Route path="/members" element = {<Members />} />
                 <Route path="/firsts" element = {<Firsts />} />
               </Route>

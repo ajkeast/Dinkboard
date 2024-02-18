@@ -45,7 +45,7 @@ const FirstTable = ({ data, isLoading }) => {
           sx = {{
             '& .MuiDataGrid-columnHeader': {fontWeight: 'bold !important',},
             '& .MuiDataGrid-row:hover': {
-              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', // Add a subtle box shadow on hover
+              boxShadow: `0px 2px 4px rgba(0, 0, 0, 0.1)`, // Add a subtle box shadow on hover
               transition: 'box-shadow 0.25s', // Add a smooth transition effect for multiple properties
             },
             '& .MuiDataGrid-row:hover .MuiDataGrid-cell': {

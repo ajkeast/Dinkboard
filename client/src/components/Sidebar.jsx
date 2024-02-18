@@ -53,7 +53,7 @@ const navItems = [
     icon: <Groups2Rounded />,
   },
   {
-    text: "Emotes",
+    text: "Emojis",
     icon: <EmojiEmotions />,
   },
   {

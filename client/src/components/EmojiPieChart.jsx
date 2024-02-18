@@ -1,15 +1,18 @@
 import React from 'react';
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Box, useTheme} from '@mui/material';
 
 const EmojiPieChart = ({ data, isLoading }) => {
     const theme = useTheme();
     const COLORS = [theme.palette.secondary[300], '#4d2ea1', theme.palette.neutral[100], theme.palette.secondary[500]];
+    
+    // Filter the data based on occurrences > 0
     let renderLabel = function(entry) {
         if(entry.occurences > 1){
             return entry.emoji_name;
         }
     }
+
     if (!data || isLoading) return (
         <Box>
             Loading...

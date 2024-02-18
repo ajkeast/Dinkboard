@@ -7,7 +7,7 @@ const MessagesAreaChart = ({ data, isLoading }) => {
     const animationDuration = 1000;
     const animationBegin = 100
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
-    console.log(data);
+
     if (!data || isLoading) (
         <Box>
             Loading...
