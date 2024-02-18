@@ -57,7 +57,13 @@ export const api = createApi({
         getMessagesByDay: build.query({
             query: () => "client/messages/day",
             providesTags: ["Messages"],
-        })
+        }),
+        
+        getMessagesByDayByMember: build.query({
+            query: () => "client/messages/day/member",
+            providesTags: ["Messages"],
+        }),
+
     })
 })
 
@@ -73,4 +79,5 @@ export const {
     useGetMessageQuery,
     useGetMessagesQuery,
     useGetMessagesByDayQuery,
+    useGetMessagesByDayByMemberQuery
 } = api

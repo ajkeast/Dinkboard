@@ -9,7 +9,8 @@ import { themeSettings } from "theme";
 import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
 import Members from "scenes/members"
-import FirstLeaderboard from "scenes/firsts";
+import Messages from "scenes/messages"
+import Firsts from "scenes/firsts";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -23,8 +24,9 @@ function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element= {<Dashboard />} />
+                <Route path="/messages" element= {<Messages />} />
                 <Route path="/members" element = {<Members />} />
-                <Route path="/firsts" element = {<FirstLeaderboard />} />
+                <Route path="/firsts" element = {<Firsts />} />
               </Route>
             </Routes>
           </ThemeProvider>

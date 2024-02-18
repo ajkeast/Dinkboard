@@ -3,7 +3,13 @@ import FirstTable from 'components/FirstTable';
 import EmojiPieChart from 'components/EmojiPieChart';
 import Header from "components/Header";
 import MessagesBarChart from 'components/MessagesBarChart';
-import { useGetScoreQuery, useGetEmojisCountQuery, useGetMessagesByDayQuery } from "state/api";
+import MessagesAreaChart from 'components/MessagesAreaChart';
+import { 
+  useGetScoreQuery, 
+  useGetEmojisCountQuery, 
+  useGetMessagesByDayQuery,
+  useGetMessagesByDayByMemberQuery 
+} from "state/api";
 import {
   Box,
   Button,
@@ -28,6 +34,7 @@ const Dashboard = () => {
   const { data: emojiData, isLoading: isEmojiLoading } = useGetEmojisCountQuery();
   const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
   const { data: messagesByDayData, isLoading: isMessagesByDayLoading } = useGetMessagesByDayQuery();
+  const { data: messagesByDayByMemberData, isLoading: isMessagesByDayByMemberLoading} = useGetMessagesByDayByMemberQuery();
 
   return (
     <Box m="1.5rem"> 
@@ -59,7 +66,7 @@ const Dashboard = () => {
                 <MessageRounded/> Messages
               </Typography>
               <Box height={300} width="100%">
-                <MessagesBarChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
+                <MessagesAreaChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
               </Box>
             </CardContent>
           </Card>
@@ -100,7 +107,7 @@ const Dashboard = () => {
               <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
                 <LeaderboardRounded/> Emojis
               </Typography>
-              <Box height={400} width="100%">
+              <Box height={350} width="100%">
                 <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} />
               </Box>
             </CardContent>

@@ -22,8 +22,8 @@ const EmojiPieChart = ({ data, isLoading }) => {
                 <PieChart >
                     <Pie
                         data={data}
-                        innerRadius={120}
-                        outerRadius={160}
+                        innerRadius={120*0.8}
+                        outerRadius={160*0.8}
                         fill="#8884d7"
                         stroke=""
                         paddingAngle={5}
@@ -33,7 +33,7 @@ const EmojiPieChart = ({ data, isLoading }) => {
                         labelLine={false}
 
                         animationBegin={0}
-                        animationDuration={800}
+                        animationDuration={1000}
                         animationEasing='ease'
 
                     >

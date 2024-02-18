@@ -28,7 +28,7 @@ function generateColorShades(n) {
   return colorGradient;
 }
 
-const FirstLeaderboard = () => {
+const Firsts = () => {
   const { data, isLoading } = useGetCumCountQuery();
   const [colorShades, setColorShades] = useState([]);
 
@@ -45,12 +45,12 @@ const FirstLeaderboard = () => {
       {data && !isLoading ? (
         <ResponsiveContainer>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} />
             <XAxis 
               dataKey="timesent" 
               type="number" 
               allowDuplicatedCategory={true}
-              domain={[18980, 19760]}/>
+              domain={[18980, 19800]}/>
             <YAxis dataKey="cum_count" />
             {/* <Tooltip /> */}
             <Legend layout="vertical" verticalAlign="center" align="right" wrapperStyle={{padding: "1.5rem"}}/>
@@ -79,4 +79,4 @@ const FirstLeaderboard = () => {
   )
 }
 
-export default FirstLeaderboard
+export default Firsts
