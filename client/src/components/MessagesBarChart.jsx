@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 const MessagesBarChart = ({ data, isLoading }) => {
     const theme = useTheme();
-    const animationDuration = 1000;
+    const animationDuration = 500;
     const animationBegin = 0
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
     console.log(data);
@@ -19,7 +19,7 @@ const MessagesBarChart = ({ data, isLoading }) => {
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="day" />
+                <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip contentStyle={{ backgroundColor: theme.palette.background.alt }} />
                 <Legend />

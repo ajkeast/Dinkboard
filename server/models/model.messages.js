@@ -38,25 +38,26 @@ export class Messages {
         return rows;
     }
 
-    async getByDay(){
+    async getByMonth(){
         const [rows] = await this.connection.query(
             `SELECT
-                DATE_FORMAT(DATE(messages.created_at), '%Y-%m-%d') AS 'day',
+                DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
                 COUNT(*) AS 'messages'
             FROM messages
             JOIN members ON messages.member_id = members.id
-            GROUP BY DATE(messages.created_at);`)
+            WHERE messages.created_at > '2017-08-01'
+            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m');`)
             return rows;
     }
-    async getByDayByMember(){
+    async getByMonthByMember(){
         const [rows] = await this.connection.query(
             `SELECT
-                DATE_FORMAT(DATE(messages.created_at), '%Y-%m-%d') AS 'day',
+                DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
                 COALESCE(display_name, user_name) AS user_name,
                 COUNT(*) AS 'messages'
             FROM messages
             JOIN members ON messages.member_id = members.id
-            GROUP BY DATE(messages.created_at), user_name;`)
+            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name;`)
             return rows;
     }
 }

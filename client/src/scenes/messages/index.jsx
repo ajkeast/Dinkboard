@@ -13,11 +13,11 @@ import {
   useMediaQuery,
   } from "@mui/material";
 import Header from "components/Header";
-import { useGetMessagesByDayByMemberQuery } from 'state/api';
+import { useGetMessagesByMonthByMemberQuery } from 'state/api';
 import MessagesBarChart from 'components/MessagesBarChart';
 
 const Messages = () => {
-    const { data, isLoading } = useGetMessagesByDayByMemberQuery();
+    const { data, isLoading } = useGetMessagesByMonthByMemberQuery();
 
     return (
         <Box m="1.5rem 2.5rem" height="80%" width="95%">

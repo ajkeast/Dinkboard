@@ -4,8 +4,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const MessagesAreaChart = ({ data, isLoading }) => {
     const theme = useTheme();
-    const animationDuration = 1500;
-    const animationBegin = 100
+    const animationDuration = 1600;
+    const animationBegin = 0
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
 
     if (!data || isLoading) (
@@ -24,7 +24,7 @@ const MessagesAreaChart = ({ data, isLoading }) => {
                     <stop offset="95%" stopColor={theme.palette.secondary[500]} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
-                <XAxis dataKey="day" />
+                <XAxis dataKey="month" />
                 <YAxis />
                 <CartesianGrid vertical={false} strokeDasharray={"0"} />
                 <Tooltip contentStyle={{ backgroundColor: theme.palette.background.alt }}/>

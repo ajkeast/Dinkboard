@@ -8,8 +8,8 @@ import {
   useGetScoreQuery, 
   useGetEmojisQuery,
   useGetEmojisCountQuery, 
-  useGetMessagesByDayQuery,
-  useGetMessagesByDayByMemberQuery 
+  useGetMessagesByMonthQuery,
+  useGetMessagesByMonthByMemberQuery 
 } from "state/api";
 import {
   Box,
@@ -34,8 +34,8 @@ const Dashboard = () => {
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const { data: emojiCountData, isLoading: isEmojiCountLoading } = useGetEmojisCountQuery();
   const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
-  const { data: messagesByDayData, isLoading: isMessagesByDayLoading } = useGetMessagesByDayQuery();
-  const { data: messagesByDayByMemberData, isLoading: isMessagesByDayByMemberLoading} = useGetMessagesByDayByMemberQuery();
+  const { data: messagesByMonthData, isLoading: isMessagesByMonthLoading } = useGetMessagesByMonthQuery();
+  const { data: messagesByMonthByMemberData, isLoading: isMessagesByMonthByMemberLoading} = useGetMessagesByMonthByMemberQuery();
 
   return (
     <Box m="1.5rem"> 
@@ -68,7 +68,7 @@ const Dashboard = () => {
                 <MessageRounded/> Messages
               </Typography>
               <Box height={300} width="100%">
-                <MessagesAreaChart data={messagesByDayData} isLoading={isMessagesByDayLoading}/>
+                <MessagesAreaChart data={messagesByMonthData} isLoading={isMessagesByMonthLoading}/>
               </Box>
             </CardContent>
           </Card>
