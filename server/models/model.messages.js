@@ -22,6 +22,18 @@ export class Messages {
         return rows;
     }
 
+    async getByChannel(){
+        const [rows] = await this.connection.query(
+            `SELECT 
+                channel_name,
+                COUNT(*) AS messages
+            FROM messages
+            JOIN channels on channel_id = channels.id
+            GROUP BY channel_id
+            ORDER BY COUNT(*);`)
+        return rows;    
+    }
+
     async getById(id){
         const [rows] = await this.connection.query(
             `SELECT 
@@ -47,8 +59,9 @@ export class Messages {
             JOIN members ON messages.member_id = members.id
             WHERE messages.created_at > '2017-08-01'
             GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m');`)
-            return rows;
+        return rows;
     }
+
     async getByMonthByMember(){
         const [rows] = await this.connection.query(
             `SELECT
@@ -58,6 +71,34 @@ export class Messages {
             FROM messages
             JOIN members ON messages.member_id = members.id
             GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name;`)
-            return rows;
+        return rows;
     }
+
+    async getStats(){
+        const [rows] = await this.connection.query(
+            `SELECT
+                (
+                SELECT COUNT(*) 
+                FROM messages 
+                WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(NOW(), '%Y-%m-01') AND NOW()
+                ) AS thisMTD,
+                (
+                SELECT COUNT(*) 
+                FROM messages
+                WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') AND DATE_SUB(NOW(), INTERVAL 1 MONTH)
+                ) AS lastMTD,
+                (
+                SELECT COUNT(*) 
+                FROM messages 
+                WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(NOW(), '%Y-01-01') AND NOW()
+                ) AS thisYTD,
+                (
+                SELECT COUNT(*) 
+                FROM messages
+                WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y-01-01') AND DATE_SUB(NOW(), INTERVAL 1 YEAR)
+                ) AS lastYTD;`)
+        return rows;
+    }
+
 }
+

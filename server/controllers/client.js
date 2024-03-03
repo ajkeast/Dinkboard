@@ -142,6 +142,15 @@ export const getMessagesAll = async (req, res) => {
     }
 };
 
+export const getMessagesByChannel = async (req, res) => {
+    try{
+        const result = await messages.getByChannel()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
+
 export const getMessageById = async (req, res) => {
     const id = req.params.id;
     try{
@@ -198,3 +207,12 @@ export const getMessagesByMonthByMember = async (req, res) => {
         res.status(404).json({ message: error.message });
     }
 };
+
+export const getMessagesStats = async (req, res) => {
+    try{
+        const result = await messages.getStats()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}

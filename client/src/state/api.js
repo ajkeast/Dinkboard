@@ -53,17 +53,22 @@ export const api = createApi({
             query: () => "client/messages",
             providesTags: ["Messages"],
         }),
-
+        getMessagesByChannel: build.query({
+            query: () => "client/messages/channels",
+            providesTags: ["Messages"],
+        }),
         getMessagesByMonth: build.query({
             query: () => "client/messages/month",
             providesTags: ["Messages"],
-        }),
-        
+        }),       
         getMessagesByMonthByMember: build.query({
             query: () => "client/messages/month/member",
             providesTags: ["Messages"],
         }),
-
+        getMessagesStats: build.query({
+            query: () => "client/messages/stats",
+            providesTags: ["Messages"],
+        }),
     })
 })
 
@@ -78,6 +83,8 @@ export const {
     useGetEmojisCountQuery,
     useGetMessageQuery,
     useGetMessagesQuery,
+    useGetMessagesByChannelQuery,
     useGetMessagesByMonthQuery,
-    useGetMessagesByMonthByMemberQuery
+    useGetMessagesByMonthByMemberQuery,
+    useGetMessagesStatsQuery,
 } = api

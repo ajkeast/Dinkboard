@@ -5,11 +5,12 @@ import { Box, useTheme} from '@mui/material';
 const EmojiPieChart = ({ data, isLoading }) => {
     const theme = useTheme();
     const COLORS = [theme.palette.secondary[300], '#4d2ea1', theme.palette.neutral[100], theme.palette.secondary[500]];
+    console.log(data);
     
     // Filter the data based on occurrences > 0
     let renderLabel = function(entry) {
-        if(entry.occurences > 2){
-            return entry.emoji_name;
+        if(entry.messages > 3000){
+            return (`#${entry.channel_name}`);
         }
     }
 
@@ -25,13 +26,13 @@ const EmojiPieChart = ({ data, isLoading }) => {
                 <PieChart >
                     <Pie
                         data={data}
-                        innerRadius={120*0.8}
+                        innerRadius={120*0.6}
                         outerRadius={160*0.8}
                         fill="#8884d7"
                         stroke=""
-                        paddingAngle={5}
-                        nameKey="emoji_name"
-                        dataKey="occurences"
+                        paddingAngle={2}
+                        nameKey="channel_name"
+                        dataKey="messages"
                         label={renderLabel}
                         labelLine={false}
 
