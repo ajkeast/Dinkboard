@@ -1,6 +1,5 @@
 // color design tokens export
 export const tokensDark = {
-
     grey: {
       0: "#ffffff", // manually adjusted
       10: "#f6f6f6", // manually adjusted
@@ -38,7 +37,15 @@ export const tokensDark = {
         700: "#281574",
         800: "#1b0e4e",
         900: "#0d0727"
-  },
+    },
+    green: {
+      200: "#22f553",
+      700: "#19b03c"
+    },
+    red: {
+      200: "#fc3838",
+      700: "#c90e0e"
+    }
   };
   
   // function that reverses the color palette
@@ -83,6 +90,12 @@ export const tokensDark = {
                 default: tokensDark.primary[600],
                 alt: tokensDark.grey[900],
               },
+              green: {
+                default: tokensDark.green[200],
+              },
+              red: {
+                default: tokensDark.red[200],
+              },
             }
           : {
               // palette values for light mode
@@ -103,6 +116,12 @@ export const tokensDark = {
               background: {
                 default: tokensDark.grey[0],
                 alt: tokensDark.grey[50],
+              },
+              green: {
+                default: tokensDark.green[700],
+              },
+              red: {
+                default: tokensDark.red[700],
               },
             }),
       },

@@ -10,7 +10,8 @@ import {
   useGetEmojisCountQuery,
   useGetMessagesByChannelQuery, 
   useGetMessagesByMonthQuery,
-  useGetMessagesByMonthByMemberQuery 
+  useGetMessagesByMonthByMemberQuery, 
+  useGetMessagesStatsQuery
 } from "state/api";
 import {
   Box,
@@ -36,12 +37,11 @@ const Dashboard = () => {
 
   const isCardVisible = true;
   const theme = useTheme();
-  const isNonMobile = useMediaQuery("(min-width: 1000px)");
-  const { data: emojiCountData, isLoading: isEmojiCountLoading } = useGetEmojisCountQuery();
+  const isNonMobile = useMediaQuery("(min-width: 1400px)");
   const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
+  const { data: messagesStatsData, isLoading: isMessagesStatsLoading } = useGetMessagesStatsQuery();
   const { data: messagesByChannelData, isLoading: isMessagesByChannelLoading } = useGetMessagesByChannelQuery();
   const { data: messagesByMonthData, isLoading: isMessagesByMonthLoading } = useGetMessagesByMonthQuery();
-  const { data: messagesByMonthByMemberData, isLoading: isMessagesByMonthByMemberLoading} = useGetMessagesByMonthByMemberQuery();
 
   return (
     <Box m="1.5rem"> 
@@ -80,48 +80,25 @@ const Dashboard = () => {
           </Card>
         </Grow>
         {/* StatBox */}
-        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
-          <Card
-            sx={{
-              backgroundImage: "none",
-              backgroundColor: theme.palette.background.alt,
-              borderRadius: "0.55rem",
-              gridColumn: 'span 2',
-              gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
-            }}
-            >
-            <CardContent>
-              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <CalendarMonthRounded/> Yearly
-              </Typography>
-              <Typography variant='h2' gutterBottom>
-                {emojiCountData?.emojiCount}
-              </Typography>
-            </CardContent>
-          </Card> 
-        </Grow> 
+        <StatBox 
+          title='Yearly'
+          time='year'
+          increase={23} 
+          icon={<CalendarMonthRounded/>}
+          description='Since last year'
+          data={messagesStatsData}
+          isLoading={isMessagesStatsLoading}
+        />
         {/* StatBox */}
-        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
-          <Card
-            sx={{
-              backgroundImage: "none",
-              backgroundColor: theme.palette.background.alt,
-              borderRadius: "0.55rem",
-              gridColumn: 'span 2',
-              gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
-            }}
-            >
-            <CardContent>
-              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <CalendarTodayRounded/> Monthly
-              </Typography>
-              <Typography variant='h2' gutterBottom>
-              </Typography>
-            </CardContent>
-          </Card> 
-        </Grow> 
+        <StatBox 
+          title='Monthly'
+          time='month'
+          increase={-15}  
+          icon={<CalendarTodayRounded/>}
+          description='Since last month'
+          data={messagesStatsData}
+          isLoading={isMessagesStatsLoading}
+        />
           {/* First Table */}
         <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
           <Card
@@ -129,7 +106,7 @@ const Dashboard = () => {
               backgroundImage: "none",
               backgroundColor: theme.palette.background.alt,
               borderRadius: "0.55rem",
-              gridColumn: 'span 6',
+              gridColumn: 'span 8',
               gridRow: 'span 1',
               boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
             }}
@@ -150,7 +127,7 @@ const Dashboard = () => {
               backgroundImage: "none",
               backgroundColor: theme.palette.background.alt,
               borderRadius: "0.55rem",
-              gridColumn: 'span 6',
+              gridColumn: 'span 4',
               gridRow: 'span 1',
               boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
           }}
