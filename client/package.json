@@ -8,6 +8,7 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.14",
     "@mui/x-data-grid": "^6.18.7",
+    "@nivo/bar": "^0.85.1",
     "@nivo/core": "^0.80.0",
     "@nivo/geo": "^0.80.0",
     "@nivo/pie": "^0.80.0",

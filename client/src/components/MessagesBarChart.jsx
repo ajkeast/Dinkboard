@@ -4,11 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 const MessagesBarChart = ({ data, isLoading }) => {
     const theme = useTheme();
-    const animationDuration = 500;
+    const animationDuration = 0;
     const animationBegin = 0
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
     console.log(data);
-    if (!data || isLoading) (
+    if (!data || isLoading) return (
         <Box>
             Loading...
         </Box>

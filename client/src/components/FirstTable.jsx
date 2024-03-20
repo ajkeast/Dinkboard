@@ -1,9 +1,10 @@
 import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, colors, LinearProgress } from '@mui/material';
+import { Box, colors, LinearProgress, useTheme} from '@mui/material';
 
 const FirstTable = ({ data, isLoading }) => {
   // Define columns for the DataGrid
+  const theme = useTheme();
   const columns = [
     { field: 'user_name', headerName: 'Name', flex: 1, headerClassName: 'first-table-column-header' },
     { field: 'firsts', headerName: 'Firsts', flex: 1, headerClassName: 'first-table-column-header' },
@@ -47,7 +48,7 @@ const FirstTable = ({ data, isLoading }) => {
             border: '1.5px solid #ccc',
             '& .MuiDataGrid-columnHeader': {fontWeight: 'bold !important',},
             '& .MuiDataGrid-row:hover': {
-              boxShadow: `0px 2px 4px rgba(0, 0, 0, 0.1)`, // Add a subtle box shadow on hover
+              boxShadow: `0px 2px 4px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`, // Add a subtle box shadow on hover
               transition: 'box-shadow 0.25s', // Add a smooth transition effect for multiple properties
             },
             '& .MuiDataGrid-columnHeader:hover, & .MuiDataGrid-row:hover .MuiDataGrid-cell': {

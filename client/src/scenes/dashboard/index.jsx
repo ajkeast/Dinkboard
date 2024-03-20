@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import FirstTable from 'components/FirstTable';
-import EmojiPieChart from 'components/EmojiPieChart';
+import ChannelsPieChart from 'components/ChannelsPieChart';
 import Header from "components/Header";
 import StatBox from 'components/StatBox';
 import MessagesAreaChart from 'components/MessagesAreaChart';
 import { 
   useGetScoreQuery, 
-  useGetEmojisQuery,
-  useGetEmojisCountQuery,
   useGetMessagesByChannelQuery, 
   useGetMessagesByMonthQuery,
-  useGetMessagesByMonthByMemberQuery, 
   useGetMessagesStatsQuery
 } from "state/api";
 import {
@@ -61,13 +58,17 @@ const Dashboard = () => {
         <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
           <Card
             sx={{
-              backgroundImage: "none",
-              backgroundColor: theme.palette.background.alt,
-              borderRadius: "0.55rem",
-              gridColumn: 'span 10',
-              gridRow: 'span 2',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
-          }}
+          backgroundImage: "none",
+          backgroundColor: theme.palette.background.alt,
+          borderRadius: "0.55rem",
+          gridColumn: 'span 10',
+          gridRow: 'span 2',
+          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
+          '&:hover': {
+            boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
+            transitionDuration: '0.1s', // Adjust the transition duration for smoothness
+          },
+        }}
           >
             <CardContent>
               <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
@@ -108,7 +109,10 @@ const Dashboard = () => {
               borderRadius: "0.55rem",
               gridColumn: 'span 8',
               gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
+              '&:hover': {
+                boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
+              },
             }}
             >
             <CardContent>
@@ -129,15 +133,18 @@ const Dashboard = () => {
               borderRadius: "0.55rem",
               gridColumn: 'span 4',
               gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
+              '&:hover': {
+                boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
+              },
           }}
           >
             <CardContent>
               <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
                 <LeaderboardRounded/> Emojis
               </Typography>
-              <Box height={350} width="100%">
-                <EmojiPieChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
+              <Box height={400} width={'100%'}>
+                <ChannelsPieChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
               </Box>
             </CardContent>
           </Card>

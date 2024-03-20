@@ -24,5 +24,7 @@ app.use("/client", clientRoutes);
 
 // LISTEN
 
+// Set keep-alive timeout to 1 minute
+app.keepAliveTimeout = 60000;
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Server Port: ${PORT}`))

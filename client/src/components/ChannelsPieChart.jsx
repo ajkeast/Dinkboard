@@ -2,7 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Box, useTheme} from '@mui/material';
 
-const EmojiPieChart = ({ data, isLoading }) => {
+const ChannelsPieChart = ({ data, isLoading }) => {
     const theme = useTheme();
     const COLORS = [theme.palette.secondary[300], '#4d2ea1', theme.palette.neutral[100], theme.palette.secondary[500]];
     console.log(data);
@@ -22,12 +22,12 @@ const EmojiPieChart = ({ data, isLoading }) => {
 
     else { 
         return (
-            <ResponsiveContainer>
-                <PieChart >
+            <ResponsiveContainer height={'100%'} width={'100%'}>
+                <PieChart viewBox={"0 0 400 400"}>
                     <Pie
                         data={data}
-                        innerRadius={120*0.6}
-                        outerRadius={160*0.8}
+                        innerRadius={100}
+                        outerRadius={160}
                         fill="#8884d7"
                         stroke=""
                         paddingAngle={2}
@@ -52,4 +52,4 @@ const EmojiPieChart = ({ data, isLoading }) => {
         );
     };
 }
-export default EmojiPieChart;
+export default ChannelsPieChart;

@@ -15,6 +15,7 @@ export const getFirstsAll = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -25,6 +26,7 @@ export const getFirstsFew = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -35,6 +37,7 @@ export const getFirstsById = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -44,6 +47,7 @@ export const getFirstsScore = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -65,6 +69,7 @@ export const getCumCount = async (req, res) => {
         res.status(200).json(resultArray);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -80,6 +85,7 @@ export const getEmojisAll = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -89,6 +95,7 @@ export const getEmojisCount = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -99,6 +106,7 @@ export const getEmojisById = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -114,6 +122,7 @@ export const getMembersAll = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -124,6 +133,7 @@ export const getMemberById = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -139,6 +149,7 @@ export const getMessagesAll = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -148,6 +159,7 @@ export const getMessagesByChannel = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 }
 
@@ -158,6 +170,7 @@ export const getMessageById = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -167,6 +180,7 @@ export const getMessagesByMonth = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -205,6 +219,7 @@ export const getMessagesByMonthByMember = async (req, res) => {
         res.status(200).json(transformedData);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 };
 
@@ -214,5 +229,6 @@ export const getMessagesStats = async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
+        console.log(error.message);
     }
 }

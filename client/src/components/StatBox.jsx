@@ -18,17 +18,15 @@ const StatBox = ({ title, time, icon, description, data, isLoading }) => {
           borderRadius: "0.55rem",
           gridColumn: 'span 2',
           gridRow: 'span 1',
-          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
         }}
       />
     );
   }
-  
 
   const change = time === 'month' ? (data[0].thisMTD / data[0].lastMTD - 1) : (data[0].thisYTD / data[0].lastYTD - 1);
   const value = time === 'month' ? data[0].thisMTD : data[0].thisYTD;
-  console.log(change);
-  console.log(data);
+
   return (
     
     <Grow in={true} style={{ transformOrigin: '0 0 0' }}>
@@ -39,9 +37,12 @@ const StatBox = ({ title, time, icon, description, data, isLoading }) => {
           borderRadius: "0.55rem",
           gridColumn: 'span 2',
           gridRow: 'span 1',
-          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
+          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
+          '&:hover': {
+            boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
+          },
         }}
-      > 
+      >
         <CardContent>
           <FlexBetween>
             <Typography variant="h5" >
