@@ -12,7 +12,6 @@ import {
 } from "state/api";
 import {
   Box,
-  Button,
   Card,
   Typography,
   useTheme,
@@ -23,12 +22,11 @@ import {
 import {
   MessageRounded,
   LeaderboardRounded,
-  CalendarMonth,
   CalendarMonthRounded,
-  CalendarViewDayRounded,
-  CalendarTodayRounded
+  CalendarTodayRounded,
+  Tag,
+  EmojiEmotions,
 } from "@mui/icons-material";
-import FlexBetween from 'components/FlexBetween';
 
 const Dashboard = () => {
 
@@ -72,7 +70,7 @@ const Dashboard = () => {
           >
             <CardContent>
               <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <MessageRounded/> Messages
+                <MessageRounded sx={{ verticalAlign: 'middle' }}/> Messages
               </Typography>
               <Box height={300} width="100%">
                 <MessagesAreaChart data={messagesByMonthData} isLoading={isMessagesByMonthLoading}/>
@@ -117,14 +115,14 @@ const Dashboard = () => {
             >
             <CardContent>
               <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <LeaderboardRounded/> Firsts
+                <LeaderboardRounded sx={{ verticalAlign: 'middle' }}/> Firsts
               </Typography>
               <FirstTable data={scoreData} isLoading={isScoreLoading} ></FirstTable>
             </CardContent>
           </Card>
         </Grow>
 
-        {/* EmojiPieChart */}
+        {/* ChannelsPieChart */}
         <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
           <Card
             sx={{
@@ -141,7 +139,7 @@ const Dashboard = () => {
           >
             <CardContent>
               <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
-                <LeaderboardRounded/> Emojis
+                <Tag sx={{ verticalAlign: 'middle' }}/> Channels
               </Typography>
               <Box height={400} width={'100%'}>
                 <ChannelsPieChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
@@ -163,7 +161,7 @@ const Dashboard = () => {
         >
           <CardContent>
             <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
-              <LeaderboardRounded/> Emojis
+              <EmojiEmotions sx={{ verticalAlign: 'middle' }}/> Emojis
             </Typography>
             <Box height={400} width="100%">
               {/* <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} /> */}
