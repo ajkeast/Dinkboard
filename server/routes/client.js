@@ -5,6 +5,8 @@ import {
     getFirstsById,
     getFirstsFew,
     getFirstsScore,
+    getJuice,
+    getJuicePerUser,
     getMembersAll,
     getMemberById,
     getEmojisAll,
@@ -26,6 +28,8 @@ router.get("/cumcount", getCumCount);
 router.get("/firsts", getFirstsAll);
 router.get("/first/:id", getFirstsById);
 router.get("/firsts/limit/:limit", getFirstsFew);
+router.get("/juice", getJuice);
+router.get("/juice/user", getJuicePerUser);
 
 // MEMBERS
 router.get("/members", getMembersAll);
@@ -44,6 +48,5 @@ router.get("/messages/month", getMessagesByMonth)
 router.get("/messages/month/member", getMessagesByMonthByMember)
 router.get("/messages/stats", getMessagesStats)
 
-// JUICE
 
 export default router;

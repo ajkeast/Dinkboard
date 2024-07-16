@@ -1,7 +1,11 @@
+// Models
 import { Firsts } from '../models/model.firsts.js';
 import { Emojis } from '../models/model.emojis.js';
 import { Member } from '../models/model.members.js';
 import { Messages } from '../models/model.messages.js';
+
+// Utility functions
+import { processTimestamp, groupByUserAndSumMinutes } from '../utils/timestampUtils.js';
 
 // =======================================================================
 //                                  FIRSTS
@@ -67,6 +71,29 @@ export const getCumCount = async (req, res) => {
             });
         const resultArray = Object.values(reorganizedData);
         res.status(200).json(resultArray);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+        console.log(error.message);
+    }
+};
+
+export const getJuice = async (req, res) => {
+    try {
+        const inputData = await firsts.getAll();
+        const result = inputData.map(processTimestamp);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+        console.log(error.message);
+    }
+};
+
+export const getJuicePerUser = async (req, res) => {
+    try {
+        const inputData = await firsts.getAll();
+        const processedData = inputData.map(processTimestamp);
+        const result = groupByUserAndSumMinutes(processedData);
+        res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
         console.log(error.message);
