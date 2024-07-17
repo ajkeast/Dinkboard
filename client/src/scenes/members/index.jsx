@@ -7,21 +7,25 @@ import {
     Collapse,
     Button,
     Typography,
-    Rating,
     useTheme,
     useMediaQuery,
     Grow,
     } from "@mui/material";
     import Header from "components/Header";
-    import { useGetMembersQuery } from "state/api";
+    import { 
+        useGetMembersQuery, 
+        useGetJuiceByMemberQuery, 
+        useGetMessagesByMembersQuery,
+        useGetScoreQuery } from "state/api";
 
 const Member = ({
     index,
     id,
     user_name,
     display_name,
-    messages,
+    number_of_messages,
     firsts,
+    juice,
     avatar,
     created_at,
     last_updated
@@ -51,9 +55,18 @@ const Member = ({
                                 <Typography variant='h5'>
                                     {display_name}
                                     <br/><br/><br/>
-                                    Messages: {messages}
-                                    <br/><br/>
-                                    Firsts: {firsts}
+                                    <tr>
+                                        <td><strong>Messages</strong>:</td>
+                                        <td>{number_of_messages}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Firsts</strong>:</td>
+                                        <td>{firsts}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Juice</strong>:</td>
+                                        <td>{juice}</td>
+                                    </tr>
                                 </Typography>
                         </Box>
                         <Box 
@@ -96,53 +109,100 @@ const Member = ({
         </Grow>
     )
 }
+
 const Members = () => {
-    const { data, isLoading } = useGetMembersQuery();
+    const { data: membersData, isLoading: isMembersLoading } = useGetMembersQuery();
+    const { data: messagesData, isLoading: isMessagesLoading } = useGetMessagesByMembersQuery();
+    const { data: juiceData, isLoading: isJuiceLoading } = useGetJuiceByMemberQuery();
+    const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
+
     const isNonMobile = useMediaQuery("(min-width: 1000px)");
+
+    const isLoading = isMembersLoading || isMessagesLoading || isJuiceLoading || isScoreLoading;
+
+    // Combine member data with their respective message counts
+    const combinedData = React.useMemo(() => {
+        // If either membersData or messagesData is not available, return an empty array
+        if (!membersData || !messagesData || !juiceData || !scoreData) return [];
+
+        // Create a map of message counts for quick lookup
+        const messageCountMap = messagesData.reduce((acc, message) => {
+            acc[message.user_id] = message.messages;
+            return acc;
+        }, {});
+
+        // Create a map of juice for quick lookup
+        const juiceMap = juiceData.reduce((acc, juice) => {
+            acc[juice.user_id] = juice.total_juice;
+            return acc;
+        }, {});
+
+        // Create a map of juice for quick lookup
+        const scoreMap = scoreData.reduce((acc, score) => {
+            acc[score.user_id] = score.firsts;
+            return acc;
+        }, {});
+
+        // Map over each member and add their message count
+        return membersData.map(member => ({
+            ...member,                                              // Spread all existing member properties
+            number_of_messages: messageCountMap[member.id] || 0,    // Add message count or 0 if not found
+            juice: juiceMap[member.id] || 0,                        // Add juice or 0 if not found
+            firsts: scoreMap[member.id] || 0,                        // Add firsts or 0 if not found
+        }));
+    }, [membersData, messagesData, juiceData]);
+
+    if (isLoading) {
+        return (
+            <Box m="1.5rem 2.5rem">
+                <Header title="Members" subtitle="All users on the server"/>
+                <Box mt="20px">Loading...</Box>
+            </Box>
+        );
+    }
 
     return (
         <Box m="1.5rem 2.5rem">
             <Header title="Members" subtitle="All users on the server"/>
-            {data && !isLoading ? (
-                <Box 
-                    mt="20px" 
-                    display="grid"
-                    gridTemplateColumns="repeat(4,minmax(0, 1fr))"
-                    justifyContent="space-between"
-                    rowGap="20px"
-                    columnGap="1.33%"
-                    sx={{
-                        "& > div": {gridColumn: isNonMobile ? undefined : "span 4"}
-                    }}
-                >
-                {data.map(({
+            <Box 
+                mt="20px" 
+                display="grid"
+                gridTemplateColumns="repeat(4,minmax(0, 1fr))"
+                justifyContent="space-between"
+                rowGap="20px"
+                columnGap="1.33%"
+                sx={{
+                    "& > div": {gridColumn: isNonMobile ? undefined : "span 4"}
+                }}
+            >
+                {combinedData.map(({
                     id,
                     user_name,
                     display_name,
-                    messages,
+                    number_of_messages,
                     firsts,
+                    juice,
                     avatar,
                     created_at,
                     last_updated,
-                },index) => (
+                }, index) => (
                     <Member
-                    index={index} 
-                    id={id}
-                    user_name={user_name}
-                    display_name={display_name}
-                    messages={messages}
-                    firsts={firsts}
-                    avatar={avatar}
-                    created_at={created_at}
-                    last_updated={last_updated}/>
+                        key={id}
+                        index={index} 
+                        id={id}
+                        user_name={user_name}
+                        display_name={display_name}
+                        number_of_messages={number_of_messages}
+                        juice={juice}
+                        firsts={firsts}
+                        avatar={avatar}
+                        created_at={created_at}
+                        last_updated={last_updated}
+                    />
                 ))}
-                </Box>
-                ) : (
-                    <>Loading...</>)
-            
-        }
+            </Box>
         </Box>
-    )
-}
+    );
+};
 
-export default Members
+export default Members;

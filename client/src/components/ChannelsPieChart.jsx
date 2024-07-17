@@ -5,7 +5,6 @@ import { Box, useTheme} from '@mui/material';
 const ChannelsPieChart = ({ data, isLoading }) => {
     const theme = useTheme();
     const COLORS = [theme.palette.secondary[300], '#4d2ea1', theme.palette.neutral[100], theme.palette.secondary[500]];
-    console.log(data);
     
     // Filter the data based on occurrences > 0
     let renderLabel = function(entry) {

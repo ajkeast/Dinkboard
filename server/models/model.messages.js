@@ -50,6 +50,18 @@ export class Messages {
         return rows;
     }
 
+    async getByMember(){
+        const [rows] = await this.connection.query(
+            `SELECT
+                members.id AS 'user_id',
+                COALESCE(display_name, user_name) AS user_name,
+                COUNT(*) AS 'messages'
+            FROM messages
+            JOIN members ON messages.member_id = members.id
+            GROUP BY messages.member_id;`)
+        return rows;
+    }
+
     async getByMonth(){
         const [rows] = await this.connection.query(
             `SELECT

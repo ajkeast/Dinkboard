@@ -9,6 +9,7 @@ export const calculateMinutesAfterMidnight = (timestamp) => {
 };
 
 export const processTimestamp = (row) => {
+
     const easternTime = convertToEasternTime(row.timesent);
     const minutesAfterMidnight = calculateMinutesAfterMidnight(easternTime);
     
@@ -17,7 +18,7 @@ export const processTimestamp = (row) => {
         user_name: row.user_name,
         original_timestamp: row.timesent,
         eastern_timestamp: easternTime.format(),
-        juice: Math.round(minutesAfterMidnight * 100) / 100
+        juice: Math.round(minutesAfterMidnight) / 1
     };
 };
 

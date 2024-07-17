@@ -19,6 +19,10 @@ export const api = createApi({
             query: () => "client/cumcount",
             providesTags:  ["Firsts"]
         }),
+        getJuiceByMember: build.query({
+            query: () => "client/juice/members",
+            providesTags:  ["Firsts"]
+        }),
 
         // MEMBERS
         getMember: build.query({
@@ -53,6 +57,10 @@ export const api = createApi({
             query: () => "client/messages",
             providesTags: ["Messages"],
         }),
+        getMessagesByMembers: build.query({
+            query: () => "client/messages/members",
+            providesTags: ["Messages"],
+        }),
         getMessagesByChannel: build.query({
             query: () => "client/messages/channels",
             providesTags: ["Messages"],
@@ -75,7 +83,8 @@ export const api = createApi({
 export const { 
     useGetFirstsQuery, 
     useGetScoreQuery, 
-    useGetCumCountQuery, 
+    useGetCumCountQuery,
+    useGetJuiceByMemberQuery, 
     useGetMemberQuery, 
     useGetMembersQuery,
     useGetEmojiQuery,
@@ -83,6 +92,7 @@ export const {
     useGetEmojisCountQuery,
     useGetMessageQuery,
     useGetMessagesQuery,
+    useGetMessagesByMembersQuery,
     useGetMessagesByChannelQuery,
     useGetMessagesByMonthQuery,
     useGetMessagesByMonthByMemberQuery,

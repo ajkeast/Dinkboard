@@ -7,7 +7,6 @@ const MessagesBarChart = ({ data, isLoading }) => {
     const animationDuration = 0;
     const animationBegin = 0
     // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
-    console.log(data);
     if (!data || isLoading) return (
         <Box>
             Loading...

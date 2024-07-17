@@ -13,6 +13,7 @@ import {
     getEmojisById,
     getEmojisCount,
     getMessagesAll,
+    getMessagesByMember,
     getMessagesByChannel,
     getMessageById,
     getMessagesByMonth,
@@ -29,7 +30,7 @@ router.get("/firsts", getFirstsAll);
 router.get("/first/:id", getFirstsById);
 router.get("/firsts/limit/:limit", getFirstsFew);
 router.get("/juice", getJuice);
-router.get("/juice/user", getJuicePerUser);
+router.get("/juice/members", getJuicePerUser);
 
 // MEMBERS
 router.get("/members", getMembersAll);
@@ -42,6 +43,7 @@ router.get("/emoji/:id", getEmojisById)
 
 // MESSAGES
 router.get("/messages", getMessagesAll)
+router.get("/messages/members", getMessagesByMember)
 router.get("/messages/channels", getMessagesByChannel) 
 router.get("/message/:id", getMessageById)
 router.get("/messages/month", getMessagesByMonth)

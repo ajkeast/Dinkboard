@@ -5,7 +5,7 @@ import { Member } from '../models/model.members.js';
 import { Messages } from '../models/model.messages.js';
 
 // Utility functions
-import { processTimestamp, groupByUserAndSumMinutes } from '../utils/timestampUtils.js';
+import { processTimestamp, groupByUserAndSumMinutes } from '../utils/timestamp.utils.js';
 
 // =======================================================================
 //                                  FIRSTS
@@ -173,6 +173,16 @@ const messages = new Messages
 export const getMessagesAll = async (req, res) => {
     try{
         const result = await messages.getAll()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+        console.log(error.message);
+    }
+};
+
+export const getMessagesByMember = async (req, res) => {
+    try{
+        const result = await messages.getByMember()
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });

@@ -46,6 +46,7 @@ export class Firsts {
     async getScore(){
         const [rows] = await this.connection.query(
             `SELECT 
+                members.id AS user_id,
                 COALESCE(display_name, user_name) AS user_name, 
                 COUNT(*) AS firsts,
                 DATEDIFF(NOW(), MAX(timesent)) AS days_since_first
