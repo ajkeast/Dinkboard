@@ -32,10 +32,10 @@ class Database {
         });
     }
 
-    async query(sql, params, retries = 3) {
+    async query(sql, params, retries = 1) {
         if (!this.pool) this.connect();
         
-        const timeout = 5000; // 5 seconds timeout
+        const timeout = 6000; // 5 seconds timeout
         
         const queryPromise = this.pool.execute(sql, params);
         
@@ -50,7 +50,7 @@ class Database {
             if (error.message === 'Database query timeout' || error.code === 'PROTOCOL_CONNECTION_LOST' || error.code === 'ETIMEDOUT') {
                 if (retries > 0) {
                     console.log(`Query failed. Retrying... (${retries} attempts left)`);
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Wait .5 second before retrying
                     return this.query(sql, params, retries - 1);
                 }
             }

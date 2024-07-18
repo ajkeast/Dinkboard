@@ -10,6 +10,10 @@ import {
     useTheme,
     useMediaQuery,
     Grow,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
     } from "@mui/material";
     import Header from "components/Header";
     import { 
@@ -17,6 +21,7 @@ import {
         useGetJuiceByMemberQuery, 
         useGetMessagesByMembersQuery,
         useGetScoreQuery } from "state/api";
+import FlexBetween from 'components/FlexBetween';
 
 const Member = ({
     index,
@@ -115,10 +120,13 @@ const Members = () => {
     const { data: messagesData, isLoading: isMessagesLoading } = useGetMessagesByMembersQuery();
     const { data: juiceData, isLoading: isJuiceLoading } = useGetJuiceByMemberQuery();
     const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
+    const isLoading = isMembersLoading || isMessagesLoading || isJuiceLoading || isScoreLoading;
 
     const isNonMobile = useMediaQuery("(min-width: 1000px)");
 
-    const isLoading = isMembersLoading || isMessagesLoading || isJuiceLoading || isScoreLoading;
+    const theme = useTheme();
+    
+    const [sortOrder, setSortOrder] = useState(''); // 'messages', 'juice', or 'firsts'
 
     // Combine member data with their respective message counts
     const combinedData = React.useMemo(() => {
@@ -143,14 +151,31 @@ const Members = () => {
             return acc;
         }, {});
 
-        // Map over each member and add their message count
-        return membersData.map(member => ({
-            ...member,                                              // Spread all existing member properties
-            number_of_messages: messageCountMap[member.id] || 0,    // Add message count or 0 if not found
-            juice: juiceMap[member.id] || 0,                        // Add juice or 0 if not found
-            firsts: scoreMap[member.id] || 0,                        // Add firsts or 0 if not found
+        const sortedData = membersData.map(member => ({
+            ...member,
+            number_of_messages: messageCountMap[member.id] || 0,
+            juice: juiceMap[member.id] || 0,
+            firsts: scoreMap[member.id] || 0,
         }));
-    }, [membersData, messagesData, juiceData]);
+
+        // Sort based on the current sortOrder
+        switch(sortOrder) {
+            case 'messages':
+                return sortedData.sort((a, b) => b.number_of_messages - a.number_of_messages);
+            case 'juice':
+                return sortedData.sort((a, b) => b.juice - a.juice);
+            case 'firsts':
+                return sortedData.sort((a, b) => b.firsts - a.firsts);
+            default:
+                return sortedData.sort((a, b) => b.number_of_messages - a.number_of_messages);
+        };
+
+    }, [membersData, messagesData, juiceData, sortOrder]);
+
+    // Add a button or dropdown to change the sort order
+    const handleSortChange = (newSortOrder) => {
+        setSortOrder(newSortOrder);
+    };
 
     if (isLoading) {
         return (
@@ -163,7 +188,46 @@ const Members = () => {
 
     return (
         <Box m="1.5rem 2.5rem">
-            <Header title="Members" subtitle="All users on the server"/>
+            <FlexBetween >
+                    <Header title="Members" subtitle="All users on the server"/>
+                    <FormControl sx={{ m: 1, minWidth: 120 }}>
+                        <InputLabel 
+                            id="select-member-sort-label"
+                            sx={{
+                                color: theme.palette.primary[100],
+                                '&.Mui-focused': {
+                                  color: theme.palette.primary[100]
+                                },
+                              }}
+                            >
+                            Sort by
+                        </InputLabel>
+                        <Select
+                            labelId="select-member-sort-label"
+                            id="select-member-sort"
+                            value={sortOrder}
+                            label="Sort by"
+                            onChange={(event) => handleSortChange(event.target.value)}
+                            sx={{
+                                color: theme.palette.background[900],
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: theme.palette.grey[400],
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  //borderColor: ,
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: theme.palette.secondary[400],
+                                },
+                              }}
+                        >
+                            <MenuItem value="" disabled><em>Sort by</em></MenuItem>
+                            <MenuItem value={'messages'}>Messages</MenuItem>
+                            <MenuItem value={'firsts'}>Firsts</MenuItem>
+                            <MenuItem value={'juice'}>Juice</MenuItem>
+                        </Select>
+                    </FormControl>                           
+            </FlexBetween>
             <Box 
                 mt="20px" 
                 display="grid"
