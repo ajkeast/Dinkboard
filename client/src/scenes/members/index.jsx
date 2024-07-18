@@ -35,8 +35,43 @@ const Member = ({
     created_at,
     last_updated
 }) => {
+
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
+
+    function formatNumber(num) {
+        if (num >= 10000) {
+            return (Math.floor(num / 1000)) + 'k';
+        } 
+        else if (num >=1000){
+            return (num / 1000).toFixed(1) + 'k';
+        } else {
+            return num.toString();
+        }
+    };
+
+    const StatBox = ({ label, value }) => (
+        <Box
+            sx={{
+                backgroundColor: theme.palette.white[1000],
+                borderRadius: '0.25rem',
+                padding: '0.2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '30%',
+            }}
+            >
+            <Typography variant="body" align="center" >
+                <strong>{value}</strong>
+            </Typography>
+            <Typography variant="body" align="center" sx= {{ fontSize: 12 }}>
+                {label}
+            </Typography>
+            </Box>
+        );
+
     return (
         <Grow 
             in={true} 
@@ -55,25 +90,10 @@ const Member = ({
                     <Typography sx={{ fontSize: 14 }} color={theme.palette.secondary[300]} gutterBottom>
                         @{user_name}
                     </Typography>
-                    <Box sx={{ justifyContent: "space-between", display: "flex" }}>
-                        <Box sx={{ justifyContent: "space-between", display: "flex" }}>
-                                <Typography variant='h5'>
-                                    {display_name}
-                                    <br/><br/><br/>
-                                    <tr>
-                                        <td><strong>Messages</strong>:</td>
-                                        <td>{number_of_messages}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Firsts</strong>:</td>
-                                        <td>{firsts}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Juice</strong>:</td>
-                                        <td>{juice}</td>
-                                    </tr>
-                                </Typography>
-                        </Box>
+                    <FlexBetween sx={{ padding: '0.5rem 0rem'}}>                      
+                        <Typography sx={{ fontSize: 16,  fontWeight: 'bold'}} color={theme.palette.primary[100]} gutterBottom>
+                            {display_name}
+                        </Typography>
                         <Box 
                             component="img"
                             alt="profile"
@@ -83,10 +103,12 @@ const Member = ({
                             borderRadius="50%"
                             sx={{ objectFit: "cover" }}
                         />
-                    </Box>
-                    <Typography sx={{ mb: "1.5rem"}} color={theme.palette.secondary[300]}>
-                        Joined {created_at}
-                    </Typography>
+                    </FlexBetween>
+                    <FlexBetween sx={{ paddingTop: '2rem' }}>
+                        <StatBox label={'Messages'} value={formatNumber(number_of_messages)}/>
+                        <StatBox label={'Firsts'} value={firsts}/>
+                        <StatBox label={'Juice'} value={formatNumber(juice)}/>
+                    </FlexBetween>
                 </CardContent>
                 <CardActions>
                     <Button
@@ -106,8 +128,8 @@ const Member = ({
                     }}
                 >
                     <CardContent>
-                        <Typography>id: {id}</Typography>
-                        <Typography>updated: {last_updated}</Typography>
+                        <Typography color={theme.palette.white[0]}>Joined: {created_at} </Typography>
+                        <Typography color={theme.palette.white[0]}>id: {id}</Typography>
                     </CardContent>
                 </Collapse>
             </Card>

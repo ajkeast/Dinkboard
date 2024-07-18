@@ -45,6 +45,14 @@ export const tokensDark = {
     red: {
       200: "#fc3838",
       700: "#c90e0e"
+    },
+    white: {
+      0: '#ffffff',
+      200: '#dddddd',
+      400: '#cbcbcb',
+      600: '#a6a6a6',
+      800: '#818181',
+      1000: '#292929'
     }
   };
   
@@ -96,6 +104,10 @@ export const tokensDark = {
               red: {
                 default: tokensDark.red[200],
               },
+              white: {
+                ...tokensDark.white,
+                default: tokensDark.white[0]
+              }
             }
           : {
               // palette values for light mode
@@ -123,6 +135,10 @@ export const tokensDark = {
               red: {
                 default: tokensDark.red[700],
               },
+              white: {
+                ...tokensLight.white,
+                default: tokensDark.white[400]
+              }
             }),
       },
       typography: {
