@@ -14,7 +14,8 @@ export class Messages {
             FROM messages
             JOIN members ON messages.member_id = members.id
             JOIN channels ON messages.channel_id = channels.id
-            ORDER BY created_at DESC;`)
+            ORDER BY created_at DESC
+            LIMIT 100;`)
         return rows;
     }
 
