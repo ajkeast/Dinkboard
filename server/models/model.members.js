@@ -1,13 +1,9 @@
-import { pool }  from "./database.js";
+import { db } from "./database.js";
 
 export class Member {
 
-    constructor(){
-        this.connection = pool
-    }
-
     async getAll(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT 
                 id,
                 user_name,
@@ -20,7 +16,7 @@ export class Member {
     }
 
     async getByID(id){
-        const [rows] = await pool.query(
+        const rows = await db.query(
             `SELECT 
                 id,
                 user_name,

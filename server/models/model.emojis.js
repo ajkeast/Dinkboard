@@ -1,13 +1,9 @@
-import { pool }  from "./database.js";
+import { db } from "./database.js";
 
 export class Emojis {
 
-    constructor(){
-        this.connection = pool
-    }
-
     async getAll(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 e.id,
                 e.emoji_name,
@@ -33,7 +29,7 @@ export class Emojis {
     }
 
     async getCount(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 emoji_name,
                 COUNT(*) AS occurences
@@ -47,7 +43,7 @@ export class Emojis {
     }
 
     async getById(id){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT * FROM emojis
             WHERE id = ?;`,id)
         return rows;

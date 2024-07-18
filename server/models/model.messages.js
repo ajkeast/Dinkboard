@@ -1,13 +1,9 @@
-import { pool }  from "./database.js";
+import { db } from "./database.js";
 
 export class Messages {
 
-    constructor(){
-        this.connection = pool
-    }
-
     async getAll(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT 
                 CAST(messages.id AS VARCHAR(20)) AS id,
                 COALESCE(display_name, user_name) AS user_name,
@@ -23,7 +19,7 @@ export class Messages {
     }
 
     async getByChannel(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT 
                 channel_name,
                 COUNT(*) AS messages
@@ -35,7 +31,7 @@ export class Messages {
     }
 
     async getById(id){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT 
                 CAST(messages.id AS VARCHAR(20)) AS id,
                 COALESCE(display_name, user_name) AS user_name,
@@ -51,7 +47,7 @@ export class Messages {
     }
 
     async getByMember(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 members.id AS 'user_id',
                 COALESCE(display_name, user_name) AS user_name,
@@ -63,7 +59,7 @@ export class Messages {
     }
 
     async getByMonth(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
                 COUNT(*) AS 'messages'
@@ -75,7 +71,7 @@ export class Messages {
     }
 
     async getByMonthByMember(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
                 COALESCE(display_name, user_name) AS user_name,
@@ -87,7 +83,7 @@ export class Messages {
     }
 
     async getStats(){
-        const [rows] = await this.connection.query(
+        const rows = await db.query(
             `SELECT
                 (
                 SELECT COUNT(*) 

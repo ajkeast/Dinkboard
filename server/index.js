@@ -1,11 +1,9 @@
-import mysql from "mysql2";
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import chatRoutes from "./routes/chat.js";
 import clientRoutes from "./routes/client.js";
 
 // CONFIGURATION
@@ -24,7 +22,5 @@ app.use("/client", clientRoutes);
 
 // LISTEN
 
-// Set keep-alive timeout to 1 minute
-app.keepAliveTimeout = 60000;
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Server Port: ${PORT}`))
