@@ -54,6 +54,7 @@ const Member = ({
         <Box
             sx={{
                 backgroundColor: theme.palette.white[1000],
+                boxShadow: `0px 4px 8px rgba(0, 0, 0, 0.2)`,
                 borderRadius: '0.25rem',
                 padding: '0.2rem',
                 display: 'flex',

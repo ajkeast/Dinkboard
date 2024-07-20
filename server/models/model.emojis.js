@@ -8,7 +8,7 @@ export class Emojis {
                 e.id,
                 e.emoji_name,
                 e.url,
-                e.created_at,
+                DATE_FORMAT(e.created_at, '%b %e, %Y') AS created_at,
                 e.last_updated,
                 COALESCE(occurences, 0) AS occurrences
             FROM

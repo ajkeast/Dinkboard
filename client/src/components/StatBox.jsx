@@ -52,7 +52,7 @@ const StatBox = ({ title, time, icon, description, data, isLoading }) => {
           </FlexBetween>
           <Typography
             variant="h3"
-            fontWeight="600"
+            fontWeight="700"
             sx={{ 
               color: theme.palette.secondary[200], 
               paddingTop: "0.55rem",
@@ -73,9 +73,7 @@ const StatBox = ({ title, time, icon, description, data, isLoading }) => {
                 >
                 {`${Math.round(change*100)}%`} {change > 0 ? <TrendingUpRounded sx={{fontSize:"32px"}}/> : <TrendingDownRounded sx={{fontSize:"32px"}}/>}
               </Typography>
-              <Typography
-                variant="h6"
-                >
+              <Typography variant="h6">
                 {description}
               </Typography>
           </FlexBetween>
