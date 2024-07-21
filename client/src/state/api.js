@@ -19,6 +19,10 @@ export const api = createApi({
             query: () => "client/cumcount",
             providesTags:  ["Firsts"]
         }),
+        getJuice: build.query({
+            query: () => "client/juice",
+            providesTags:  ["Firsts"]
+        }),
         getJuiceByMember: build.query({
             query: () => "client/juice/members",
             providesTags:  ["Firsts"]
@@ -84,6 +88,7 @@ export const {
     useGetFirstsQuery, 
     useGetScoreQuery, 
     useGetCumCountQuery,
+    useGetJuiceQuery,
     useGetJuiceByMemberQuery, 
     useGetMemberQuery, 
     useGetMembersQuery,

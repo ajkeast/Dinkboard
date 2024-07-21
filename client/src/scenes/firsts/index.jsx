@@ -1,16 +1,7 @@
-import React, { useState, PureComponent, useEffect } from 'react';
-import { LineChart, LabelList, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ResponsiveContainer } from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { LineChart, LabelList, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import {
   Box,
-  Card,
-  CardActions,
-  CardContent,
-  Collapse,
-  Button,
-  Typography,
-  Rating,
-  useTheme,
-  useMediaQuery,
   } from "@mui/material";
 import Header from "components/Header";
 import { useGetCumCountQuery } from 'state/api';

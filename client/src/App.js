@@ -12,6 +12,7 @@ import Members from "scenes/members"
 import Messages from "scenes/messages"
 import Emojis from "scenes/emojis";
 import Firsts from "scenes/firsts";
+import Juice from "scenes/juice";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -29,7 +30,8 @@ function App() {
                 <Route path="/Emojis" element= {<Emojis />} />
                 <Route path="/members" element = {<Members />} />
                 <Route path="/firsts" element = {<Firsts />} />
-              </Route>
+                <Route path="/juice" element = {<Juice />} />
+      J       </Route>
             </Routes>
           </ThemeProvider>
         </HashRouter>

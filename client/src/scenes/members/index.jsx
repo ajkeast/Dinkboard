@@ -193,7 +193,7 @@ const Members = () => {
                 return sortedData.sort((a, b) => b.number_of_messages - a.number_of_messages);
         };
 
-    }, [membersData, messagesData, juiceData, sortOrder]);
+    }, [membersData, messagesData, juiceData, scoreData, sortOrder]);
 
     // Add a button or dropdown to change the sort order
     const handleSortChange = (newSortOrder) => {

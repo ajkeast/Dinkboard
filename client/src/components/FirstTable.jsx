@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, colors, LinearProgress, useTheme} from '@mui/material';
+import { Box, LinearProgress, useTheme} from '@mui/material';
 
 const FirstTable = ({ data, isLoading }) => {
   // Define columns for the DataGrid

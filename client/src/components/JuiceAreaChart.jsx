@@ -2,11 +2,10 @@ import React from 'react';
 import { Box, useTheme } from '@mui/material';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const MessagesAreaChart = ({ data, isLoading }) => {
+const JuiceAreaChart = ({ data, isLoading }) => {
     const theme = useTheme();
     const animationDuration = 1600;
     const animationBegin = 0
-    // const COLORS = [useTheme.palette.secondary[300], '#4d2ea1', useTheme.palette.neutral[100], useTheme.palette.secondary[500]];
 
     if (!data || isLoading) (
         <Box>
@@ -24,13 +23,13 @@ const MessagesAreaChart = ({ data, isLoading }) => {
                     <stop offset="95%" stopColor={theme.palette.secondary[500]} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
-                <XAxis dataKey="month" />
+                <XAxis dataKey="eastern_timestamp" />
                 <YAxis />
                 <CartesianGrid vertical={false} strokeDasharray={"0"} />
                 <Tooltip contentStyle={{ backgroundColor: theme.palette.background.alt }}/>
                 <Area 
                     type="monotone" 
-                    dataKey="messages" 
+                    dataKey="juice" 
                     stroke={theme.palette.secondary[300]} 
                     fillOpacity={1} 
                     fill="url(#secondary)" 
@@ -43,4 +42,4 @@ const MessagesAreaChart = ({ data, isLoading }) => {
     }
 }
 
-export default MessagesAreaChart;
+export default JuiceAreaChart;
