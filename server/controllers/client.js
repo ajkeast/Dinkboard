@@ -81,6 +81,7 @@ export const getJuice = async (req, res) => {
     try {
         const inputData = await firsts.getAll();
         const result = inputData.map(processTimestamp);
+        result.sort((a, b) => new Date(a.eastern_timestamp) - new Date(b.eastern_timestamp));
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({ message: error.message });
