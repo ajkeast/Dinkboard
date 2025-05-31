@@ -3,87 +3,84 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const createPool = () => {
-    return mysql.createPool({
-        host: process.env.SQL_HOST,
-        user: process.env.SQL_USER,
-        password: process.env.SQL_PASSWORD,
-        database: process.env.SQL_DATABASE,
-        timezone: 'Z',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelay: 0
-    });
-};
+class DatabaseError extends Error {
+    constructor(message, originalError = null) {
+        super(message);
+        this.name = 'DatabaseError';
+        this.originalError = originalError;
+    }
+}
 
 class Database {
+    static instance = null;
+
     constructor() {
+        if (Database.instance) {
+            return Database.instance;
+        }
         this.pool = null;
-        this.pingInterval = null;
+        this.refreshInterval = null;
         this.isConnecting = false;
+        Database.instance = this;
+    }
+
+    static getInstance() {
+        if (!Database.instance) {
+            Database.instance = new Database();
+        }
+        return Database.instance;
+    }
+
+    createPool() {
+        return mysql.createPool({
+            host: process.env.SQL_HOST,
+            user: process.env.SQL_USER,
+            password: process.env.SQL_PASSWORD,
+            database: process.env.SQL_DATABASE,
+            timezone: 'Z',
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0
+        });
     }
 
     async connect() {
         if (this.isConnecting) {
-            console.log('Connection already in progress, waiting...');
             await new Promise(resolve => setTimeout(resolve, 1000));
             return this.connect();
         }
 
         this.isConnecting = true;
-        console.log('Connecting to database...');
 
         try {
             if (this.pool) {
-                console.log('Closing existing pool...');
-                await this.pool.end();
-                console.log('Existing pool closed');
+                try {
+                    await this.pool.end();
+                } catch (err) {
+                    console.log('Error closing existing pool:', err.message);
+                }
             }
 
-            this.pool = createPool();
-            console.log('New pool created');
-
-            this.pool.on('error', (err) => {
-                console.error('Unexpected error on idle client', err);
-                this.connect().catch(console.error);
-            });
-
-            // Test the connection
+            this.pool = this.createPool();
             await this.pool.query('SELECT 1');
-            console.log('Connection successful');
-
-            // Set up ping interval
-            if (this.pingInterval) {
-                clearInterval(this.pingInterval);
+            
+            // Set up periodic pool refresh
+            if (!this.refreshInterval) {
+                this.refreshInterval = setInterval(() => {
+                    console.log('Proactively refreshing connection pool');
+                    this.connect().catch(console.error);
+                }, 120000); // Refresh every 2 minutes
             }
-            this.pingInterval = setInterval(() => this.pingDatabase(), 30000); // Ping every 30 seconds
 
             this.isConnecting = false;
         } catch (error) {
-            console.error('Error connecting to database:', error);
             this.isConnecting = false;
-            throw error;
+            throw new DatabaseError('Failed to connect to database', error);
         }
     }
 
-    async pingDatabase() {
-        try {
-            if (!this.pool || this.pool._closed) {
-                throw new Error('Pool is closed');
-            }
-            await this.pool.query('SELECT 1');
-            console.log('Ping successful');
-        } catch (error) {
-            console.error('Ping failed:', error);
-            this.connect().catch(console.error);
-        }
-    }
-
-    async query(sql, params) {
-        if (!this.pool || this.pool._closed) {
-            console.log('Pool is closed or not initialized. Reconnecting...');
+    async query(sql, params = []) {
+        if (!this.pool) {
             await this.connect();
         }
         
@@ -91,17 +88,27 @@ class Database {
             const [results] = await this.pool.execute(sql, params);
             return results;
         } catch (error) {
-            console.error('Query error:', error);
-            if (error.message.includes('Pool is closed')) {
-                console.log('Pool was closed. Reconnecting...');
-                await this.connect();
-                // Retry the query once after reconnecting
-                const [results] = await this.pool.execute(sql, params);
-                return results;
-            }
-            throw error;
+            // If query fails, try one more time with a fresh connection
+            await this.connect();
+            const [results] = await this.pool.execute(sql, params);
+            return results;
+        }
+    }
+
+    async transaction(callback) {
+        const connection = await this.pool.getConnection();
+        try {
+            await connection.beginTransaction();
+            const result = await callback(connection);
+            await connection.commit();
+            return result;
+        } catch (error) {
+            await connection.rollback();
+            throw new DatabaseError('Transaction failed', error);
+        } finally {
+            connection.release();
         }
     }
 }
 
-export const db = new Database();
+export const db = Database.getInstance();
