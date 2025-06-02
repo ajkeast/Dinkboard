@@ -13,6 +13,7 @@ import Messages from "scenes/messages"
 import Emojis from "scenes/emojis";
 import Firsts from "scenes/firsts";
 import Juice from "scenes/juice";
+import AI from "scenes/ai";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -25,13 +26,14 @@ function App() {
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element= {<Dashboard />} />
-                <Route path="/messages" element= {<Messages />} />
-                <Route path="/Emojis" element= {<Emojis />} />
-                <Route path="/members" element = {<Members />} />
-                <Route path="/firsts" element = {<Firsts />} />
-                <Route path="/juice" element = {<Juice />} />
-      J       </Route>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/emojis" element={<Emojis />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/firsts" element={<Firsts />} />
+                <Route path="/juice" element={<Juice />} />
+                <Route path="/ai" element={<AI />} />
+              </Route>
             </Routes>
           </ThemeProvider>
         </HashRouter>

@@ -6,7 +6,7 @@ import { TrendingUpRounded, TrendingDownRounded } from "@mui/icons-material";
 const StatBox = ({ title, time, icon, description, data, isLoading }) => {
   const theme = useTheme();
   
-  if (isLoading || !data) {
+  if (isLoading || !data || !data.length) {
     return (
       <Skeleton 
         variant="rectangular"

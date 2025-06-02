@@ -4,7 +4,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import clientRoutes from "./routes/client.js";
+import firstsRoutes from "./routes/firstsRoutes.js";
+import emojiRoutes from "./routes/emojiRoutes.js";
+import memberRoutes from "./routes/memberRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 // CONFIGURATION
 dotenv.config();
@@ -18,9 +22,12 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors());
 
 // ROUTES
-app.use("/client", clientRoutes);
+app.use("/api/firsts", firstsRoutes);
+app.use("/api/emojis", emojiRoutes);
+app.use("/api/members", memberRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/ai", aiRoutes);
 
 // LISTEN
-
 const PORT = 5001;
 app.listen(PORT, () => console.log(`Server Port: ${PORT}`))
