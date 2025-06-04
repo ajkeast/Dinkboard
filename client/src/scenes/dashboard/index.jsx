@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FirstTable from 'components/FirstTable';
-import ChannelsPieChart from 'components/ChannelsPieChart';
+import ChannelsBarChart from 'components/ChannelsBarChart';
 import Header from "components/Header";
 import StatBox from 'components/StatBox';
 import MessagesAreaChart from 'components/MessagesAreaChart';
@@ -122,7 +122,7 @@ const Dashboard = () => {
           </Card>
         </Grow>
 
-        {/* ChannelsPieChart */}
+        {/* ChannelsBarChart */}
         <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
           <Card
             sx={{
@@ -142,7 +142,7 @@ const Dashboard = () => {
                 <Tag sx={{ verticalAlign: 'middle' }}/> Channels
               </Typography>
               <Box height={400} width={'100%'}>
-                <ChannelsPieChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
+                <ChannelsBarChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
               </Box>
             </CardContent>
           </Card>
