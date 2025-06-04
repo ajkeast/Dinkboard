@@ -104,21 +104,36 @@ const Sidebar = ({
 
   return (
     <Box component="nav">
-      {isSidebarOpen && (
-        <Drawer
-          open={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          variant="persistent"
-          anchor="left"
-          sx={{
+      <Drawer
+        open={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        variant="persistent"
+        anchor="left"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
-            "& .MuiDrawer-paper": {
-              color: theme.palette.secondary[200],
-              backgroundColor: theme.palette.background.alt,
-              boxSixing: "border-box",
-              borderWidth: isNonMobile ? 0 : "2px",
-              width: drawerWidth,
-            },
+            boxSizing: 'border-box',
+            color: theme.palette.secondary[200],
+            backgroundColor: theme.palette.background.alt,
+            borderWidth: isNonMobile ? 0 : "2px",
+            transition: theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: 'hidden',
+          },
+        }}
+      >
+        <Box 
+          width="100%" 
+          sx={{
+            opacity: isSidebarOpen ? 1 : 0,
+            transition: theme.transitions.create('opacity', {
+              easing: theme.transitions.easing.easeInOut,
+              duration: theme.transitions.duration.standard,
+            }),
           }}
         >
           <Box width="100%">
@@ -203,10 +218,8 @@ const Sidebar = ({
               })}
             </List>
           </Box>
-
-
-        </Drawer>
-      )}
+        </Box>
+      </Drawer>
     </Box>
   );
 };
