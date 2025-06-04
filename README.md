@@ -132,8 +132,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For any questions or suggestions, please feel free to reach out:
 
-- GitHub: [Your GitHub Profile]
-- Email: [Your Email]
+- GitHub: [[ajkeast]](https://github.com/ajkeast)
+- Email: alexander.keast@gmail.com
 
 ---
 
