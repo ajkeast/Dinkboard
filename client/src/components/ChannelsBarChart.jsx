@@ -19,10 +19,14 @@ const ChannelsBarChart = ({ data, isLoading }) => {
             <BarChart
                 data={sortedData}
                 layout="vertical"
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
             >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
+                <CartesianGrid stroke="#888" strokeDasharray="0" vertical={true} horizontal={false} />
+                <XAxis 
+                    type="number" 
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                    label={{ value: 'Messages', position: 'insideBottom', offset: -5 }}
+                />
                 <YAxis 
                     type="category" 
                     dataKey="channel_name" 
