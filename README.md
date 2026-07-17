@@ -159,24 +159,24 @@ docker compose up --build
 
 | Workflow | When | What |
 |---|---|---|
-| **CI** | Every PR + push to `main` | Client production build; server migrations + auth vitest against ephemeral MySQL |
+| **CI** | Every PR + push to `main` | Client production build; server migrations + vitest against your PebbleHost MySQL |
 | **Deploy** | After CI succeeds on `main`, or manual **Run workflow** | SSH into VPS → `git pull` → `docker compose up --build` → migrate → health check |
 
-CI does **not** use your live PebbleHost database (GitHub runners usually cannot reach it). It spins up MySQL in the workflow and skips `tests/data.test.js` (that suite needs Discord tables — run it locally).
-
-### Required repository secrets (deploy)
+### Required repository secrets
 
 Settings → Secrets and variables → Actions:
 
 | Secret | Purpose |
 |---|---|
+| `SQL_HOST` / `SQL_USER` / `SQL_PASSWORD` / `SQL_DATABASE` | Same values as `server/.env` (**no quotes** around values) |
+| `JWT_SECRET` | Any long random string for CI auth tests |
 | `VPS_HOST` | VPS IP (e.g. `135.148.86.171`) |
 | `VPS_USER` | SSH user (`root`) |
 | `VPS_SSH_KEY` | Private key for a deploy-only SSH key authorized on the VPS |
 
 Also create a GitHub **Environment** named `production` (Settings → Environments) so Deploy can use it.
 
-`SQL_*` / `JWT_SECRET` secrets are optional now (not used by CI). Keep them only if you want for other automation.
+PebbleHost must allow remote MySQL from outside their network (often host `%`) so GitHub Actions runners can connect. Tests only write `m9test_*` users.
 ## Project layout
 
 ```
