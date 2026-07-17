@@ -39,7 +39,7 @@ export const getApiErrorMessage = (error, fallback = "Something went wrong") =>
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
   reducerPath: "adminApi",
-  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Auth"],
+  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth"],
   endpoints: (build) => ({
     // AUTH
     login: build.mutation({
@@ -48,7 +48,7 @@ export const api = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Auth", "Firsts", "Members", "Emojis", "Messages", "AI"],
+      invalidatesTags: ["Auth", "Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin"],
     }),
     register: build.mutation({
       query: (body) => ({
@@ -164,6 +164,27 @@ export const api = createApi({
       query: () => "api/messages/stats",
       providesTags: ["Messages"],
     }),
+    getMessagesByDay: build.query({
+      query: ({ memberId, startDate, endDate } = {}) => ({
+        url: "api/messages/day",
+        params: { memberId, startDate, endDate },
+      }),
+      providesTags: ["Messages"],
+    }),
+    getMessagesChannelsByMember: build.query({
+      query: (memberId) => ({
+        url: "api/messages/channels/member",
+        params: { memberId },
+      }),
+      providesTags: ["Messages"],
+    }),
+    getMessagesMemberSummary: build.query({
+      query: (memberId) => ({
+        url: "api/messages/summary/member",
+        params: { memberId },
+      }),
+      providesTags: ["Messages"],
+    }),
 
     // AI
     getChatGPTUserStats: build.query({
@@ -216,6 +237,19 @@ export const api = createApi({
       query: () => "api/ai/stats",
       providesTags: ["AI"],
     }),
+
+    // DINKCOIN
+    getDinkcoinBalances: build.query({
+      query: () => "api/dinkcoin/balances",
+      providesTags: ["Dinkcoin"],
+    }),
+    getDinkcoinTransactions: build.query({
+      query: (limit = 100) => ({
+        url: "api/dinkcoin/transactions",
+        params: { limit },
+      }),
+      providesTags: ["Dinkcoin"],
+    }),
   }),
 });
 
@@ -243,6 +277,9 @@ export const {
   useGetMessagesByMonthQuery,
   useGetMessagesByMonthByMemberQuery,
   useGetMessagesStatsQuery,
+  useGetMessagesByDayQuery,
+  useGetMessagesChannelsByMemberQuery,
+  useGetMessagesMemberSummaryQuery,
   useGetChatGPTUserStatsQuery,
   useGetChatGPTModelStatsQuery,
   useGetChatGPTTimelineQuery,
@@ -251,4 +288,6 @@ export const {
   useGetDalleTimelineQuery,
   useGetRecentDalleQuery,
   useGetAIStatsQuery,
+  useGetDinkcoinBalancesQuery,
+  useGetDinkcoinTransactionsQuery,
 } = api;

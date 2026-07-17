@@ -18,7 +18,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "state/api";
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
@@ -62,40 +62,76 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
             </IconButton>
           </Tooltip>
           {user && (
-            <Box
-              display={{ xs: "none", sm: "flex" }}
-              alignItems="center"
-              gap={1}
-              mx={0.5}
-              sx={{ maxWidth: 220 }}
+            <Tooltip
+              title={user.member_id ? "View your member profile" : ""}
+              disableHoverListener={!user.member_id}
             >
-              <Avatar
-                src={user.avatar_url || undefined}
-                alt={user.username}
+              <Box
+                display={{ xs: "none", sm: "flex" }}
+                alignItems="center"
+                gap={1}
+                mx={0.5}
+                {...(user.member_id
+                  ? {
+                      component: RouterLink,
+                      to: `/members/${user.member_id}`,
+                    }
+                  : {})}
                 sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: theme.palette.secondary.main,
-                  fontSize: 14,
-                  fontWeight: 700,
+                  maxWidth: 220,
+                  textDecoration: "none",
+                  color: "inherit",
+                  borderRadius: 1,
+                  px: 0.75,
+                  py: 0.5,
+                  ...(user.member_id && {
+                    cursor: "pointer",
+                    transition: "background-color 150ms ease",
+                    "&:hover": {
+                      bgcolor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.04)",
+                      "& .profile-name": {
+                        color: theme.palette.secondary.main,
+                      },
+                    },
+                  }),
                 }}
               >
-                {(user.username || "?").charAt(0).toUpperCase()}
-              </Avatar>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="body2" fontWeight={600} noWrap>
-                  {user.username}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  noWrap
-                  display="block"
+                <Avatar
+                  src={user.avatar_url || undefined}
+                  alt={user.username}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: theme.palette.secondary.main,
+                    fontSize: 14,
+                    fontWeight: 700,
+                  }}
                 >
-                  {user.email}
-                </Typography>
+                  {(user.username || "?").charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography
+                    className="profile-name"
+                    variant="body2"
+                    fontWeight={600}
+                    noWrap
+                  >
+                    {user.username}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    noWrap
+                    display="block"
+                  >
+                    {user.email}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
+            </Tooltip>
           )}
           <Tooltip title="Log out">
             <IconButton onClick={handleLogout} disabled={isLoading}>

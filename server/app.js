@@ -9,6 +9,7 @@ import emojiRoutes from "./routes/emojiRoutes.js";
 import memberRoutes from "./routes/memberRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import dinkcoinRoutes from "./routes/dinkcoinRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import { requireAuth } from "./middleware/auth.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
@@ -51,6 +52,7 @@ export function createApp() {
     app.use("/api/members", requireAuth, memberRoutes);
     app.use("/api/messages", requireAuth, messageRoutes);
     app.use("/api/ai", requireAuth, aiRoutes);
+    app.use("/api/dinkcoin", requireAuth, dinkcoinRoutes);
 
     app.use(notFoundHandler);
     app.use(errorHandler);

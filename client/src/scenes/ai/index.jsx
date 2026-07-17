@@ -76,8 +76,8 @@ const AI = () => {
   const chatgptData = aiStats
     ? [
         {
-          thisMTD: aiStats.chatgpt_today || 0,
-          lastMTD: (aiStats.chatgpt_last_30_days || 0) / 30,
+          thisMTD: aiStats.chatgpt_last_30_days || 0,
+          lastMTD: aiStats.chatgpt_prev_30_days || 0,
         },
       ]
     : [];
@@ -85,8 +85,8 @@ const AI = () => {
   const dalleData = aiStats
     ? [
         {
-          thisMTD: aiStats.dalle_today || 0,
-          lastMTD: (aiStats.dalle_last_30_days || 0) / 30,
+          thisMTD: aiStats.dalle_last_30_days || 0,
+          lastMTD: aiStats.dalle_prev_30_days || 0,
         },
       ]
     : [];
@@ -95,7 +95,7 @@ const AI = () => {
     ? [
         {
           thisMTD: Number(aiStats.total_tokens_last_30_days) || 0,
-          lastMTD: Number(aiStats.total_tokens_last_30_days) || 0,
+          lastMTD: Number(aiStats.total_tokens_prev_30_days) || 0,
         },
       ]
     : [];
@@ -108,7 +108,7 @@ const AI = () => {
 
   return (
     <Box>
-      <Header title="AI Usage" subtitle="ChatGPT and DALL-E activity" />
+      <Header title="AI Usage" subtitle="LLM prompts and image generation" />
 
       <Box
         mt={1.5}
@@ -118,8 +118,8 @@ const AI = () => {
         gap={1.5}
       >
         <StatBox
-          title="ChatGPT Calls"
-          description="vs. last 30 days"
+          title="LLM Prompts"
+          description="vs. prior 30 days"
           data={chatgptData}
           icon={
             <SmartToy
@@ -133,8 +133,8 @@ const AI = () => {
         />
 
         <StatBox
-          title="DALL-E Prompts"
-          description="vs. last 30 days"
+          title="Images"
+          description="vs. prior 30 days"
           data={dalleData}
           icon={
             <Image
@@ -149,7 +149,7 @@ const AI = () => {
 
         <StatBox
           title="Total Tokens"
-          description="Last 30 Days"
+          description="vs. prior 30 days"
           data={tokenData}
           icon={
             <Token
@@ -188,7 +188,7 @@ const AI = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chatgptTimeline} margin={chart.margin}>
                   <defs>
-                    <linearGradient id="colorChatGPT" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="colorLlmPrompts" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset="5%"
                         stopColor={theme.palette.secondary[400]}
@@ -211,8 +211,8 @@ const AI = () => {
                     stroke={theme.palette.secondary[300]}
                     strokeWidth={chart.series.strokeWidth}
                     fillOpacity={1}
-                    fill="url(#colorChatGPT)"
-                    name="ChatGPT Calls"
+                    fill="url(#colorLlmPrompts)"
+                    name="LLM Prompts"
                     animationDuration={chart.series.animationDuration}
                   />
                 </AreaChart>
@@ -311,7 +311,7 @@ const AI = () => {
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-            Top ChatGPT Users
+            Top LLM Users
           </Typography>
           <Box height="calc(100% - 28px)">
             <QueryState
@@ -370,7 +370,7 @@ const AI = () => {
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-            Top DALL-E Users
+            Top Image Users
           </Typography>
           <Box height="calc(100% - 28px)">
             <QueryState

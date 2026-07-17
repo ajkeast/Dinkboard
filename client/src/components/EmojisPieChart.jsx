@@ -48,8 +48,8 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
     >
       <Box
         display="flex"
-        alignItems="center"
-        gap={2}
+        alignItems={{ xs: "stretch", sm: "center" }}
+        gap={{ xs: 1.5, sm: 2 }}
         height="100%"
         width="100%"
         flexDirection={{ xs: "column", sm: "row" }}
@@ -84,12 +84,14 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
           </ResponsiveContainer>
         </Box>
         <Box
-          flex="1 1 45%"
+          flex={{ xs: "0 0 auto", sm: "1 1 45%" }}
           display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          gap={0.75}
-          minWidth={140}
+          flexDirection={{ xs: "row", sm: "column" }}
+          flexWrap={{ xs: "wrap", sm: "nowrap" }}
+          justifyContent={{ xs: "center", sm: "center" }}
+          gap={{ xs: 1, sm: 0.75 }}
+          minWidth={0}
+          width={{ xs: "100%", sm: "auto" }}
         >
           {chartData.map((entry, index) => (
             <Box
@@ -98,6 +100,11 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
               alignItems="center"
               gap={1}
               minWidth={0}
+              sx={{
+                flex: { xs: "0 1 auto", sm: "0 0 auto" },
+                maxWidth: { xs: "100%", sm: "none" },
+                width: { xs: "calc(50% - 8px)", sm: "auto" },
+              }}
             >
               <Box
                 width={10}
@@ -106,13 +113,18 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
                 flexShrink={0}
                 bgcolor={COLORS[index % COLORS.length]}
               />
-              <Typography variant="body2" noWrap title={entry.name}>
+              <Typography
+                variant="body2"
+                noWrap
+                title={entry.name}
+                sx={{ minWidth: 0, flex: 1 }}
+              >
                 {entry.name}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ ml: "auto" }}
+                sx={{ flexShrink: 0 }}
               >
                 {entry.value}
               </Typography>

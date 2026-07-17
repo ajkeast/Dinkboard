@@ -14,7 +14,10 @@ const Messages = () => {
 
   return (
     <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
-      <Header title="Messages" subtitle="Messages by members" />
+      <Header
+        title="Messages"
+        subtitle="Last 12 months · top members by volume"
+      />
       <DashCard
         sx={{
           mt: 1.5,

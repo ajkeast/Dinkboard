@@ -160,7 +160,11 @@ const Dashboard = () => {
               />{" "}
               Top Emojis
             </Typography>
-            <Box height={280} width="100%">
+            <Box
+              width="100%"
+              height={{ xs: "auto", sm: 280 }}
+              minHeight={{ xs: 320, sm: 280 }}
+            >
               <EmojisPieChart
                 data={emojiData}
                 isLoading={isEmojiLoading}

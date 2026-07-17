@@ -12,14 +12,14 @@ const FirstTable = ({ data, isLoading, error, onRetry }) => {
       field: "user_name",
       headerName: "Name",
       flex: 1.4,
-      minWidth: 110,
+      minWidth: 100,
       headerClassName: "first-table-column-header",
     },
     {
       field: "firsts",
       headerName: "Firsts",
       flex: 0.7,
-      minWidth: 70,
+      minWidth: 72,
       type: "number",
       align: "right",
       headerAlign: "right",
@@ -30,7 +30,7 @@ const FirstTable = ({ data, isLoading, error, onRetry }) => {
       headerName: "Days",
       description: "Days since first",
       flex: 0.7,
-      minWidth: 70,
+      minWidth: 64,
       type: "number",
       align: "right",
       headerAlign: "right",
@@ -72,7 +72,7 @@ const FirstTable = ({ data, isLoading, error, onRetry }) => {
   }));
 
   return (
-    <Box>
+    <Box sx={{ width: "100%", overflowX: "auto" }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -81,6 +81,7 @@ const FirstTable = ({ data, isLoading, error, onRetry }) => {
         }}
         autoHeight
         density="compact"
+        disableColumnMenu
         sx={dataGridSx(theme)}
       />
     </Box>

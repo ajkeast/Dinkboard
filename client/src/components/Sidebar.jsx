@@ -11,6 +11,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -24,10 +25,11 @@ import {
   LeaderboardRounded,
   SmartToyOutlined,
   BlenderRounded,
+  MonetizationOnOutlined,
   LogoutOutlined,
 } from "@mui/icons-material";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import { useLogoutMutation } from "state/api";
 
@@ -38,6 +40,8 @@ const navItems = [
   { text: "Members", icon: <Groups2Rounded fontSize="small" />, path: "members" },
   { text: "Emojis", icon: <EmojiEmotions fontSize="small" />, path: "emojis" },
   { text: "AI Usage", icon: <SmartToyOutlined fontSize="small" />, path: "ai" },
+  { text: "Economy", icon: null },
+  { text: "DinkCoin", icon: <MonetizationOnOutlined fontSize="small" />, path: "economy" },
   { text: "Leaderboards", icon: null },
   { text: "Firsts", icon: <LeaderboardRounded fontSize="small" />, path: "firsts" },
   { text: "Juice", icon: <BlenderRounded fontSize="small" />, path: "juice" },
@@ -188,41 +192,80 @@ const Sidebar = ({
       <Box mt="auto" p="0.75rem 1rem 1rem">
         <Divider sx={{ mb: 1 }} />
         {user && (
-          <Box mb={1} display="flex" alignItems="center" gap={1} minWidth={0}>
-            <Avatar
-              src={user.avatar_url || undefined}
-              alt={user.username}
+          <Tooltip
+            title={user.member_id ? "View your member profile" : ""}
+            disableHoverListener={!user.member_id}
+          >
+            <Box
+              mb={1}
+              display="flex"
+              alignItems="center"
+              gap={1}
+              minWidth={0}
+              {...(user.member_id
+                ? {
+                    component: RouterLink,
+                    to: `/members/${user.member_id}`,
+                  }
+                : {})}
               sx={{
-                width: 36,
-                height: 36,
-                flexShrink: 0,
-                bgcolor: theme.palette.secondary.main,
-                fontSize: 15,
-                fontWeight: 700,
+                textDecoration: "none",
+                color: "inherit",
+                borderRadius: 1,
+                px: 0.5,
+                py: 0.5,
+                mx: -0.5,
+                ...(user.member_id && {
+                  cursor: "pointer",
+                  transition: "background-color 150ms ease",
+                  "&:hover": {
+                    bgcolor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.04)",
+                    "& .profile-name": {
+                      color: theme.palette.secondary.main,
+                    },
+                  },
+                }),
               }}
             >
-              {(user.username || "?").charAt(0).toUpperCase()}
-            </Avatar>
-            <Box minWidth={0}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={600}
-                noWrap
-                title={user.username}
+              <Avatar
+                src={user.avatar_url || undefined}
+                alt={user.username}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  flexShrink: 0,
+                  bgcolor: theme.palette.secondary.main,
+                  fontSize: 15,
+                  fontWeight: 700,
+                }}
               >
-                {user.username}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                noWrap
-                display="block"
-                title={user.email}
-              >
-                {user.email}
-              </Typography>
+                {(user.username || "?").charAt(0).toUpperCase()}
+              </Avatar>
+              <Box minWidth={0}>
+                <Typography
+                  className="profile-name"
+                  variant="subtitle2"
+                  fontWeight={600}
+                  noWrap
+                  title={user.username}
+                >
+                  {user.username}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  noWrap
+                  display="block"
+                  title={user.email}
+                >
+                  {user.email}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
+          </Tooltip>
         )}
         <Button
           fullWidth

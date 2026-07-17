@@ -87,7 +87,8 @@ export class Messages extends BaseModel {
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
             WHERE messages.created_at > '2017-08-01'
-            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
+            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m')
+            ORDER BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
         
         return await this.db.query(query);
     }
@@ -100,9 +101,63 @@ export class Messages extends BaseModel {
                 COUNT(*) AS 'messages'
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
-            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name`;
+            WHERE messages.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name
+            ORDER BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
         
         return await this.db.query(query);
+    }
+
+    /**
+     * Sparse daily message counts for one member in [startDate, endDate] (inclusive).
+     * Dates are YYYY-MM-DD strings. Empty days are omitted — fill on the client.
+     */
+    async getByDayByMember(memberId, startDate, endDate) {
+        const query = `
+            SELECT
+                DATE_FORMAT(created_at, '%Y-%m-%d') AS date,
+                COUNT(*) AS messages
+            FROM ${this.tableName}
+            WHERE member_id = ?
+              AND created_at >= ?
+              AND created_at < DATE_ADD(?, INTERVAL 1 DAY)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+            ORDER BY date`;
+
+        return await this.db.query(query, [memberId, startDate, endDate]);
+    }
+
+    async getChannelsByMember(memberId) {
+        const query = `
+            SELECT
+                channels.channel_name,
+                COUNT(*) AS messages
+            FROM ${this.tableName}
+            JOIN channels ON messages.channel_id = channels.id
+            WHERE messages.member_id = ?
+            GROUP BY messages.channel_id
+            ORDER BY messages DESC`;
+
+        return await this.db.query(query, [memberId]);
+    }
+
+    async getMemberSummary(memberId) {
+        const query = `
+            SELECT
+                COUNT(*) AS total_messages,
+                COUNT(DISTINCT DATE(created_at)) AS active_days,
+                DATE_FORMAT(MIN(created_at), '%Y-%m-%d') AS first_message_date,
+                DATE_FORMAT(MAX(created_at), '%Y-%m-%d') AS last_message_date
+            FROM ${this.tableName}
+            WHERE member_id = ?`;
+
+        const rows = await this.db.query(query, [memberId]);
+        return rows[0] ?? {
+            total_messages: 0,
+            active_days: 0,
+            first_message_date: null,
+            last_message_date: null,
+        };
     }
 
     // TODO(M7): return result[0] (object) once the frontend StatBox consumers

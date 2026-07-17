@@ -28,33 +28,66 @@ const PALETTE = [
   "rgb(140, 92, 214)",
 ];
 
+const OTHER_KEY = "Other";
+const TOP_MEMBERS = 8;
+
+/** Rank members by total volume; keep top N and roll the rest into Other. */
+export function toTopMemberStacks(rows, topN = TOP_MEMBERS) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { data: [], memberKeys: [] };
+  }
+
+  const totals = new Map();
+  rows.forEach((row) => {
+    Object.entries(row).forEach(([key, value]) => {
+      if (key === "month") return;
+      totals.set(key, (totals.get(key) || 0) + (Number(value) || 0));
+    });
+  });
+
+  const ranked = [...totals.entries()].sort((a, b) => b[1] - a[1]);
+  const topKeys = ranked.slice(0, topN).map(([name]) => name);
+  const topSet = new Set(topKeys);
+  const hasOther = ranked.length > topKeys.length;
+  const memberKeys = hasOther ? [...topKeys, OTHER_KEY] : topKeys;
+
+  const data = rows.map((row) => {
+    const next = { month: row.month };
+    let other = 0;
+    Object.entries(row).forEach(([key, value]) => {
+      if (key === "month") return;
+      const n = Number(value) || 0;
+      if (topSet.has(key)) next[key] = n;
+      else other += n;
+    });
+    if (hasOther) next[OTHER_KEY] = other;
+    return next;
+  });
+
+  return { data, memberKeys };
+}
+
 const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
   const theme = useTheme();
   const chart = getChartTheme(theme);
 
-  const memberKeys = useMemo(() => {
-    if (!Array.isArray(data) || data.length === 0) return [];
-    const keys = new Set();
-    data.forEach((row) => {
-      Object.keys(row).forEach((k) => {
-        if (k !== "month") keys.add(k);
-      });
-    });
-    return Array.from(keys);
-  }, [data]);
+  const { data: chartData, memberKeys } = useMemo(
+    () => toTopMemberStacks(data),
+    [data]
+  );
 
   return (
     <QueryState
       isLoading={isLoading}
       error={error}
-      isEmpty={!isLoading && (!data || data.length === 0)}
+      isEmpty={!isLoading && chartData.length === 0}
       emptyMessage="No message data yet"
       onRetry={onRetry}
       skeletonVariant="bars"
       skeletonHeight="100%"
     >
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={chart.margin} barCategoryGap="12%">
+        <BarChart data={chartData} margin={chart.margin} barCategoryGap="12%">
           <CartesianGrid {...chart.grid} />
           <XAxis dataKey="month" {...chart.xAxisAngled} />
           <YAxis {...chart.yAxis} />
@@ -65,7 +98,11 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
               key={key}
               dataKey={key}
               stackId="a"
-              fill={PALETTE[i % PALETTE.length]}
+              fill={
+                key === OTHER_KEY
+                  ? theme.palette.grey[500]
+                  : PALETTE[i % PALETTE.length]
+              }
               animationDuration={0}
               animationBegin={0}
             />

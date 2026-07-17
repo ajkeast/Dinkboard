@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {
   Box,
   CardActions,
@@ -37,6 +38,7 @@ const Member = ({
   created_at,
 }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
   function formatNumber(num) {
@@ -76,7 +78,10 @@ const Member = ({
   );
 
   return (
-    <DashCard>
+    <DashCard
+      sx={{ cursor: "pointer" }}
+      onClick={() => navigate(`/members/${id}`)}
+    >
       <CardContent>
         <Typography
           variant="caption"
@@ -144,8 +149,23 @@ const Member = ({
           <StatChip label="Juice" value={formatNumber(juice)} />
         </FlexBetween>
       </CardContent>
-      <CardActions sx={{ px: 1.5, pt: 0, pb: 1 }}>
-        <Button size="small" onClick={() => setIsExpanded(!isExpanded)}>
+      <CardActions
+        sx={{ px: 1.5, pt: 0, pb: 1 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Button
+          size="small"
+          color="secondary"
+          component={RouterLink}
+          to={`/members/${id}`}
+        >
+          View profile
+        </Button>
+        <Button
+          size="small"
+          color="secondary"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
           See more
         </Button>
       </CardActions>
@@ -153,6 +173,7 @@ const Member = ({
         in={isExpanded}
         timeout={theme.transitions.duration.shorter}
         unmountOnExit
+        onClick={(e) => e.stopPropagation()}
       >
         <CardContent sx={{ pt: 0 }}>
           <Typography variant="body2">Joined: {created_at}</Typography>

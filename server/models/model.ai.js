@@ -257,10 +257,28 @@ export class AI extends BaseModel {
                     WHERE timesent >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
                 ) as dalle_last_30_days,
                 (
+                    SELECT COUNT(*) 
+                    FROM ${this.tableName}
+                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+                      AND created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                ) as chatgpt_prev_30_days,
+                (
+                    SELECT COUNT(*) 
+                    FROM ${this.dalleTable}
+                    WHERE timesent >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+                      AND timesent < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                ) as dalle_prev_30_days,
+                (
                     SELECT SUM(total_tokens)
                     FROM ${this.tableName}
                     WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                ) as total_tokens_last_30_days`;
+                ) as total_tokens_last_30_days,
+                (
+                    SELECT SUM(total_tokens)
+                    FROM ${this.tableName}
+                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+                      AND created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                ) as total_tokens_prev_30_days`;
 
         const result = await this.db.query(query);
         // Single-row aggregate: return the object, not a 1-element array.

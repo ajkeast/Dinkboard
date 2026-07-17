@@ -10,7 +10,8 @@ const EmojisDataGrid = ({ data, isLoading }) => {
     {
       field: "url",
       headerName: "Icon",
-      flex: 1,
+      width: 72,
+      sortable: false,
       headerClassName: "emoji-table-column-header",
       renderCell: (params) => (
         <img
@@ -23,19 +24,25 @@ const EmojisDataGrid = ({ data, isLoading }) => {
     {
       field: "emoji_name",
       headerName: "Name",
-      flex: 3,
+      flex: 2,
+      minWidth: 120,
       headerClassName: "emoji-table-column-header",
     },
     {
       field: "occurrences",
       headerName: "Occurrences",
-      flex: 3,
+      flex: 1.2,
+      minWidth: 110,
+      type: "number",
+      align: "right",
+      headerAlign: "right",
       headerClassName: "emoji-table-column-header",
     },
     {
       field: "created_at",
       headerName: "Created on",
-      flex: 3,
+      flex: 1.4,
+      minWidth: 120,
       headerClassName: "emoji-table-column-header",
     },
   ];
@@ -57,7 +64,7 @@ const EmojisDataGrid = ({ data, isLoading }) => {
   }));
 
   return (
-    <Box height="100%">
+    <Box height="100%" sx={{ width: "100%", overflowX: "auto" }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -65,9 +72,11 @@ const EmojisDataGrid = ({ data, isLoading }) => {
           pagination: { paginationModel: { pageSize: 100 } },
         }}
         density="compact"
+        disableColumnMenu
         sx={{
           ...dataGridSx(theme),
           height: "100%",
+          minWidth: 420,
         }}
       />
     </Box>

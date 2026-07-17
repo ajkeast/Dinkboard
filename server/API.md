@@ -61,8 +61,12 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 - `GET /api/messages` → array (100 newest): `{id:string, user_name, channel_name:'#name', content, created_at, last_updated}`
 - `GET /api/messages/members` → `[{user_id:string, user_name, messages:number}]`
 - `GET /api/messages/channels` → `[{channel_name, messages:number}]`
+- `GET /api/messages/channels/member?memberId=` → `[{channel_name, messages:number}]` (desc)
+- `GET /api/messages/day?memberId=&startDate=&endDate=` → sparse `[{date:'YYYY-MM-DD', messages:number}]`
+  (`startDate`/`endDate` optional together; default = last 365 days inclusive)
+- `GET /api/messages/summary/member?memberId=` → `{total_messages, active_days, first_message_date, last_message_date}`
 - `GET /api/messages/month` → `[{month:'Jan 2024', messages:number}]`
-- `GET /api/messages/month/member` → `[{month:'Jan 2024', <user_name>: count, ...}]`
+- `GET /api/messages/month/member` → last 12 months only: `[{month:'Jan 2024', <user_name>: count, ...}]`
 - `GET /api/messages/stats` → **1-element array** `[{thisMTD, lastMTD, thisYTD, lastYTD}]`
   (intentionally still array-shaped until the M7 frontend cleanup)
 - `GET /api/messages/:id` (`^\d{1,20}$`) → single message object, or `null` if not found
@@ -90,7 +94,7 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 
 ### /api/ai
 
-- `GET /api/ai/stats` → **object** `{chatgpt_today, dalle_today, chatgpt_last_30_days, dalle_last_30_days, total_tokens_last_30_days:string|null}`
+- `GET /api/ai/stats` → **object** `{chatgpt_today, dalle_today, chatgpt_last_30_days, dalle_last_30_days, chatgpt_prev_30_days, dalle_prev_30_days, total_tokens_last_30_days:string|null, total_tokens_prev_30_days:string|null}`
 - `GET /api/ai/chatgpt/users?startDate&endDate` (ISO dates, both-or-neither) → `[{user_name, display_name, total_calls, total_input_tokens, total_output_tokens, total_tokens, days_used}]`
 - `GET /api/ai/chatgpt/models` → `[{model, total_calls, total_input_tokens, total_output_tokens, total_tokens, avg_tokens_per_call}]`
 - `GET /api/ai/chatgpt/timeline?groupBy=day|hour|month` (default day) → `[{time_period, total_calls, total_input_tokens, total_output_tokens, total_tokens}]`
@@ -100,6 +104,15 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 - `GET /api/ai/dalle/users?startDate&endDate` → `[{user_name, display_name, total_prompts, days_used}]`
 - `GET /api/ai/dalle/timeline?groupBy=day|hour|month` → `[{time_period, total_prompts}]`
 - `GET /api/ai/dalle/recent?limit=1-500` → recent prompt rows joined with user_name
+
+### /api/dinkcoin
+
+Read-only views over Discord-bot tables `dinkcoin_balances` / `dinkcoin_transactions`.
+`tx_type` is `mint` (new coins; `from_user_id` null) or `transfer` (peer trade).
+
+- `GET /api/dinkcoin/balances` → `[{user_id:string, balance:string, user_name, display_name, avatar}]` (highest balance first)
+- `GET /api/dinkcoin/transactions?limit=1-500` (default 100) → newest first:
+  `{id, from_user_id, to_user_id, amount:string, tx_type:'mint'|'transfer', tx_hash, created_at, from_user_name, from_display_name, from_avatar, to_user_name, to_display_name, to_avatar}`
 
 ## Env vars (server/.env — names only)
 

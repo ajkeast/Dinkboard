@@ -8,11 +8,13 @@ import { AuthBootstrap, PublicOnly, RequireAuth } from "components/AuthGate";
 import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
 import Members from "scenes/members";
+import MemberProfile from "scenes/members/profile";
 import Messages from "scenes/messages";
 import Emojis from "scenes/emojis";
 import Firsts from "scenes/firsts";
 import Juice from "scenes/juice";
 import AI from "scenes/ai";
+import Economy from "scenes/economy";
 import Login from "scenes/login";
 import Register from "scenes/register";
 
@@ -55,9 +57,11 @@ function App() {
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/emojis" element={<Emojis />} />
                 <Route path="/members" element={<Members />} />
+                <Route path="/members/:id" element={<MemberProfile />} />
                 <Route path="/firsts" element={<Firsts />} />
                 <Route path="/juice" element={<Juice />} />
                 <Route path="/ai" element={<AI />} />
+                <Route path="/economy" element={<Economy />} />
               </Route>
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
