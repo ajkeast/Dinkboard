@@ -144,17 +144,55 @@ docker compose up --build
 - API also exposed on http://localhost:5000
 - `COOKIE_SECURE=false` is set for local HTTP compose; set `true` behind HTTPS
 
+### Production (VPS)
+
+```bash
+# On the server (also used by GitHub Actions):
+/opt/apps/dinkboard/deploy/deploy.sh
+```
+
+- `docker-compose.prod.yml` — app behind shared Caddy (`/opt/infra/caddy`)
+- `server/.env` lives only on the VPS (never committed)
+- Live site: https://dinkscord.com
+
+## CI / CD (GitHub Actions)
+
+| Workflow | When | What |
+|---|---|---|
+| **CI** | Every PR + push to `main` | Client production build; server migrations + vitest against your PebbleHost MySQL |
+| **Deploy** | After CI succeeds on `main`, or manual **Run workflow** | SSH into VPS → `git pull` → `docker compose up --build` → migrate → health check |
+
+### Required repository secrets
+
+Settings → Secrets and variables → Actions:
+
+| Secret | Purpose |
+|---|---|
+| `SQL_HOST` / `SQL_USER` / `SQL_PASSWORD` / `SQL_DATABASE` | Same values as `server/.env` (**no quotes** around values) |
+| `JWT_SECRET` | Any long random string for CI auth tests |
+| `VPS_HOST` | VPS IP (e.g. `135.148.86.171`) |
+| `VPS_USER` | SSH user (`root`) |
+| `VPS_SSH_KEY` | Private key for a deploy-only SSH key authorized on the VPS |
+
+Also create a GitHub **Environment** named `production` (Settings → Environments) so Deploy can use it.
+
+PebbleHost must allow remote MySQL from outside their network (often host `%`) so GitHub Actions runners can connect. Tests only write `m9test_*` users.
 ## Project layout
 
 ```
-├── client/           # Vite React app
-├── server/           # Express API
-│   ├── migrations/   # app_users, app_refresh_tokens
-│   ├── tests/        # vitest + supertest
-│   └── API.md        # response contract
-├── e2e/              # Playwright auth smoke
-├── docker-compose.yml
-└── PLAN.md           # milestone plan
+├── client/                 # Vite React app
+├── server/                 # Express API
+│   ├── migrations/         # app_users, app_refresh_tokens
+│   ├── tests/              # vitest + supertest
+│   └── API.md              # response contract
+├── e2e/                    # Playwright auth smoke
+├── deploy/
+│   ├── caddy/              # Shared reverse proxy (multi-domain)
+│   └── deploy.sh           # Production deploy script (VPS)
+├── docker-compose.yml      # Local compose
+├── docker-compose.prod.yml # VPS compose (behind Caddy)
+├── .github/workflows/      # CI + Deploy
+└── PLAN.md
 ```
 
 ## Auth notes

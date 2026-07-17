@@ -15,14 +15,20 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const FORBIDDEN = /\b(DROP|TRUNCATE|DELETE|UPDATE|ALTER\s+TABLE)\b[\s\S]*?\b(messages|members|channels|emojis|firstlist_id|chatgpt_logs|dalle_3_prompts|dinkcoin_\w*)\b|\b(DROP|TRUNCATE)\s+(TABLE|DATABASE)\b/i;
 
+/** Strip optional wrapping quotes people often paste into secrets/.env. */
+function env(name) {
+    const raw = process.env[name] ?? '';
+    return raw.replace(/^['"]|['"]$/g, '').trim();
+}
+
 function connectionConfig() {
-    const [host, port] = (process.env.SQL_HOST ?? '').split(':');
+    const [host, port] = env('SQL_HOST').split(':');
     return {
         host,
         port: port ? Number(port) : 3306,
-        user: process.env.SQL_USER,
-        password: process.env.SQL_PASSWORD,
-        database: process.env.SQL_DATABASE,
+        user: env('SQL_USER'),
+        password: env('SQL_PASSWORD'),
+        database: env('SQL_DATABASE'),
         multipleStatements: false
     };
 }
@@ -71,6 +77,8 @@ async function main() {
 }
 
 main().catch(err => {
-    console.error('Migration failed:', err.message);
+    console.error('Migration failed:', err.message || err);
+    if (err.code) console.error('code:', err.code);
+    if (err.errno) console.error('errno:', err.errno);
     process.exit(1);
 });

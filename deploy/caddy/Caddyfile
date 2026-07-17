@@ -1,0 +1,11 @@
+# Shared edge proxy — add a site block per domain.
+# TLS via Let's Encrypt (works best with Cloudflare DNS-only, or Full + successful ACME).
+
+dinkscord.com {
+	encode gzip
+	reverse_proxy dinkboard-client:80
+}
+
+www.dinkscord.com {
+	redir https://dinkscord.com{uri} permanent
+}

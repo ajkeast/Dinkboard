@@ -101,7 +101,8 @@ export class Messages extends BaseModel {
                 COUNT(*) AS 'messages'
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
-            WHERE messages.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            -- Last 12 calendar months inclusive (INTERVAL 12 MONTH can span 13 buckets).
+            WHERE messages.created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 11 MONTH), '%Y-%m-01')
             GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name
             ORDER BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
         
