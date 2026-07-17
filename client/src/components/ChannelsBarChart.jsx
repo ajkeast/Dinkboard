@@ -1,53 +1,63 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Box, useTheme } from '@mui/material';
+import React from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { useTheme } from "@mui/material";
+import QueryState from "./QueryState";
+import { getChartTheme } from "utils/chartTheme";
 
-const ChannelsBarChart = ({ data, isLoading }) => {
-    const theme = useTheme();
-    
-    if (!data || isLoading) return (
-        <Box>
-            Loading...
-        </Box>
-    );
+const ChannelsBarChart = ({ data, isLoading, error, onRetry }) => {
+  const theme = useTheme();
+  const chart = getChartTheme(theme);
 
-    // Sort data by messages in descending order
-    const sortedData = [...data].sort((a, b) => b.messages - a.messages);
+  const sortedData = Array.isArray(data)
+    ? [...data]
+        .sort((a, b) => b.messages - a.messages)
+        .slice(0, 12)
+    : [];
 
-    return (
-        <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-                data={sortedData}
-                layout="vertical"
-                margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
-            >
-                <CartesianGrid stroke="#888" strokeDasharray="0" vertical={true} horizontal={false} />
-                <XAxis 
-                    type="number" 
-                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
-                    label={{ value: 'Messages', position: 'insideBottom', offset: -5 }}
-                />
-                <YAxis 
-                    type="category" 
-                    dataKey="channel_name" 
-                    width={100}
-                    tick={{ fill: theme.palette.neutral[100] }}
-                />
-                <Tooltip 
-                    contentStyle={{ 
-                        backgroundColor: theme.palette.background.alt,
-                        color: theme.palette.neutral[100]
-                    }}
-                />
-                <Bar 
-                    dataKey="messages" 
-                    fill={theme.palette.secondary[300]}
-                    animationDuration={1000}
-                    animationBegin={0}
-                />
-            </BarChart>
-        </ResponsiveContainer>
-    );
+  return (
+    <QueryState
+      isLoading={isLoading}
+      error={error}
+      isEmpty={!isLoading && sortedData.length === 0}
+      emptyMessage="No channel data"
+      onRetry={onRetry}
+      skeletonVariant="bars"
+      skeletonHeight={360}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={sortedData}
+          layout="vertical"
+          margin={chart.marginVertical}
+          barCategoryGap={chart.barCategoryGap}
+        >
+          <CartesianGrid {...chart.gridVerticalLayout} />
+          <XAxis type="number" {...chart.xAxis} tickFormatter={chart.yAxis.tickFormatter} />
+          <YAxis
+            type="category"
+            dataKey="channel_name"
+            {...chart.yAxisCategory}
+          />
+          <Tooltip {...chart.tooltip} />
+          <Bar
+            dataKey="messages"
+            fill={theme.palette.secondary[300]}
+            animationDuration={chart.series.animationDuration}
+            animationBegin={0}
+            radius={0}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </QueryState>
+  );
 };
 
-export default ChannelsBarChart; 
+export default ChannelsBarChart;

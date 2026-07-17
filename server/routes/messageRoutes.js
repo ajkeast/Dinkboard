@@ -1,4 +1,5 @@
 import express from "express";
+import { z } from "zod";
 import {
     getMessagesAll,
     getMessagesByMember,
@@ -8,6 +9,7 @@ import {
     getMessagesByMonthByMember,
     getMessagesStats
 } from "../controllers/messageController.js";
+import { validate, snowflakeId } from "../middleware/validate.js";
 
 const router = express.Router();
 
@@ -19,6 +21,6 @@ router.get("/month", getMessagesByMonth);
 router.get("/month/member", getMessagesByMonthByMember);
 router.get("/stats", getMessagesStats);
 // This must come last as it's a catch-all for IDs
-router.get("/:id", getMessageById);
+router.get("/:id", validate({ params: z.object({ id: snowflakeId }) }), getMessageById);
 
-export default router; 
+export default router;

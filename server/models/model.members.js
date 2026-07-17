@@ -31,39 +31,5 @@ export class Member extends BaseModel {
         });
     }
 
-    // Add new methods for better functionality
-    async createMember(data) {
-        const { user_name, display_name, avatar } = data;
-        return await this.create({
-            user_name,
-            display_name,
-            avatar,
-            created_at: new Date(),
-            last_updated: new Date()
-        });
-    }
-
-    async updateMember(id, data) {
-        const updateData = {
-            ...data,
-            last_updated: new Date()
-        };
-        return await this.update(id, updateData);
-    }
-
-    async searchMembers(query) {
-        return await this.findAll({
-            fields: [
-                'id',
-                'user_name',
-                'COALESCE(display_name, user_name) AS display_name',
-                'avatar'
-            ],
-            where: {
-                'user_name LIKE': `%${query}%`,
-                'OR display_name LIKE': `%${query}%`
-            }
-        });
-    }
 }
 

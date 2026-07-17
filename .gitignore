@@ -1,15 +1,35 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+node_modules/
 /node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
+/e2e/test-results
+/e2e/playwright-report
+/e2e/blob-report
+/e2e/.auth
 
-# production
+# production / build outputs
 /build
+/dist
+client/dist/
+client/build/
+server/coverage/
+
+# local smoke / visual evidence (not for commit)
+smoke-evidence/
+client/smoke-evidence/
+e2e/screenshots/
+
+# env secrets — never commit
+.env
+**/.env
+!.env.example
+!**/.env.example
 
 # misc
 .DS_Store
@@ -17,7 +37,6 @@
 .env.development.local
 .env.test.local
 .env.production.local
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

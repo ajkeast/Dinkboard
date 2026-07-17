@@ -72,40 +72,6 @@ export class BaseModel {
         return result[0].count;
     }
 
-    async create(data) {
-        const keys = Object.keys(data);
-        const values = Object.values(data);
-        const placeholders = new Array(keys.length).fill('?').join(', ');
-
-        const query = `
-            INSERT INTO ${this.tableName} (${keys.join(', ')})
-            VALUES (${placeholders})
-        `;
-
-        const result = await this.db.query(query, values);
-        return result.insertId;
-    }
-
-    async update(id, data) {
-        const sets = Object.keys(data).map(key => `${key} = ?`);
-        const values = [...Object.values(data), id];
-
-        const query = `
-            UPDATE ${this.tableName}
-            SET ${sets.join(', ')}
-            WHERE id = ?
-        `;
-
-        const result = await this.db.query(query, values);
-        return result.affectedRows;
-    }
-
-    async delete(id) {
-        const query = `DELETE FROM ${this.tableName} WHERE id = ?`;
-        const result = await this.db.query(query, [id]);
-        return result.affectedRows;
-    }
-
     async transaction(callback) {
         return await this.db.transaction(callback);
     }

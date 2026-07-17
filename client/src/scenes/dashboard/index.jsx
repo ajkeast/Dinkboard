@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
-import FirstTable from 'components/FirstTable';
-import ChannelsBarChart from 'components/ChannelsBarChart';
+import React from "react";
+import FirstTable from "components/FirstTable";
+import ChannelsBarChart from "components/ChannelsBarChart";
+import EmojisPieChart from "components/EmojisPieChart";
+import DashCard from "components/DashCard";
 import Header from "components/Header";
-import StatBox from 'components/StatBox';
-import MessagesAreaChart from 'components/MessagesAreaChart';
-import { 
-  useGetScoreQuery, 
-  useGetMessagesByChannelQuery, 
-  useGetMessagesByMonthQuery,
-  useGetMessagesStatsQuery
-} from "state/api";
+import StatBox from "components/StatBox";
+import MessagesAreaChart from "components/MessagesAreaChart";
 import {
-  Box,
-  Card,
-  Typography,
-  useTheme,
-  useMediaQuery,
-  CardContent,
-  Grow,
-} from "@mui/material";
+  useGetScoreQuery,
+  useGetMessagesByChannelQuery,
+  useGetMessagesByMonthQuery,
+  useGetMessagesStatsQuery,
+  useGetEmojisQuery,
+} from "state/api";
+import { Box, Typography, useMediaQuery, CardContent } from "@mui/material";
 import {
   MessageRounded,
   LeaderboardRounded,
@@ -29,147 +24,155 @@ import {
 } from "@mui/icons-material";
 
 const Dashboard = () => {
+  // Content area is often <1440 once the sidebar is open
+  const isXl = useMediaQuery("(min-width: 1100px)");
+  const isMd = useMediaQuery("(min-width: 750px)");
 
-  const isCardVisible = true;
-  const theme = useTheme();
-  const isNonMobile = useMediaQuery("(min-width: 1400px)");
-  const { data: scoreData, isLoading: isScoreLoading } = useGetScoreQuery();
-  const { data: messagesStatsData, isLoading: isMessagesStatsLoading } = useGetMessagesStatsQuery();
-  const { data: messagesByChannelData, isLoading: isMessagesByChannelLoading } = useGetMessagesByChannelQuery();
-  const { data: messagesByMonthData, isLoading: isMessagesByMonthLoading } = useGetMessagesByMonthQuery();
+  const {
+    data: scoreData,
+    isLoading: isScoreLoading,
+    error: scoreError,
+    refetch: refetchScore,
+  } = useGetScoreQuery();
+  const {
+    data: messagesStatsData,
+    isLoading: isMessagesStatsLoading,
+    error: statsError,
+  } = useGetMessagesStatsQuery();
+  const {
+    data: messagesByChannelData,
+    isLoading: isMessagesByChannelLoading,
+    error: channelError,
+    refetch: refetchChannels,
+  } = useGetMessagesByChannelQuery();
+  const {
+    data: messagesByMonthData,
+    isLoading: isMessagesByMonthLoading,
+    error: monthError,
+    refetch: refetchMonth,
+  } = useGetMessagesByMonthQuery();
+  const {
+    data: emojiData,
+    isLoading: isEmojiLoading,
+    error: emojiError,
+    refetch: refetchEmojis,
+  } = useGetEmojisQuery();
+
+  const span = (cols) => {
+    if (isXl) return `span ${cols}`;
+    if (isMd) return cols <= 4 ? "span 6" : "span 12";
+    return "span 12";
+  };
 
   return (
-    <Box m="1.5rem"> 
-      <Header title={"Dashboard"} subtitle={"Welcome to your Dashboard"}></Header>
-      <Box 
-        mt="20px" 
+    <Box>
+      <Header title="Dashboard" subtitle="Welcome to your Dashboard" />
+      <Box
+        mt={1.5}
         display="grid"
-        gridTemplateColumns="repeat(12,minmax(0, 1fr))"
+        gridTemplateColumns="repeat(12, minmax(0, 1fr))"
         justifyContent="space-between"
-        rowGap="20px"
-        columnGap="20px"
-        sx={{
-            "& > div": {gridColumn: isNonMobile ? undefined : "span 12"}
-        }}
-        >
-        {/* MessagesAreaChart */}
-        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
-          <Card
-            sx={{
-          backgroundImage: "none",
-          backgroundColor: theme.palette.background.alt,
-          borderRadius: "0.55rem",
-          gridColumn: 'span 10',
-          gridRow: 'span 2',
-          boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
-          '&:hover': {
-            boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
-            transitionDuration: '0.1s', // Adjust the transition duration for smoothness
-          },
-        }}
-          >
-            <CardContent>
-              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <MessageRounded sx={{ verticalAlign: 'middle' }}/> Messages
-              </Typography>
-              <Box height={300} width="100%">
-                <MessagesAreaChart data={messagesByMonthData} isLoading={isMessagesByMonthLoading}/>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grow>
-        {/* StatBox */}
-        <StatBox 
-          title='Yearly'
-          time='year'
-          increase={23} 
-          icon={<CalendarMonthRounded/>}
-          description='Since last year'
-          data={messagesStatsData}
-          isLoading={isMessagesStatsLoading}
-        />
-        {/* StatBox */}
-        <StatBox 
-          title='Monthly'
-          time='month'
-          increase={-15}  
-          icon={<CalendarTodayRounded/>}
-          description='Since last month'
-          data={messagesStatsData}
-          isLoading={isMessagesStatsLoading}
-        />
-          {/* First Table */}
-        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
-          <Card
-            sx={{
-              backgroundImage: "none",
-              backgroundColor: theme.palette.background.alt,
-              borderRadius: "0.55rem",
-              gridColumn: 'span 8',
-              gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
-              '&:hover': {
-                boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
-              },
-            }}
-            >
-            <CardContent>
-              <Typography sx={{ fontSize: 16 }} variant='h1' gutterBottom>
-                <LeaderboardRounded sx={{ verticalAlign: 'middle' }}/> Firsts
-              </Typography>
-              <FirstTable data={scoreData} isLoading={isScoreLoading} ></FirstTable>
-            </CardContent>
-          </Card>
-        </Grow>
-
-        {/* ChannelsBarChart */}
-        <Grow in={isCardVisible} style={{ transformOrigin: '0 0 0' }}>
-          <Card
-            sx={{
-              backgroundImage: "none",
-              backgroundColor: theme.palette.background.alt,
-              borderRadius: "0.55rem",
-              gridColumn: 'span 4',
-              gridRow: 'span 1',
-              boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`,
-              '&:hover': {
-                boxShadow: `0px 8px 16px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(78, 0, 204, 0.2)'}`, // Adjust the box shadow on hover
-              },
-          }}
-          >
-            <CardContent>
-              <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
-                <Tag sx={{ verticalAlign: 'middle' }}/> Channels
-              </Typography>
-              <Box height={400} width={'100%'}>
-                <ChannelsBarChart data={messagesByChannelData} isLoading={isMessagesByChannelLoading} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grow>
-
-        {/* EmojiPieChart */}
-        <Card
-          sx={{
-            backgroundImage: "none",
-            backgroundColor: theme.palette.background.alt,
-            borderRadius: "0.55rem",
-            gridColumn: 'span 6',
-            gridRow: 'span 1',
-            boxShadow: `0px 4px 8px ${theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)'}`,
-        }}
-        >
+        gap={1.5}
+      >
+        <DashCard sx={{ gridColumn: span(8), gridRow: "span 2" }}>
           <CardContent>
-            <Typography sx={{ fontSize: 16 }} variant='h1' justifyContent={'right'} gutterBottom>
-              <EmojiEmotions sx={{ verticalAlign: 'middle' }}/> Emojis
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              <MessageRounded
+                fontSize="small"
+                sx={{ verticalAlign: "middle", mr: 0.5 }}
+              />{" "}
+              Messages
             </Typography>
-            <Box height={400} width="100%">
-              {/* <EmojiPieChart data={emojiData} isLoading={isEmojiLoading} /> */}
+            <Box height={300} width="100%">
+              <MessagesAreaChart
+                data={messagesByMonthData}
+                isLoading={isMessagesByMonthLoading}
+                error={monthError}
+                onRetry={refetchMonth}
+              />
             </Box>
           </CardContent>
-        </Card>        
+        </DashCard>
+
+        <StatBox
+          title="Yearly"
+          time="year"
+          icon={<CalendarMonthRounded fontSize="small" />}
+          description="Since last year"
+          data={messagesStatsData}
+          isLoading={isMessagesStatsLoading}
+          error={statsError}
+        />
+        <StatBox
+          title="Monthly"
+          time="month"
+          icon={<CalendarTodayRounded fontSize="small" />}
+          description="Since last month"
+          data={messagesStatsData}
+          isLoading={isMessagesStatsLoading}
+          error={statsError}
+        />
+
+        <DashCard sx={{ gridColumn: span(7), gridRow: "span 2", minHeight: 400 }}>
+          <CardContent sx={{ height: "100%" }}>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              <LeaderboardRounded
+                fontSize="small"
+                sx={{ verticalAlign: "middle", mr: 0.5 }}
+              />{" "}
+              Firsts
+            </Typography>
+            <FirstTable
+              data={scoreData}
+              isLoading={isScoreLoading}
+              error={scoreError}
+              onRetry={refetchScore}
+            />
+          </CardContent>
+        </DashCard>
+
+        <DashCard sx={{ gridColumn: span(5), gridRow: "span 2", minHeight: 400 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              <Tag
+                fontSize="small"
+                sx={{ verticalAlign: "middle", mr: 0.5 }}
+              />{" "}
+              Channels
+            </Typography>
+            <Box height={340} width="100%">
+              <ChannelsBarChart
+                data={messagesByChannelData}
+                isLoading={isMessagesByChannelLoading}
+                error={channelError}
+                onRetry={refetchChannels}
+              />
+            </Box>
+          </CardContent>
+        </DashCard>
+
+        <DashCard sx={{ gridColumn: span(12), gridRow: "span 1" }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              <EmojiEmotions
+                fontSize="small"
+                sx={{ verticalAlign: "middle", mr: 0.5 }}
+              />{" "}
+              Top Emojis
+            </Typography>
+            <Box height={280} width="100%">
+              <EmojisPieChart
+                data={emojiData}
+                isLoading={isEmojiLoading}
+                error={emojiError}
+                onRetry={refetchEmojis}
+              />
+            </Box>
+          </CardContent>
+        </DashCard>
       </Box>
     </Box>
-  )
-}
+  );
+};
+
 export default Dashboard;

@@ -1,21 +1,24 @@
 {
-  "name": "mern-dashboard",
+  "name": "dinkboard",
   "version": "1.0.0",
-  "description": "This is my first attempt at a full-stack web app. My app uses React for frontend, Express.js for routing and middleware, Node for backend, and SQL for the database.",
-  "main": "index.js",
-  "dependencies": {
-    "client": "file:./client",
-    "server": "file:./server"
-  },
+  "description": "Discord analytics dashboard — Express + MySQL API, React/Vite + MUI client.",
+  "private": true,
   "scripts": {
-    "install:client": "cd client && npm install",
-    "install:server": "cd server && npm install",
-    "install": "npm run install:client && npm run install:server",
-    "start:client": "cd client && npm start",
-    "start:server": "cd server && npm start",
-    "start": "npm-run-all --parallel start:client start:server"
+    "install:client": "npm install --prefix client",
+    "install:server": "npm install --prefix server",
+    "install:e2e": "npm install --prefix e2e",
+    "install:all": "npm run install:server && npm run install:client",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "dev": "npm-run-all --parallel dev:client dev:server",
+    "start:client": "npm run dev --prefix client",
+    "start:server": "npm start --prefix server",
+    "start": "npm-run-all --parallel start:client start:server",
+    "migrate": "npm run migrate --prefix server",
+    "test": "npm test --prefix server",
+    "test:e2e": "npm test --prefix e2e"
   },
-  "keywords": [],
+  "keywords": ["dinkboard", "express", "mysql", "react", "vite"],
   "author": "ajkeast",
   "license": "ISC",
   "devDependencies": {

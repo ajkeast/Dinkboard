@@ -1,54 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Card,
-  CardActions,
-  CardContent,
-  Grow,
-  Collapse,
-  Button,
-  Typography,
-  Rating,
-  useTheme,
-  useMediaQuery,
-  } from "@mui/material";
+import React from "react";
+import { Box, CardContent } from "@mui/material";
 import Header from "components/Header";
-import JuiceAreaChart from 'components/JuiceAreaChart';
-import DinksCard from 'components/DinkCard';
-import { useGetJuiceQuery } from 'state/api';
+import JuiceAreaChart from "components/JuiceAreaChart";
+import DashCard from "components/DashCard";
+import { useGetJuiceQuery } from "state/api";
 
 const Juice = () => {
-    const isNonMobile = useMediaQuery("(min-width: 1400px)");
-    const theme = useTheme();
-    const { data, isLoading } = useGetJuiceQuery();
+  const { data, isLoading, error, refetch } = useGetJuiceQuery();
 
-    return (
-        <Box>
-                <Header title={"Juice"} subtitle={"The pulse of server patience"}/>
-            <Box 
-                m="1.5rem 2.5rem" 
-                mt="20px" 
-                display="grid"
-                gridTemplateColumns="repeat(12,minmax(0, 1fr))"
-                justifyContent="space-between"
-                rowGap="20px"
-                columnGap="20px"
-                sx={{
-                    "& > div": {gridColumn: isNonMobile ? undefined : "span 12"}
-                }}
-                >
-                
-                <Grow>
-                    <DinksCard theme={theme}>
-                        <CardContent>
-                            <JuiceAreaChart data={data} isLoading={isLoading}/>
-                        </CardContent>                       
-                    </DinksCard>
-                </Grow>    
+  return (
+    <Box>
+      <Header title="Juice" subtitle="The pulse of server patience" />
+      <Box
+        mt={1.5}
+        display="grid"
+        gridTemplateColumns="repeat(12, minmax(0, 1fr))"
+        gap={1.5}
+      >
+        <DashCard sx={{ gridColumn: "span 12", gridRow: "span 2" }}>
+          <CardContent>
+            <Box height={{ xs: 320, md: 420 }} width="100%">
+              <JuiceAreaChart
+                data={data}
+                isLoading={isLoading}
+                error={error}
+                onRetry={refetch}
+              />
             </Box>
-        </Box>
-    )
-    
-}
+          </CardContent>
+        </DashCard>
+      </Box>
+    </Box>
+  );
+};
 
 export default Juice;

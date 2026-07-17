@@ -1,13 +1,35 @@
 import { BaseModel } from "./BaseModel.js";
 
+// Whitelist of allowed groupBy values -> { SQL interval keyword, DATE_FORMAT pattern }.
+// groupBy comes from user input and the interval is interpolated into SQL, so it
+// MUST pass through this map (never interpolate the raw value).
+export const GROUP_BY_INTERVALS = {
+    day: { interval: 'DAY', timeFormat: '%Y-%m-%d' },
+    hour: { interval: 'HOUR', timeFormat: '%Y-%m-%d %H:00:00' },
+    month: { interval: 'MONTH', timeFormat: '%Y-%m' }
+};
+
+function resolveGroupBy(groupBy) {
+    const entry = GROUP_BY_INTERVALS[String(groupBy).toLowerCase()];
+    if (!entry) {
+        const err = new Error(`Invalid groupBy value; expected one of: ${Object.keys(GROUP_BY_INTERVALS).join(', ')}`);
+        err.name = 'ValidationError';
+        throw err;
+    }
+    return entry;
+}
+
 export class AI extends BaseModel {
     constructor() {
         super('chatgpt_logs');
         this.dalleTable = 'dalle_3_prompts';
     }
 
-    // Helper method to generate date series
-    async generateDateSeries(startDate, endDate, interval = 'day') {
+    // Helper method to generate date series. The series is formatted with the
+    // same DATE_FORMAT pattern as the data query so the merge keys line up
+    // (raw DATE values never matched the formatted strings, yielding zeros).
+    async generateDateSeries(startDate, endDate, groupBy = 'day') {
+        const { interval, timeFormat } = resolveGroupBy(groupBy);
         const query = `
             WITH RECURSIVE date_series AS (
                 SELECT DATE(?) as date
@@ -16,9 +38,9 @@ export class AI extends BaseModel {
                 FROM date_series
                 WHERE date < DATE(?)
             )
-            SELECT date as time_period FROM date_series
+            SELECT DISTINCT DATE_FORMAT(date, ?) as time_period FROM date_series
         `;
-        return await this.db.query(query, [startDate, endDate]);
+        return await this.db.query(query, [startDate, endDate, timeFormat]);
     }
 
     // ChatGPT Logs Methods
@@ -64,6 +86,8 @@ export class AI extends BaseModel {
     }
 
     async getChatGPTUsageOverTime(groupBy = 'day') {
+        const { timeFormat } = resolveGroupBy(groupBy);
+
         // Get date range
         const rangeQuery = `
             SELECT 
@@ -74,26 +98,6 @@ export class AI extends BaseModel {
         
         if (!dateRange || !dateRange.start_date) {
             return [];
-        }
-
-        // Generate complete date series
-        const dateSeries = await this.generateDateSeries(
-            dateRange.start_date,
-            dateRange.end_date,
-            groupBy
-        );
-
-        // Get actual data
-        let timeFormat;
-        switch(groupBy.toLowerCase()) {
-            case 'hour':
-                timeFormat = '%Y-%m-%d %H:00:00';
-                break;
-            case 'month':
-                timeFormat = '%Y-%m';
-                break;
-            default:
-                timeFormat = '%Y-%m-%d';
         }
 
         const dataQuery = `
@@ -109,7 +113,19 @@ export class AI extends BaseModel {
 
         const data = await this.db.query(dataQuery, [timeFormat]);
 
-        // Merge date series with data
+        // Hourly series over the full history would blow past MySQL's CTE
+        // recursion cap; return sparse rows (only hours with activity).
+        if (String(groupBy).toLowerCase() === 'hour') {
+            return data;
+        }
+
+        // Generate complete date series and zero-fill gaps
+        const dateSeries = await this.generateDateSeries(
+            dateRange.start_date,
+            dateRange.end_date,
+            groupBy
+        );
+
         return dateSeries.map(date => {
             const matchingData = data.find(d => d.time_period === date.time_period);
             return {
@@ -161,6 +177,8 @@ export class AI extends BaseModel {
     }
 
     async getDalleUsageOverTime(groupBy = 'day') {
+        const { timeFormat } = resolveGroupBy(groupBy);
+
         // Get date range
         const rangeQuery = `
             SELECT 
@@ -173,26 +191,6 @@ export class AI extends BaseModel {
             return [];
         }
 
-        // Generate complete date series
-        const dateSeries = await this.generateDateSeries(
-            dateRange.start_date,
-            dateRange.end_date,
-            groupBy
-        );
-
-        // Get actual data
-        let timeFormat;
-        switch(groupBy.toLowerCase()) {
-            case 'hour':
-                timeFormat = '%Y-%m-%d %H:00:00';
-                break;
-            case 'month':
-                timeFormat = '%Y-%m';
-                break;
-            default:
-                timeFormat = '%Y-%m-%d';
-        }
-
         const dataQuery = `
             SELECT 
                 DATE_FORMAT(timesent, ?) as time_period,
@@ -203,7 +201,18 @@ export class AI extends BaseModel {
 
         const data = await this.db.query(dataQuery, [timeFormat]);
 
-        // Merge date series with data
+        // See getChatGPTUsageOverTime: sparse rows for hourly grouping.
+        if (String(groupBy).toLowerCase() === 'hour') {
+            return data;
+        }
+
+        // Generate complete date series and zero-fill gaps
+        const dateSeries = await this.generateDateSeries(
+            dateRange.start_date,
+            dateRange.end_date,
+            groupBy
+        );
+
         return dateSeries.map(date => ({
             time_period: date.time_period,
             total_prompts: data.find(d => d.time_period === date.time_period)?.total_prompts || 0
@@ -253,6 +262,8 @@ export class AI extends BaseModel {
                     WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
                 ) as total_tokens_last_30_days`;
 
-        return await this.db.query(query);
+        const result = await this.db.query(query);
+        // Single-row aggregate: return the object, not a 1-element array.
+        return result[0];
     }
 } 

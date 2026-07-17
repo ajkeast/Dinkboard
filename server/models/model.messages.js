@@ -8,7 +8,7 @@ export class Messages extends BaseModel {
     async getAll() {
         return await this.findAll({
             fields: [
-                'CAST(messages.id AS VARCHAR(20)) AS id',
+                'CAST(messages.id AS CHAR(20)) AS id',
                 'COALESCE(display_name, user_name) AS user_name',
                 "CONCAT('#', channel_name) AS channel_name",
                 'content',
@@ -46,7 +46,7 @@ export class Messages extends BaseModel {
     async getById(id) {
         return await this.findById(id, {
             fields: [
-                'CAST(messages.id AS VARCHAR(20)) AS id',
+                'CAST(messages.id AS CHAR(20)) AS id',
                 'COALESCE(display_name, user_name) AS user_name',
                 "CONCAT('#', channel_name) AS channel_name",
                 'content',
@@ -105,52 +105,8 @@ export class Messages extends BaseModel {
         return await this.db.query(query);
     }
 
-    // New methods for better functionality
-    async createMessage(data) {
-        const { member_id, channel_id, content } = data;
-        return await this.create({
-            member_id,
-            channel_id,
-            content,
-            created_at: new Date(),
-            last_updated: new Date()
-        });
-    }
-
-    async updateMessage(id, content) {
-        return await this.update(id, {
-            content,
-            last_updated: new Date()
-        });
-    }
-
-    async getMessagesByDateRange(startDate, endDate) {
-        return await this.findAll({
-            fields: [
-                'CAST(messages.id AS VARCHAR(20)) AS id',
-                'COALESCE(display_name, user_name) AS user_name',
-                "CONCAT('#', channel_name) AS channel_name",
-                'content',
-                'messages.created_at'
-            ],
-            joins: [
-                {
-                    table: 'members',
-                    on: 'messages.member_id = members.id'
-                },
-                {
-                    table: 'channels',
-                    on: 'messages.channel_id = channels.id'
-                }
-            ],
-            where: {
-                'messages.created_at >=': startDate,
-                'messages.created_at <=': endDate
-            },
-            orderBy: 'messages.created_at DESC'
-        });
-    }
-
+    // TODO(M7): return result[0] (object) once the frontend StatBox consumers
+    // stop indexing into the 1-row array. Kept array-shaped for now on purpose.
     async getStats() {
         const query = `
             SELECT

@@ -1,0 +1,35 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # Same-origin /api via nginx proxy — leave empty for compose
+        VITE_API_BASE_URL: ""
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - dinkboard
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      # Local compose is HTTP — Secure cookies would be dropped by the browser.
+      COOKIE_SECURE: "false"
+      CORS_ORIGIN: "http://localhost,http://localhost:80"
+    networks:
+      - dinkboard
+
+networks:
+  dinkboard:
+    driver: bridge
