@@ -11,6 +11,11 @@ export class DatabaseError extends Error {
     }
 }
 
+function env(name) {
+    const raw = process.env[name] ?? '';
+    return raw.replace(/^['"]|['"]$/g, '').trim();
+}
+
 // SQL_HOST may include a ":port" suffix (e.g. "example.com:3306"); mysql2
 // expects host and port separately, so parse defensively.
 function parseHost(raw) {
@@ -25,15 +30,16 @@ class Database {
         if (Database.instance) {
             return Database.instance;
         }
-        const { host, port } = parseHost(process.env.SQL_HOST);
+        const { host, port } = parseHost(env('SQL_HOST'));
         // Keepalive + idle recycling handle the shared host's idle-connection
         // culling; no manual pool refresh needed.
         this.pool = mysql.createPool({
             host,
             port,
-            user: process.env.SQL_USER,
-            password: process.env.SQL_PASSWORD,
-            database: process.env.SQL_DATABASE,
+            user: env('SQL_USER'),
+            password: env('SQL_PASSWORD'),
+            database: env('SQL_DATABASE'),
+
             timezone: 'Z',
             waitForConnections: true,
             connectionLimit: 10,

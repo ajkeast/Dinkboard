@@ -35,6 +35,32 @@ jobs:
     defaults:
       run:
         working-directory: server
+    # Ephemeral MySQL — GitHub runners cannot reach PebbleHost remote DB.
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: dinkboard_ci
+          MYSQL_USER: dinkboard
+          MYSQL_PASSWORD: dinkboard
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -ptest"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      SQL_HOST: 127.0.0.1
+      SQL_USER: dinkboard
+      SQL_PASSWORD: dinkboard
+      SQL_DATABASE: dinkboard_ci
+      JWT_SECRET: ci-only-jwt-secret-not-for-production
+      CORS_ORIGIN: http://localhost:3000
+      CLIENT_URL: http://localhost:3000
+      NODE_ENV: test
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,19 +71,5 @@ jobs:
       - run: npm ci
       - name: Run migrations
         run: npm run migrate
-        env:
-          SQL_HOST: ${{ secrets.SQL_HOST }}
-          SQL_USER: ${{ secrets.SQL_USER }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
-      - name: Run vitest
+      - name: Run vitest (auth + unit; Discord data suite skipped in CI)
         run: npm test
-        env:
-          NODE_ENV: test
-          SQL_HOST: ${{ secrets.SQL_HOST }}
-          SQL_USER: ${{ secrets.SQL_USER }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          CORS_ORIGIN: http://localhost:3000
-          CLIENT_URL: http://localhost:3000
