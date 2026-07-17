@@ -43,6 +43,27 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
+      - name: Check DB secrets present
+        env:
+          SQL_HOST: ${{ secrets.SQL_HOST }}
+          SQL_USER: ${{ secrets.SQL_USER }}
+          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
+        run: |
+          node --input-type=module <<'EOF'
+          const keys = ['SQL_HOST', 'SQL_USER', 'SQL_PASSWORD', 'SQL_DATABASE'];
+          let ok = true;
+          for (const k of keys) {
+            const v = process.env[k] ?? '';
+            const trimmed = v.replace(/^['"]|['"]$/g, '').trim();
+            console.log(`${k}: length=${v.length} quoted=${/^['"]/.test(v.trim())} empty=${trimmed.length === 0}`);
+            if (!trimmed) ok = false;
+          }
+          if (!ok) {
+            console.error('One or more SQL_* secrets are missing/empty. Re-add them in repo Settings → Secrets (no quotes).');
+            process.exit(1);
+          }
+          EOF
       - name: Run migrations
         run: npm run migrate
         env:
