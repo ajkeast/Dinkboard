@@ -1,10 +1,6 @@
 import React from "react";
 import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
-
-function apiBase() {
-  const raw = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/";
-  return raw.endsWith("/") ? raw : `${raw}/`;
-}
+import { getApiBaseUrl } from "../utils/apiBase";
 
 /** Discord brand mark (official-ish glyph) for the OAuth button. */
 function DiscordIcon(props) {
@@ -27,7 +23,7 @@ const DiscordAuthButton = ({ disabled = false }) => {
   const theme = useTheme();
 
   const handleClick = () => {
-    window.location.assign(`${apiBase()}api/auth/discord`);
+    window.location.assign(`${getApiBaseUrl()}api/auth/discord`);
   };
 
   return (
