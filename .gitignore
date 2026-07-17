@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 /node_modules
+**/node_modules
 /.pnp
 .pnp.js
 
@@ -28,6 +29,7 @@ e2e/screenshots/
 # env secrets — never commit
 .env
 **/.env
+.env.*
 !.env.example
 !**/.env.example
 
@@ -37,6 +39,20 @@ e2e/screenshots/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs
+*.log
+
+# Fly.io
+fly.toml
+**/fly.toml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
