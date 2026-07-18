@@ -29,7 +29,7 @@ export class Dinkcoin extends BaseModel {
                 CAST(t.amount AS CHAR) AS amount,
                 t.tx_type,
                 t.tx_hash,
-                DATE_FORMAT(t.created_at, '%b %e, %Y %h:%i%p') AS created_at,
+                t.created_at,
                 mf.user_name AS from_user_name,
                 COALESCE(mf.display_name, mf.user_name) AS from_display_name,
                 mf.avatar AS from_avatar,

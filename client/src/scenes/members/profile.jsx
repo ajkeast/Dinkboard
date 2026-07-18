@@ -35,6 +35,7 @@ import {
   formatCompactCount,
   rollingYearRange,
 } from "utils/memberActivity";
+import { formatDate } from "utils/datetime";
 
 const StatTile = ({ label, value, icon }) => {
   const theme = useTheme();
@@ -285,7 +286,7 @@ const MemberProfile = () => {
                 {isMemberLoading ? "" : `@${member.user_name}`}
               </Typography>
               <Typography variant="body2" color="text.secondary" mt={1.5}>
-                Joined {member?.created_at || "—"}
+                Joined {member?.created_at ? formatDate(member.created_at) : "—"}
               </Typography>
               <Typography
                 variant="caption"

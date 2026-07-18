@@ -12,8 +12,8 @@ export class Member extends BaseModel {
                 'user_name',
                 'COALESCE(display_name, user_name) AS display_name',
                 'avatar',
-                "DATE_FORMAT(created_at, '%b %e, %Y') AS created_at",
-                "DATE_FORMAT(last_updated, '%b %e, %Y %h:%i%p UTC') AS last_updated"
+                'created_at',
+                'last_updated',
             ]
         });
     }
@@ -25,8 +25,8 @@ export class Member extends BaseModel {
                 'user_name',
                 'COALESCE(display_name, user_name) AS display_name',
                 'avatar',
-                "DATE_FORMAT(created_at, '%b %e, %Y') AS created_at",
-                "DATE_FORMAT(last_updated, '%b %e, %Y %h:%i%p UTC') AS last_updated"
+                'created_at',
+                'last_updated',
             ]
         });
     }

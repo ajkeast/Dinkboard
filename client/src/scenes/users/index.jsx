@@ -40,6 +40,7 @@ import {
   useDeleteUserMutation,
   getApiErrorMessage,
 } from "state/api";
+import { formatDate } from "utils/datetime";
 
 const UserAvatar = ({ name, isSelf }) => {
   const theme = useTheme();
@@ -134,13 +135,7 @@ const UsersAdmin = () => {
     () =>
       (data || []).map((u) => ({
         ...u,
-        when: u.created_at
-          ? new Date(u.created_at).toLocaleString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-          : "",
+        when: formatDate(u.created_at),
       })),
     [data]
   );
