@@ -1,9 +1,13 @@
 import { Analytics } from '../models/model.analytics.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../middleware/errorHandler.js';
 
 export const ingestEvents = asyncHandler(async (req, res) => {
     const { events } = req.body;
-    const userId = req.user.id;
+    const userId = Number(req.user?.id);
+    if (!Number.isInteger(userId) || userId <= 0) {
+        throw new ApiError(401, 'UNAUTHORIZED', 'Authentication required');
+    }
 
     const rows = events.map((e) => ({
         event_type: e.event_type,

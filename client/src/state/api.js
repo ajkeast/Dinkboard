@@ -40,7 +40,7 @@ export const getApiErrorMessage = (error, fallback = "Something went wrong") =>
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
   reducerPath: "adminApi",
-  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Analytics"],
+  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Usage", "Users"],
   endpoints: (build) => ({
     // AUTH
     login: build.mutation({
@@ -83,20 +83,41 @@ export const api = createApi({
       }),
     }),
 
-    // ANALYTICS (admin read; ingest uses fetch helper)
-    getAnalyticsSummary: build.query({
+    // SITE USAGE (admin read; ingest uses fetch helper → /api/usage/ingest)
+    getUsageSummary: build.query({
       query: ({ days = 30 } = {}) => ({
-        url: "api/analytics/summary",
+        url: "api/usage/summary",
         params: { days },
       }),
-      providesTags: ["Analytics"],
+      providesTags: ["Usage"],
     }),
-    getAnalyticsEvents: build.query({
+    getUsageActivity: build.query({
       query: ({ days = 30, limit = 50, offset = 0, event_type } = {}) => ({
-        url: "api/analytics/events",
+        url: "api/usage/activity",
         params: { days, limit, offset, ...(event_type ? { event_type } : {}) },
       }),
-      providesTags: ["Analytics"],
+      providesTags: ["Usage"],
+    }),
+
+    // USER ADMIN
+    getUsers: build.query({
+      query: () => "api/users",
+      providesTags: ["Users"],
+    }),
+    updateUserRole: build.mutation({
+      query: ({ id, role }) => ({
+        url: `api/users/${id}/role`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    deleteUser: build.mutation({
+      query: (id) => ({
+        url: `api/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
     }),
 
     // FIRSTS
@@ -307,6 +328,9 @@ export const {
   useGetAIStatsQuery,
   useGetDinkcoinBalancesQuery,
   useGetDinkcoinTransactionsQuery,
-  useGetAnalyticsSummaryQuery,
-  useGetAnalyticsEventsQuery,
+  useGetUsageSummaryQuery,
+  useGetUsageActivityQuery,
+  useGetUsersQuery,
+  useUpdateUserRoleMutation,
+  useDeleteUserMutation,
 } = api;

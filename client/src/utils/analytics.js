@@ -84,7 +84,7 @@ function getContext() {
 async function sendBatch(events) {
   if (!events.length) return;
   try {
-    await fetch(apiUrl("api/analytics/events"), {
+    await fetch(apiUrl("api/usage/ingest"), {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

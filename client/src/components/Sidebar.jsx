@@ -28,6 +28,7 @@ import {
   MonetizationOnOutlined,
   LogoutOutlined,
   InsightsOutlined,
+  ManageAccountsOutlined,
 } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
@@ -71,6 +72,11 @@ const Sidebar = ({
         text: "Analytics",
         icon: <InsightsOutlined fontSize="small" />,
         path: "analytics",
+      },
+      {
+        text: "Users",
+        icon: <ManageAccountsOutlined fontSize="small" />,
+        path: "users",
       },
     ];
   }, [user?.role]);
