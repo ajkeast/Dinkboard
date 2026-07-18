@@ -224,23 +224,44 @@ export const TableSkeleton = ({
   );
 };
 
-/** Member profile card placeholder. */
+/** Member directory card placeholder (desktop / tablet grid). */
 export const MemberCardSkeleton = () => (
-  <DashCard>
-    <Box p={1.5}>
-      <Bone sx={{ height: 12, width: "36%", mb: 1 }} />
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Bone sx={{ height: 16, width: "48%" }} />
-        <Bone sx={{ height: 64, width: 64, borderRadius: "50%" }} />
-      </Box>
-      <Box display="flex" justifyContent="space-between" mt={2} gap={1}>
-        {[1, 2, 3].map((i) => (
-          <Bone key={i} sx={{ height: 44, flex: 1 }} />
-        ))}
-      </Box>
-      <Bone sx={{ height: 12, width: "22%", mt: 1.5 }} />
+  <DashCard sx={{ height: "100%" }}>
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      px={2}
+      pt={2.25}
+      pb={1.5}
+      gap={1}
+    >
+      <Bone sx={{ height: 72, width: 72, borderRadius: "50%" }} />
+      <Bone sx={{ height: 16, width: "55%" }} />
+      <Bone sx={{ height: 12, width: "38%" }} />
+    </Box>
+    <Box display="flex" gap={0.5} px={1.25} py={1.25}>
+      {[1, 2, 3].map((i) => (
+        <Bone key={i} sx={{ height: 40, flex: 1 }} />
+      ))}
     </Box>
   </DashCard>
+);
+
+/** Member directory row placeholder (mobile list). */
+export const MemberRowSkeleton = () => (
+  <Box display="flex" alignItems="center" gap={1.25} px={1.5} py={1.25}>
+    <Bone sx={{ height: 14, width: 18, flexShrink: 0 }} />
+    <Bone sx={{ height: 44, width: 44, borderRadius: "50%", flexShrink: 0 }} />
+    <Box flex={1} minWidth={0}>
+      <Bone sx={{ height: 14, width: "55%", mb: 0.75 }} />
+      <Bone sx={{ height: 11, width: "38%" }} />
+    </Box>
+    <Box textAlign="right" flexShrink={0}>
+      <Bone sx={{ height: 14, width: 36, ml: "auto", mb: 0.5 }} />
+      <Bone sx={{ height: 10, width: 28, ml: "auto" }} />
+    </Box>
+  </Box>
 );
 
 /** Panel with fake title + chart body (for card interiors). */
@@ -260,5 +281,6 @@ export default {
   StatSkeleton,
   TableSkeleton,
   MemberCardSkeleton,
+  MemberRowSkeleton,
   PanelSkeleton,
 };
