@@ -58,6 +58,31 @@ export const Users = {
         await db.query('UPDATE app_users SET avatar_url = ? WHERE id = ?', [avatarUrl, userId]);
     },
 
+    async listAll() {
+        return db.query(
+            `SELECT ${USER_PUBLIC_COLS}
+             FROM app_users
+             ORDER BY created_at DESC`
+        );
+    },
+
+    async setRole(userId, role) {
+        await db.query('UPDATE app_users SET role = ? WHERE id = ?', [role, userId]);
+    },
+
+    async countByRole(role) {
+        const rows = await db.query(
+            'SELECT COUNT(*) AS count FROM app_users WHERE role = ?',
+            [role]
+        );
+        return Number(rows[0]?.count ?? 0);
+    },
+
+    async deleteById(userId) {
+        await RefreshTokens.revokeAllForUser(userId);
+        await db.query('DELETE FROM app_users WHERE id = ?', [userId]);
+    },
+
     /** Pick a unique username based on a sanitized base (adds numeric suffix on clash). */
     async allocateUsername(base) {
         let candidate = base.slice(0, 50);

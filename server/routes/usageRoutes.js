@@ -21,7 +21,7 @@ const eventTypeEnum = z.enum([
 
 const deviceTypeEnum = z.enum(['mobile', 'tablet', 'desktop', 'unknown']);
 
-const analyticsEventBody = z.object({
+const usageEventBody = z.object({
     event_type: eventTypeEnum,
     session_id: z.string().uuid(),
     path: z.string().max(512).optional().nullable(),
@@ -35,23 +35,23 @@ const analyticsEventBody = z.object({
 });
 
 const ingestBody = z.object({
-    events: z.array(analyticsEventBody).min(1).max(25)
+    events: z.array(usageEventBody).min(1).max(25)
 });
 
 const summaryQuery = z.object({
     days: z.coerce.number().int().min(1).max(365).optional().default(30)
 });
 
-const listQuery = z.object({
+const activityQuery = z.object({
     days: z.coerce.number().int().min(1).max(365).optional().default(30),
     limit: z.coerce.number().int().min(1).max(200).optional().default(50),
     offset: z.coerce.number().int().min(0).optional().default(0),
     event_type: eventTypeEnum.optional()
 });
 
-// Any authenticated user can write events; only admins can read them.
-router.post('/events', requireAuth, validate({ body: ingestBody }), ingestEvents);
+// Path names avoid EasyList/uBlock patterns (analytics, events, track, collect).
+router.post('/ingest', requireAuth, validate({ body: ingestBody }), ingestEvents);
 router.get('/summary', requireAuth, requireAdmin, validate({ query: summaryQuery }), getSummary);
-router.get('/events', requireAuth, requireAdmin, validate({ query: listQuery }), listEvents);
+router.get('/activity', requireAuth, requireAdmin, validate({ query: activityQuery }), listEvents);
 
 export default router;

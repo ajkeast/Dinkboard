@@ -1,10 +1,5 @@
 import { db } from './database.js';
 
-const EVENT_COLS = `
-  id, event_type, user_id, session_id, path, referrer,
-  device_type, os, browser, viewport_w, viewport_h, properties, created_at
-`;
-
 function parseProperties(row) {
     if (!row) return row;
     let properties = row.properties;
@@ -16,6 +11,20 @@ function parseProperties(row) {
         }
     }
     return { ...row, properties };
+}
+
+function formatDayLabel(value) {
+    if (value instanceof Date) {
+        return value.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    if (typeof value === 'string') {
+        // MySQL DATE often arrives as YYYY-MM-DD
+        const d = new Date(`${value.slice(0, 10)}T12:00:00`);
+        if (!Number.isNaN(d.getTime())) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+    }
+    return String(value ?? '');
 }
 
 export const Analytics = {
@@ -51,20 +60,25 @@ export const Analytics = {
     },
 
     async list({ limit = 50, offset = 0, eventType = null, days = 30 } = {}) {
-        const where = ['created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)'];
+        const where = ['e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)'];
         const params = [days];
 
         if (eventType) {
-            where.push('event_type = ?');
+            where.push('e.event_type = ?');
             params.push(eventType);
         }
 
-        params.push(limit, offset);
+        params.push(Number(limit), Number(offset));
         const rows = await db.query(
-            `SELECT ${EVENT_COLS}
-             FROM app_analytics_events
+            `SELECT
+                e.id, e.event_type, e.user_id, e.session_id, e.path, e.referrer,
+                e.device_type, e.os, e.browser, e.viewport_w, e.viewport_h,
+                e.properties, e.created_at,
+                u.username, u.email
+             FROM app_analytics_events e
+             LEFT JOIN app_users u ON u.id = e.user_id
              WHERE ${where.join(' AND ')}
-             ORDER BY created_at DESC
+             ORDER BY e.created_at DESC
              LIMIT ? OFFSET ?`,
             params
         );
@@ -104,7 +118,7 @@ export const Analytics = {
                AND path IS NOT NULL
              GROUP BY path
              ORDER BY count DESC
-             LIMIT 15`,
+             LIMIT 20`,
             [days]
         );
 
@@ -149,6 +163,7 @@ export const Analytics = {
             })),
             by_day: byDay.map((r) => ({
                 day: r.day,
+                day_label: formatDayLabel(r.day),
                 count: Number(r.count)
             })),
             by_browser: byBrowser.map((r) => ({

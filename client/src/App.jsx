@@ -17,6 +17,7 @@ import Juice from "scenes/juice";
 import AI from "scenes/ai";
 import Economy from "scenes/economy";
 import Analytics from "scenes/analytics";
+import UsersAdmin from "scenes/users";
 import Login from "scenes/login";
 import Register from "scenes/register";
 
@@ -70,6 +71,14 @@ function App() {
                   element={
                     <RequireAdmin>
                       <Analytics />
+                    </RequireAdmin>
+                  }
+                />
+                <Route
+                  path="/users"
+                  element={
+                    <RequireAdmin>
+                      <UsersAdmin />
                     </RequireAdmin>
                   }
                 />

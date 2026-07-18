@@ -33,9 +33,56 @@ import { StatSkeleton } from "components/skeletons/DashSkeleton";
 import { dataGridSx } from "utils/dataGridSx";
 import { getChartTheme } from "utils/chartTheme";
 import {
-  useGetAnalyticsSummaryQuery,
-  useGetAnalyticsEventsQuery,
+  useGetUsageSummaryQuery,
+  useGetUsageActivityQuery,
 } from "state/api";
+
+const formatAxisDate = (value) => {
+  if (!value) return "";
+  if (typeof value === "string" && !value.includes("T") && value.length >= 10) {
+    const d = new Date(`${value.slice(0, 10)}T12:00:00`);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+  }
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+const formatTooltipDate = (value) => {
+  if (!value) return "";
+  if (typeof value === "string" && value.length >= 10 && !value.includes(",")) {
+    const d = new Date(`${value.slice(0, 10)}T12:00:00`);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    }
+  }
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+const formatWhen = (value) => {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
 
 const StatTile = ({ label, value, icon }) => {
   const theme = useTheme();
@@ -66,14 +113,14 @@ const Analytics = () => {
     isLoading: summaryLoading,
     error: summaryError,
     refetch: refetchSummary,
-  } = useGetAnalyticsSummaryQuery({ days });
+  } = useGetUsageSummaryQuery({ days });
 
   const {
-    data: events,
-    isLoading: eventsLoading,
-    error: eventsError,
-    refetch: refetchEvents,
-  } = useGetAnalyticsEventsQuery({ days, limit: 100 });
+    data: activity,
+    isLoading: activityLoading,
+    error: activityError,
+    refetch: refetchActivity,
+  } = useGetUsageActivityQuery({ days, limit: 100 });
 
   const totals = summary?.totals;
   const byDay = summary?.by_day ?? [];
@@ -82,30 +129,30 @@ const Analytics = () => {
 
   const columns = useMemo(
     () => [
-      { field: "when", headerName: "When", flex: 1.1, minWidth: 160 },
+      { field: "when", headerName: "When", flex: 1.2, minWidth: 170 },
+      { field: "user_label", headerName: "User", flex: 1, minWidth: 120 },
       { field: "event_type", headerName: "Type", flex: 0.8, minWidth: 110 },
       { field: "path", headerName: "Path", flex: 1.2, minWidth: 140 },
       { field: "device_type", headerName: "Device", flex: 0.7, minWidth: 90 },
       { field: "browser", headerName: "Browser", flex: 0.7, minWidth: 90 },
       { field: "os", headerName: "OS", flex: 0.7, minWidth: 80 },
-      { field: "user_label", headerName: "User", flex: 0.5, minWidth: 70 },
     ],
     []
   );
 
   const rows = useMemo(
     () =>
-      (events || []).map((e) => ({
+      (activity || []).map((e) => ({
         id: e.id,
-        when: e.created_at ? new Date(e.created_at).toLocaleString() : "",
+        when: formatWhen(e.created_at),
+        user_label: e.username || (e.user_id ? `#${e.user_id}` : "Unknown"),
         event_type: e.event_type,
         path: e.path || "",
         device_type: e.device_type || "",
         browser: e.browser || "",
         os: e.os || "",
-        user_label: e.user_id ?? "—",
       })),
-    [events]
+    [activity]
   );
 
   return (
@@ -122,9 +169,9 @@ const Analytics = () => {
           subtitle="Site usage — visible to admins only"
         />
         <FormControl size="small" sx={{ minWidth: 140 }}>
-          <InputLabel id="analytics-days-label">Range</InputLabel>
+          <InputLabel id="usage-days-label">Range</InputLabel>
           <Select
-            labelId="analytics-days-label"
+            labelId="usage-days-label"
             label="Range"
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
@@ -171,7 +218,7 @@ const Analytics = () => {
               icon={<TimelineOutlined fontSize="small" />}
             />
             <StatTile
-              label="Users"
+              label="Unique users"
               value={totals?.users}
               icon={<GroupsOutlined fontSize="small" />}
             />
@@ -186,13 +233,13 @@ const Analytics = () => {
         <DashCard sx={{ gridColumn: { xs: "span 12", md: "span 8" }, minHeight: 300 }}>
           <CardContent sx={{ height: "100%" }}>
             <Typography variant="h6" fontWeight={600} gutterBottom>
-              Events by day
+              Activity by day
             </Typography>
             <QueryState
               isLoading={summaryLoading}
               error={summaryError}
               isEmpty={!byDay.length}
-              emptyMessage="No events in this range yet"
+              emptyMessage="No activity in this range yet"
               onRetry={refetchSummary}
               skeletonHeight={220}
             >
@@ -202,13 +249,14 @@ const Analytics = () => {
                     <CartesianGrid {...chart.grid} />
                     <XAxis
                       dataKey="day"
-                      {...chart.xAxis}
-                      tickFormatter={(v) =>
-                        typeof v === "string" ? v.slice(5) : v
-                      }
+                      {...chart.xAxisAngled}
+                      tickFormatter={formatAxisDate}
                     />
                     <YAxis {...chart.yAxis} allowDecimals={false} />
-                    <Tooltip {...chart.tooltip} />
+                    <Tooltip
+                      {...chart.tooltip}
+                      labelFormatter={formatTooltipDate}
+                    />
                     <Bar
                       dataKey="count"
                       fill={theme.palette.secondary.main}
@@ -254,9 +302,13 @@ const Analytics = () => {
                 ))}
               </Box>
             </QueryState>
+          </CardContent>
+        </DashCard>
 
-            <Typography variant="subtitle2" fontWeight={600} mt={2.5} mb={1}>
-              Top pages
+        <DashCard sx={{ gridColumn: "span 12", minHeight: 320 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
+              Views per page
             </Typography>
             <QueryState
               isLoading={summaryLoading}
@@ -264,24 +316,31 @@ const Analytics = () => {
               isEmpty={!byPath.length}
               emptyMessage="No page views yet"
               onRetry={refetchSummary}
-              skeletonHeight={120}
+              skeletonHeight={240}
             >
-              <Box display="flex" flexDirection="column" gap={0.75}>
-                {byPath.slice(0, 8).map((p) => (
-                  <Box
-                    key={p.path}
-                    display="flex"
-                    justifyContent="space-between"
-                    gap={1}
+              <Box height={Math.max(220, byPath.length * 28)}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={byPath}
+                    layout="vertical"
+                    margin={chart.marginVertical}
                   >
-                    <Typography variant="body2" noWrap title={p.path}>
-                      {p.path}
-                    </Typography>
-                    <Typography variant="body2" fontWeight={600} flexShrink={0}>
-                      {p.count}
-                    </Typography>
-                  </Box>
-                ))}
+                    <CartesianGrid {...chart.gridVerticalLayout} />
+                    <XAxis type="number" {...chart.yAxis} allowDecimals={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="path"
+                      {...chart.yAxisCategory}
+                      width={140}
+                    />
+                    <Tooltip {...chart.tooltip} />
+                    <Bar
+                      dataKey="count"
+                      fill={theme.palette.secondary.main}
+                      radius={[0, 2, 2, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </Box>
             </QueryState>
           </CardContent>
@@ -290,14 +349,14 @@ const Analytics = () => {
         <DashCard sx={{ gridColumn: "span 12", minHeight: 360 }}>
           <CardContent>
             <Typography variant="h6" fontWeight={600} gutterBottom>
-              Recent events
+              Recent activity
             </Typography>
             <QueryState
-              isLoading={eventsLoading}
-              error={eventsError}
+              isLoading={activityLoading}
+              error={activityError}
               isEmpty={!rows.length}
-              emptyMessage="No events recorded yet"
-              onRetry={refetchEvents}
+              emptyMessage="No activity recorded yet"
+              onRetry={refetchActivity}
               skeletonVariant="table"
               skeletonHeight={280}
             >
