@@ -5,11 +5,10 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { Box, CardContent, useTheme } from "@mui/material";
+import { Box, CardContent, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Header from "components/Header";
 import DashCard from "components/DashCard";
 import QueryState from "components/QueryState";
@@ -33,6 +32,7 @@ const formatDate = (unixTime) => {
 const Firsts = () => {
   const theme = useTheme();
   const chart = getChartTheme(theme);
+  const isMd = useMediaQuery("(min-width: 750px)");
   const { data, error, refetch } = useGetCumCountQuery();
   const [colorShades, setColorShades] = useState([]);
   const [domain, setDomain] = useState([0, 0]);
@@ -108,46 +108,97 @@ const Firsts = () => {
               skeletonVariant="area"
               skeletonHeight="100%"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart margin={{ ...chart.margin, right: 120 }}>
-                  <CartesianGrid {...chart.grid} />
-                  <XAxis
-                    {...chart.xAxisAngled}
-                    dataKey="timesent"
-                    type="number"
-                    domain={domain}
-                    ticks={xAxisTicks}
-                    tickFormatter={formatDate}
-                    allowDataOverflow
-                  />
-                  <YAxis {...chart.yAxis} />
-                  <Tooltip {...chart.tooltip} labelFormatter={formatDate} />
-                  <Legend
-                    {...chart.legend}
-                    layout="vertical"
-                    verticalAlign="top"
-                    align="right"
-                    wrapperStyle={{
-                      ...chart.legend.wrapperStyle,
-                      paddingLeft: 8,
-                      maxHeight: "90%",
-                    }}
-                  />
-                  {series.map((s, index) => (
-                    <Line
-                      dataKey="cum_count"
-                      data={s.data}
-                      name={s.name}
-                      key={s.name}
-                      type="monotone"
-                      stroke={colorShades[index]}
-                      strokeWidth={chart.series.strokeWidth}
-                      dot={false}
-                      animationDuration={chart.series.animationDuration}
+              {/*
+                Custom overlay legend (not Recharts <Legend>) so the chart never
+                shrinks to reserve legend space — critical on mobile.
+              */}
+              <Box position="relative" width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart margin={chart.margin}>
+                    <CartesianGrid {...chart.grid} />
+                    <XAxis
+                      {...chart.xAxisAngled}
+                      dataKey="timesent"
+                      type="number"
+                      domain={domain}
+                      ticks={xAxisTicks}
+                      tickFormatter={formatDate}
+                      allowDataOverflow
                     />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+                    <YAxis {...chart.yAxis} />
+                    <Tooltip {...chart.tooltip} labelFormatter={formatDate} />
+                    {series.map((s, index) => (
+                      <Line
+                        dataKey="cum_count"
+                        data={s.data}
+                        name={s.name}
+                        key={s.name}
+                        type="monotone"
+                        stroke={colorShades[index]}
+                        strokeWidth={chart.series.strokeWidth}
+                        dot={false}
+                        animationDuration={chart.series.animationDuration}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+
+                {series.length > 0 && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: (chart.margin?.top || 12) + 4,
+                      left: (chart.yAxis.width || 48) + (chart.margin?.left || 4) + 8,
+                      zIndex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0.35,
+                      maxWidth: isMd ? "40%" : "55%",
+                      maxHeight: isMd ? "50%" : "42%",
+                      overflowY: "auto",
+                      px: 0.75,
+                      py: 0.5,
+                      borderRadius: `${theme.shape.borderRadius}px`,
+                      bgcolor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(15, 17, 21, 0.62)"
+                          : "rgba(255, 255, 255, 0.78)",
+                      border: `1px solid ${theme.palette.divider}`,
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    {series.map((s, index) => (
+                      <Box
+                        key={s.name}
+                        display="flex"
+                        alignItems="center"
+                        gap={0.6}
+                        minWidth={0}
+                      >
+                        <Box
+                          width={8}
+                          height={8}
+                          borderRadius="1px"
+                          flexShrink={0}
+                          bgcolor={colorShades[index]}
+                        />
+                        <Typography
+                          variant="caption"
+                          noWrap
+                          title={s.name}
+                          sx={{
+                            fontSize: 11,
+                            lineHeight: 1.2,
+                            color: theme.palette.text.secondary,
+                          }}
+                        >
+                          {s.name}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
             </QueryState>
           </Box>
         </CardContent>

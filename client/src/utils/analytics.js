@@ -10,6 +10,17 @@ let flushTimer = null;
 let contextCache = null;
 let listenersBound = false;
 
+/**
+ * Collect usage analytics only for production deployments.
+ * Skips Vite/dev builds and anything served from localhost.
+ */
+function isAnalyticsEnabled() {
+  if (!import.meta.env.PROD) return false;
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return host !== "localhost" && host !== "127.0.0.1" && host !== "[::1]";
+}
+
 function apiUrl(path) {
   return `${getApiBaseUrl()}${path.replace(/^\//, "")}`;
 }
@@ -105,7 +116,7 @@ function scheduleFlush() {
 }
 
 export async function flush() {
-  if (!queue.length) return;
+  if (!isAnalyticsEnabled() || !queue.length) return;
   const batch = queue.splice(0, MAX_BATCH);
   await sendBatch(batch);
   if (queue.length) await flush();
@@ -117,6 +128,8 @@ export async function flush() {
  * @param {{ path?: string, properties?: Record<string, unknown>, referrer?: string }} [opts]
  */
 export function track(eventType, opts = {}) {
+  if (!isAnalyticsEnabled()) return;
+
   const ctx = getContext();
   const event = {
     event_type: eventType,
@@ -235,8 +248,9 @@ function bindErrorListeners() {
   });
 }
 
-/** Call once after the user is authenticated. */
+/** Call once after the user is authenticated. No-ops in local/dev. */
 export function initAnalytics() {
+  if (!isAnalyticsEnabled()) return;
   ensureSessionStart();
   bindErrorListeners();
   bindWebVitals();

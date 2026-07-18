@@ -9,6 +9,7 @@ import DashCard from "./DashCard";
 import FlexBetween from "./FlexBetween";
 import { StatSkeleton } from "./skeletons/DashSkeleton";
 import { TrendingUpRounded, TrendingDownRounded } from "@mui/icons-material";
+import { formatCompact } from "utils/chartTheme";
 
 /**
  * Stats may arrive as a 1-element array (messages/stats) or a plain object.
@@ -88,7 +89,7 @@ const StatBox = ({
             pb: 0.5,
           }}
         >
-          {value}
+          {formatCompact(value)}
         </Typography>
         <Box
           display="flex"
