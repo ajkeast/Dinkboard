@@ -6,8 +6,6 @@ import Navbar from "components/Navbar";
 import Sidebar from "components/Sidebar";
 import { selectCurrentUser } from "state/authSlice";
 
-const DRAWER_WIDTH = "220px";
-
 const Layout = () => {
   const isNonMobile = useMediaQuery("(min-width: 600px)");
   const [isSidebarOpen, setIsSidebarOpen] = useState(isNonMobile);
@@ -19,7 +17,6 @@ const Layout = () => {
       <Sidebar
         user={user}
         isNonMobile={isNonMobile}
-        drawerWidth={DRAWER_WIDTH}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
       />
@@ -28,9 +25,11 @@ const Layout = () => {
         sx={{
           width: "100%",
           minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
           transition: theme.transitions.create("width", {
             easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.shorter,
+            duration: theme.transitions.duration.short,
           }),
         }}
       >
@@ -38,6 +37,7 @@ const Layout = () => {
           user={user}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          isNonMobile={isNonMobile}
         />
         <Box
           component="main"
