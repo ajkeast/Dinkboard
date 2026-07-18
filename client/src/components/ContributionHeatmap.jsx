@@ -1,9 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 
-const CELL = 11;
-const GAP = 3;
-const STEP = CELL + GAP;
+const BASE_CELL = 11;
+const BASE_GAP = 3;
+const BASE_STEP = BASE_CELL + BASE_GAP;
+/** Floor so cells stay readable; below this we allow horizontal scroll. */
+const MIN_CELL = 7;
+const MIN_GAP = 2;
+const MIN_STEP = MIN_CELL + MIN_GAP;
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 const MONTH_FMT = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -97,6 +101,24 @@ function monthLabels(weeks) {
   return labels;
 }
 
+function fitMetrics(weekCount, availableWidth, labelWidth) {
+  const gridBudget = Math.max(0, availableWidth - labelWidth);
+
+  if (!weekCount || gridBudget <= 0) {
+    return { cell: BASE_CELL, gap: BASE_GAP, step: BASE_STEP, fits: true };
+  }
+
+  // Fill the container width (grow or shrink) so leftover margin isn't wasted.
+  const step = gridBudget / weekCount;
+  if (step < MIN_STEP) {
+    return { cell: MIN_CELL, gap: MIN_GAP, step: MIN_STEP, fits: false };
+  }
+
+  const gap = Math.max(MIN_GAP, step * (BASE_GAP / BASE_STEP));
+  const cell = step - gap;
+  return { cell, gap, step, fits: true };
+}
+
 /**
  * GitHub-style contribution calendar.
  * `data` is a sparse array of `{ date: 'YYYY-MM-DD', messages: number }`.
@@ -104,7 +126,23 @@ function monthLabels(weeks) {
 const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  // { date, count, x, y } — x/y are viewport coords for a fixed tooltip
   const [hover, setHover] = useState(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      setContainerWidth(entry.contentRect.width);
+    });
+    ro.observe(el);
+    setContainerWidth(el.getBoundingClientRect().width);
+    return () => ro.disconnect();
+  }, []);
 
   const countByDate = useMemo(() => {
     const map = new Map();
@@ -149,10 +187,15 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
     return sum;
   }, [countByDate]);
 
-  const width = weeks.length * STEP;
-  const height = 7 * STEP;
   const labelWidth = 28;
   const monthHeight = 18;
+  const { cell, step, fits } = useMemo(
+    () => fitMetrics(weeks.length, containerWidth, labelWidth),
+    [weeks.length, containerWidth]
+  );
+
+  const width = weeks.length * step;
+  const height = 7 * step;
 
   if (!startDate || !endDate || weeks.length === 0) {
     return (
@@ -168,8 +211,19 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
       : `${hover.count} messages on ${FULL_FMT.format(parseUTC(hover.date))}`
     : null;
 
+  const updateHover = (day, event) => {
+    setHover({
+      ...day,
+      x: event.clientX,
+      y: event.clientY,
+    });
+  };
+
   return (
-    <Box sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
+    <Box
+      ref={containerRef}
+      sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+    >
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         <Box component="span" fontWeight={600} color="text.primary">
           {total.toLocaleString()}
@@ -182,7 +236,7 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
           width: "100%",
           maxWidth: "100%",
           minWidth: 0,
-          overflowX: "auto",
+          overflowX: fits ? "visible" : "auto",
           overflowY: "hidden",
           overscrollBehaviorX: "contain",
           WebkitOverflowScrolling: "touch",
@@ -191,8 +245,7 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
       >
         <Box
           sx={{
-            width: width + labelWidth + 8,
-            minWidth: width + labelWidth + 8,
+            width: fits ? "100%" : width + labelWidth,
             display: "block",
           }}
         >
@@ -211,7 +264,7 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
                 color="text.secondary"
                 sx={{
                   position: "absolute",
-                  left: m.weekIndex * STEP,
+                  left: m.weekIndex * step,
                   lineHeight: 1,
                   fontSize: 10,
                 }}
@@ -224,12 +277,11 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
           <Box display="flex">
             <Box
               sx={{
+                position: "relative",
                 width: labelWidth,
                 height,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
                 pr: 0.5,
+                flexShrink: 0,
               }}
             >
               {DAY_LABELS.map((label, i) => (
@@ -238,9 +290,12 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
                   variant="caption"
                   color="text.secondary"
                   sx={{
-                    height: CELL,
+                    position: "absolute",
+                    top: i * step,
+                    right: 4,
+                    height: cell,
                     fontSize: 9,
-                    lineHeight: `${CELL}px`,
+                    lineHeight: `${cell}px`,
                     textAlign: "right",
                     visibility: label ? "visible" : "hidden",
                   }}
@@ -250,95 +305,91 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
               ))}
             </Box>
 
-            <Box position="relative">
-              <Box
-                component="svg"
-                width={width}
-                height={height}
-                role="img"
-                aria-label="Message contribution calendar"
-                onMouseLeave={() => setHover(null)}
-              >
-                {weeks.map((week, wi) =>
-                  week.map((day, di) => {
-                    if (!day.inRange) return null;
-                    const level = levelForCount(day.count, maxCount);
-                    return (
-                      <rect
-                        key={day.date}
-                        x={wi * STEP}
-                        y={di * STEP}
-                        width={CELL}
-                        height={CELL}
-                        rx={2}
-                        ry={2}
-                        fill={colors.levels[level]}
-                        stroke={colors.border}
-                        strokeWidth={1}
-                        style={{ cursor: "default" }}
-                        onMouseEnter={() => setHover(day)}
-                      >
-                        <title>
-                          {day.count === 1
-                            ? `1 message on ${FULL_FMT.format(parseUTC(day.date))}`
-                            : `${day.count} messages on ${FULL_FMT.format(parseUTC(day.date))}`}
-                        </title>
-                      </rect>
-                    );
-                  })
-                )}
-              </Box>
-              {hoverTitle && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    position: "absolute",
-                    left: 0,
-                    bottom: -22,
-                    px: 0.75,
-                    py: 0.25,
-                    borderRadius: 1,
-                    bgcolor: theme.palette.background.alt,
-                    border: `1px solid ${theme.palette.divider}`,
-                    boxShadow: theme.customShadows.card,
-                    whiteSpace: "nowrap",
-                    pointerEvents: "none",
-                    zIndex: 1,
-                  }}
-                >
-                  {hoverTitle}
-                </Typography>
+            <Box
+              component="svg"
+              width={width}
+              height={height}
+              role="img"
+              aria-label="Message contribution calendar"
+              onMouseLeave={() => setHover(null)}
+              sx={{ display: "block", flexShrink: 0 }}
+            >
+              {weeks.map((week, wi) =>
+                week.map((day, di) => {
+                  if (!day.inRange) return null;
+                  const level = levelForCount(day.count, maxCount);
+                  return (
+                    <rect
+                      key={day.date}
+                      x={wi * step}
+                      y={di * step}
+                      width={cell}
+                      height={cell}
+                      rx={2}
+                      ry={2}
+                      fill={colors.levels[level]}
+                      stroke={colors.border}
+                      strokeWidth={1}
+                      style={{ cursor: "default" }}
+                      onMouseEnter={(e) => updateHover(day, e)}
+                      onMouseMove={(e) => updateHover(day, e)}
+                    />
+                  );
+                })
               )}
             </Box>
           </Box>
-
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="flex-end"
-            gap={0.5}
-            mt={3.5}
-          >
-            <Typography variant="caption" color="text.secondary">
-              Less
-            </Typography>
-            {colors.levels.map((c, i) => (
-              <Box
-                key={i}
-                sx={{
-                  width: CELL,
-                  height: CELL,
-                  borderRadius: "2px",
-                  bgcolor: c,
-                  border: `1px solid ${colors.border}`,
-                }}
-              />
-            ))}
-            <Typography variant="caption" color="text.secondary">
-              More
-            </Typography>
-          </Box>
         </Box>
+      </Box>
+
+      {hoverTitle && (
+        <Typography
+          variant="caption"
+          sx={{
+            position: "fixed",
+            left: hover.x,
+            top: hover.y + 16,
+            transform: "translateX(-50%)",
+            px: 0.75,
+            py: 0.25,
+            borderRadius: 1,
+            bgcolor: theme.palette.background.alt,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: theme.customShadows.card,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: theme.zIndex.tooltip,
+          }}
+        >
+          {hoverTitle}
+        </Typography>
+      )}
+
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        gap={0.5}
+        mt={1}
+      >
+        <Typography variant="caption" color="text.secondary">
+          Less
+        </Typography>
+        {colors.levels.map((c, i) => (
+          <Box
+            key={i}
+            sx={{
+              width: BASE_CELL,
+              height: BASE_CELL,
+              borderRadius: "2px",
+              bgcolor: c,
+              border: `1px solid ${colors.border}`,
+            }}
+          />
+        ))}
+        <Typography variant="caption" color="text.secondary">
+          More
+        </Typography>
       </Box>
     </Box>
   );
