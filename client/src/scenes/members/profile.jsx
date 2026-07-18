@@ -244,18 +244,20 @@ const MemberProfile = () => {
 
       <Box
         display="grid"
-        gridTemplateColumns={isMd ? "260px 1fr" : "1fr"}
+        gridTemplateColumns={isMd ? "260px minmax(0, 1fr)" : "minmax(0, 1fr)"}
         gap={2}
         alignItems="start"
+        sx={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}
       >
         {/* Left column — identity (GitHub-style) */}
-        <DashCard>
+        <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
           <CardContent
             sx={{
               display: "flex",
               flexDirection: isMd ? "column" : "row",
               alignItems: isMd ? "stretch" : "center",
               gap: 2,
+              minWidth: 0,
             }}
           >
             {isMemberLoading ? (
@@ -272,7 +274,12 @@ const MemberProfile = () => {
               <Typography variant="h4" fontWeight={700} noWrap>
                 {isMemberLoading ? "…" : displayName}
               </Typography>
-              <Typography variant="h6" color="text.secondary" fontWeight={400}>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                fontWeight={400}
+                noWrap
+              >
                 {isMemberLoading ? "" : `@${member.user_name}`}
               </Typography>
               <Typography variant="body2" color="text.secondary" mt={1.5}>
@@ -281,7 +288,14 @@ const MemberProfile = () => {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontFamily: "monospace", display: "block", mt: 0.5 }}
+                sx={{
+                  fontFamily: "monospace",
+                  display: "block",
+                  mt: 0.5,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
               >
                 {id}
               </Typography>
@@ -290,8 +304,13 @@ const MemberProfile = () => {
         </DashCard>
 
         {/* Right column — activity */}
-        <Box display="flex" flexDirection="column" gap={2}>
-          <Box display="flex" flexWrap="wrap" gap={1.25}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          sx={{ minWidth: 0, maxWidth: "100%" }}
+        >
+          <Box display="flex" flexWrap="wrap" gap={1.25} sx={{ minWidth: 0 }}>
             <StatTile
               label="Messages"
               value={formatCompactCount(summary?.total_messages)}
@@ -348,8 +367,8 @@ const MemberProfile = () => {
             />
           </Box>
 
-          <DashCard>
-            <CardContent>
+          <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
+            <CardContent sx={{ minWidth: 0, overflow: "hidden" }}>
               <Typography variant="h6" fontWeight={600} mb={1.5}>
                 Contribution activity
               </Typography>
@@ -359,8 +378,9 @@ const MemberProfile = () => {
                 flexDirection={isMd ? "row" : "column"}
                 gap={1.5}
                 alignItems={isMd ? "flex-start" : "stretch"}
+                sx={{ minWidth: 0 }}
               >
-                <Box flex={1} minWidth={0}>
+                <Box flex={1} minWidth={0} maxWidth="100%" overflow="hidden">
                   {isSummaryLoading || isDailyLoading ? (
                     <Box
                       height={140}
@@ -423,8 +443,10 @@ const MemberProfile = () => {
             </CardContent>
           </DashCard>
 
-          <DashCard sx={{ minHeight: 320 }}>
-            <CardContent sx={{ height: "100%" }}>
+          <DashCard
+            sx={{ minHeight: 320, minWidth: 0, maxWidth: "100%", overflow: "hidden" }}
+          >
+            <CardContent sx={{ height: "100%", minWidth: 0, overflow: "hidden" }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
                 <Tag
                   sx={{
@@ -436,7 +458,7 @@ const MemberProfile = () => {
                 />
                 Top channels
               </Typography>
-              <Box height={260}>
+              <Box height={260} sx={{ minWidth: 0, overflowX: "auto" }}>
                 <MemberChannelsChart
                   data={channels}
                   isLoading={isChannelsLoading}

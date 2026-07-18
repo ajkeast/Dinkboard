@@ -45,6 +45,9 @@ const Layout = () => {
             px: { xs: 1, sm: 1.5, md: 2 },
             pb: 2,
             minHeight: "calc(100vh - 52px)",
+            minWidth: 0,
+            maxWidth: "100%",
+            overflowX: "hidden",
           }}
         >
           <Outlet />

@@ -169,7 +169,7 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
     : null;
 
   return (
-    <Box>
+    <Box sx={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         <Box component="span" fontWeight={600} color="text.primary">
           {total.toLocaleString()}
@@ -177,8 +177,25 @@ const ContributionHeatmap = ({ data = [], startDate, endDate }) => {
         messages in this period
       </Typography>
 
-      <Box sx={{ overflowX: "auto", pb: 0.5 }}>
-        <Box sx={{ minWidth: width + labelWidth + 8, display: "inline-block" }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "100%",
+          minWidth: 0,
+          overflowX: "auto",
+          overflowY: "hidden",
+          overscrollBehaviorX: "contain",
+          WebkitOverflowScrolling: "touch",
+          pb: 0.5,
+        }}
+      >
+        <Box
+          sx={{
+            width: width + labelWidth + 8,
+            minWidth: width + labelWidth + 8,
+            display: "block",
+          }}
+        >
           <Box
             sx={{
               position: "relative",
