@@ -60,7 +60,8 @@ export class Firsts extends BaseModel {
         const query = `
             SELECT 
                 members.id AS user_id,
-                COALESCE(display_name, user_name) AS user_name, 
+                COALESCE(display_name, user_name) AS user_name,
+                members.avatar AS avatar,
                 COUNT(*) AS firsts,
                 DATEDIFF(NOW(), MAX(timesent)) AS days_since_first
             FROM ${this.tableName}

@@ -40,7 +40,7 @@ const Emojis = () => {
               emptyMessage="No emojis found"
               onRetry={refetch}
               skeleton={
-                <TableSkeleton rows={14} columns={4} height="100%" />
+                <TableSkeleton rows={14} columns={3} height="100%" />
               }
               skeletonHeight="100%"
             >

@@ -4,7 +4,7 @@ import ChannelsBarChart from "components/ChannelsBarChart";
 import EmojisPieChart from "components/EmojisPieChart";
 import DashCard from "components/DashCard";
 import Header from "components/Header";
-import StatBox from "components/StatBox";
+import StatStrip from "components/StatStrip";
 import MessagesAreaChart from "components/MessagesAreaChart";
 import {
   useGetScoreQuery,
@@ -74,7 +74,31 @@ const Dashboard = () => {
         justifyContent="space-between"
         gap={1.5}
       >
-        <DashCard sx={{ gridColumn: span(8), gridRow: "span 2" }}>
+        <StatStrip
+          sx={{ gridColumn: "span 12" }}
+          items={[
+            {
+              title: "Yearly",
+              time: "year",
+              icon: <CalendarMonthRounded fontSize="small" />,
+              description: "Since last year",
+              data: messagesStatsData,
+              isLoading: isMessagesStatsLoading,
+              error: statsError,
+            },
+            {
+              title: "Monthly",
+              time: "month",
+              icon: <CalendarTodayRounded fontSize="small" />,
+              description: "Since last month",
+              data: messagesStatsData,
+              isLoading: isMessagesStatsLoading,
+              error: statsError,
+            },
+          ]}
+        />
+
+        <DashCard sx={{ gridColumn: "span 12", gridRow: "span 2" }}>
           <CardContent>
             <Typography variant="h6" fontWeight={600} gutterBottom>
               <MessageRounded
@@ -94,27 +118,15 @@ const Dashboard = () => {
           </CardContent>
         </DashCard>
 
-        <StatBox
-          title="Yearly"
-          time="year"
-          icon={<CalendarMonthRounded fontSize="small" />}
-          description="Since last year"
-          data={messagesStatsData}
-          isLoading={isMessagesStatsLoading}
-          error={statsError}
-        />
-        <StatBox
-          title="Monthly"
-          time="month"
-          icon={<CalendarTodayRounded fontSize="small" />}
-          description="Since last month"
-          data={messagesStatsData}
-          isLoading={isMessagesStatsLoading}
-          error={statsError}
-        />
-
-        <DashCard sx={{ gridColumn: span(7), gridRow: "span 2", minHeight: 400 }}>
-          <CardContent sx={{ height: "100%" }}>
+        <DashCard
+          sx={{
+            gridColumn: span(7),
+            gridRow: "span 2",
+            alignSelf: "start",
+            width: "100%",
+          }}
+        >
+          <CardContent>
             <Typography variant="h6" fontWeight={600} gutterBottom>
               <LeaderboardRounded
                 fontSize="small"
