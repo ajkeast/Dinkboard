@@ -368,7 +368,13 @@ const MemberProfile = () => {
           </Box>
 
           <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
-            <CardContent sx={{ minWidth: 0, overflow: "hidden" }}>
+            <CardContent
+              sx={{
+                minWidth: 0,
+                overflow: "hidden",
+                pr: isMd ? 1 : undefined,
+              }}
+            >
               <Typography variant="h6" fontWeight={600} mb={1.5}>
                 Contribution activity
               </Typography>
@@ -376,7 +382,7 @@ const MemberProfile = () => {
               <Box
                 display="flex"
                 flexDirection={isMd ? "row" : "column"}
-                gap={1.5}
+                gap={1}
                 alignItems={isMd ? "flex-start" : "stretch"}
                 sx={{ minWidth: 0 }}
               >
@@ -409,11 +415,13 @@ const MemberProfile = () => {
                   display="flex"
                   flexDirection={isMd ? "column" : "row"}
                   flexWrap="wrap"
-                  gap={0.5}
                   sx={{
                     flexShrink: 0,
                     maxHeight: isMd ? 160 : undefined,
                     overflowY: isMd ? "auto" : "visible",
+                    columnGap: 0,
+                    rowGap: 0.25,
+                    alignContent: "flex-start",
                   }}
                 >
                   {yearOptions.map((opt) => {
@@ -426,9 +434,9 @@ const MemberProfile = () => {
                         color={selected ? "secondary" : "inherit"}
                         onClick={() => setSelectedKey(opt.key)}
                         sx={{
-                          minWidth: isMd ? 88 : 0,
+                          minWidth: isMd ? 72 : 0,
                           justifyContent: isMd ? "flex-start" : "center",
-                          px: 1,
+                          px: 0.75,
                           py: 0.25,
                           fontSize: 12,
                           fontWeight: selected ? 700 : 500,
