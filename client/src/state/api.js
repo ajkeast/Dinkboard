@@ -40,7 +40,7 @@ export const getApiErrorMessage = (error, fallback = "Something went wrong") =>
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
   reducerPath: "adminApi",
-  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth"],
+  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Analytics"],
   endpoints: (build) => ({
     // AUTH
     login: build.mutation({
@@ -81,6 +81,22 @@ export const api = createApi({
         url: "api/auth/refresh",
         method: "POST",
       }),
+    }),
+
+    // ANALYTICS (admin read; ingest uses fetch helper)
+    getAnalyticsSummary: build.query({
+      query: ({ days = 30 } = {}) => ({
+        url: "api/analytics/summary",
+        params: { days },
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getAnalyticsEvents: build.query({
+      query: ({ days = 30, limit = 50, offset = 0, event_type } = {}) => ({
+        url: "api/analytics/events",
+        params: { days, limit, offset, ...(event_type ? { event_type } : {}) },
+      }),
+      providesTags: ["Analytics"],
     }),
 
     // FIRSTS
@@ -291,4 +307,6 @@ export const {
   useGetAIStatsQuery,
   useGetDinkcoinBalancesQuery,
   useGetDinkcoinTransactionsQuery,
+  useGetAnalyticsSummaryQuery,
+  useGetAnalyticsEventsQuery,
 } = api;

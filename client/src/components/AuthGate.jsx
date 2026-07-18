@@ -4,6 +4,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { Navigate, useLocation } from "react-router-dom";
 import {
   selectAuthStatus,
+  selectCurrentUser,
   selectIsAuthenticated,
   setAuthLoading,
   setCredentials,
@@ -94,6 +95,22 @@ export function PublicOnly({ children }) {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}
+
+export function RequireAdmin({ children }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (user?.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
 

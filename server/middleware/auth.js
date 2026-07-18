@@ -31,3 +31,13 @@ export function requireAuth(req, res, next) {
         });
     }
 }
+
+/** Requires requireAuth first. Only admin role may proceed. */
+export function requireAdmin(req, res, next) {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).json({
+            error: { code: 'FORBIDDEN', message: 'Admin access required' }
+        });
+    }
+    next();
+}

@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { useRegisterMutation, getApiErrorMessage } from "state/api";
 import { setCredentials } from "state/authSlice";
 import DiscordAuthButton from "components/DiscordAuthButton";
+import { trackAuth } from "utils/analytics";
 
 const USERNAME_RE = /^[a-zA-Z0-9_.-]{3,50}$/;
 
@@ -62,6 +63,7 @@ const Register = () => {
         password,
       }).unwrap();
       dispatch(setCredentials(result.user));
+      trackAuth("register", { method: "password" });
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const details = err?.data?.error?.details;

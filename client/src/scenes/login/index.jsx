@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { useLoginMutation, getApiErrorMessage } from "state/api";
 import { setCredentials } from "state/authSlice";
 import DiscordAuthButton from "components/DiscordAuthButton";
+import { trackAuth } from "utils/analytics";
 
 const Login = () => {
   const theme = useTheme();
@@ -55,6 +56,7 @@ const Login = () => {
     try {
       const result = await login({ email: email.trim(), password }).unwrap();
       dispatch(setCredentials(result.user));
+      trackAuth("login", { method: "password" });
       const dest = location.state?.from?.pathname || "/dashboard";
       navigate(dest, { replace: true });
     } catch (err) {
