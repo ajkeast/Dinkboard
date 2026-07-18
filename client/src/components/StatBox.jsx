@@ -65,10 +65,7 @@ const TrendLabel = ({ change, size = 20 }) => {
   );
 };
 
-const valueColor = (theme) =>
-  theme.palette.mode === "dark"
-    ? theme.palette.secondary[200]
-    : theme.palette.secondary[600];
+const valueColor = (theme) => theme.palette.text.primary;
 
 const DefaultBody = ({ title, icon, value, change, description, theme }) => (
   <CardContent>

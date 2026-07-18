@@ -1,5 +1,5 @@
 import { Firsts } from '../models/model.firsts.js';
-import { processTimestamp, groupByUserAndSumMinutes } from '../utils/timestamp.utils.js';
+import { buildJuiceSeries, groupByUserAndSumMinutes } from '../utils/timestamp.utils.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 const firsts = new Firsts();
@@ -41,15 +41,11 @@ export const getCumCount = asyncHandler(async (req, res) => {
 
 export const getJuice = asyncHandler(async (req, res) => {
     const inputData = await firsts.getAll();
-    const result = inputData
-        .map(processTimestamp)
-        .sort((a, b) => new Date(a.eastern_timestamp) - new Date(b.eastern_timestamp));
-    res.status(200).json(result);
+    res.status(200).json(buildJuiceSeries(inputData));
 });
 
 export const getJuicePerUser = asyncHandler(async (req, res) => {
     const inputData = await firsts.getAll();
-    const processedData = inputData.map(processTimestamp);
-    const result = groupByUserAndSumMinutes(processedData);
-    res.status(200).json(result);
+    const processedData = buildJuiceSeries(inputData);
+    res.status(200).json(groupByUserAndSumMinutes(processedData));
 });

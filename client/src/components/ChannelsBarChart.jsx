@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -10,17 +10,24 @@ import {
 } from "recharts";
 import { useTheme } from "@mui/material";
 import QueryState from "./QueryState";
-import { getChartTheme } from "utils/chartTheme";
+import { getChartTheme, getSeriesColor } from "utils/chartTheme";
 
 const ChannelsBarChart = ({ data, isLoading, error, onRetry }) => {
   const theme = useTheme();
   const chart = getChartTheme(theme);
 
-  const sortedData = Array.isArray(data)
-    ? [...data]
-        .sort((a, b) => b.messages - a.messages)
-        .slice(0, 12)
-    : [];
+  const sortedData = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+    return [...data]
+      .sort((a, b) => (Number(b.messages) || 0) - (Number(a.messages) || 0))
+      .slice(0, 8)
+      .map((row) => ({
+        ...row,
+        channel_name: row.channel_name
+          ? `#${String(row.channel_name).replace(/^#/, "")}`
+          : "unknown",
+      }));
+  }, [data]);
 
   return (
     <QueryState
@@ -37,22 +44,27 @@ const ChannelsBarChart = ({ data, isLoading, error, onRetry }) => {
           data={sortedData}
           layout="vertical"
           margin={chart.marginVertical}
-          barCategoryGap={chart.barCategoryGap}
+          barCategoryGap="18%"
         >
           <CartesianGrid {...chart.gridVerticalLayout} />
-          <XAxis type="number" {...chart.xAxis} tickFormatter={chart.yAxis.tickFormatter} />
+          <XAxis
+            type="number"
+            {...chart.xAxis}
+            tickFormatter={chart.yAxis.tickFormatter}
+          />
           <YAxis
             type="category"
             dataKey="channel_name"
             {...chart.yAxisCategory}
+            width={100}
           />
           <Tooltip {...chart.tooltip} />
           <Bar
             dataKey="messages"
-            fill={theme.palette.secondary[300]}
+            fill={getSeriesColor(0)}
             animationDuration={chart.series.animationDuration}
             animationBegin={0}
-            radius={0}
+            radius={[0, 2, 2, 0]}
           />
         </BarChart>
       </ResponsiveContainer>
