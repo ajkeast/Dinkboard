@@ -1,8 +1,8 @@
 services:
   client:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: client/Dockerfile
       args:
         # Same-origin /api via nginx proxy — leave empty for compose
         VITE_API_BASE_URL: ""
@@ -15,8 +15,8 @@ services:
 
   server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
     ports:
       - "5000:5000"
     env_file:

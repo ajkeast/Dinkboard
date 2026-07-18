@@ -1,7 +1,8 @@
-# Dinkboard API Contract (post-M3)
+# Dinkboard API Contract
 
-Base URL (dev): `http://localhost:5001` (port from `PORT` env; code default 5000, but macOS
-AirPlay squats 5000 on this machine, so `.env` sets 5001).
+Base URL (dev): `http://localhost:5000` by default (`PORT` env). On macOS, AirPlay Receiver
+often binds 5000 — if so, set `PORT=5001` in `server/.env` and point
+`VITE_API_BASE_URL` at that port.
 
 ## Conventions
 

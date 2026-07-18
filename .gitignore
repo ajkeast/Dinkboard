@@ -7,6 +7,11 @@ node_modules/
 /.pnp
 .pnp.js
 
+# npm workspaces — single root lockfile only
+client/package-lock.json
+server/package-lock.json
+e2e/package-lock.json
+
 # testing
 /coverage
 /e2e/test-results
