@@ -4,7 +4,7 @@
 
 A full-stack analytics dashboard for a private Discord community. It surfaces message volume, member activity, emoji usage, AI feature usage, an in-server economy, and community leaderboards — backed by a real MySQL dataset and a production deploy with CI/CD.
 
-> Despite the repo folder name, this is **not** MongoDB/MERN. The API is Express + **MySQL**.
+Stack: **React (Vite) + Express + MySQL**.
 
 ---
 
@@ -121,11 +121,13 @@ Full response shapes: [`server/API.md`](server/API.md).
 
 **Prerequisites:** Node.js 20+, npm 9+, MySQL credentials in `server/.env`.
 
+This repo is an **npm workspaces** monorepo (`client`, `server`, `e2e`). One install at the root; one `package-lock.json`.
+
 ```bash
 git clone <repo-url>
-cd MERN-Dashboard
+cd Dinkboard
 
-npm run install:all
+npm install
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 # Fill SQL_*, JWT_SECRET, PORT, CORS_ORIGIN, VITE_API_BASE_URL
@@ -151,11 +153,15 @@ See `server/.env.example` / `client/.env.example` for variable names. Discord OA
 ## Project layout
 
 ```
+├── package.json            # workspaces root + shared scripts
+├── package-lock.json       # single lockfile for all workspaces
 ├── client/                 # Vite React app
 ├── server/                 # Express API, migrations, vitest
 ├── e2e/                    # Playwright auth smoke
 ├── deploy/                 # Production deploy script + Caddy notes
-├── docs/screenshots/       # README demo images
+├── docs/
+│   ├── screenshots/        # README demo images
+│   └── history/            # completed modernization plan (historical)
 ├── docker-compose.yml
 ├── docker-compose.prod.yml
 └── .github/workflows/      # CI + Deploy

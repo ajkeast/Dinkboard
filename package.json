@@ -3,22 +3,30 @@
   "version": "1.0.0",
   "description": "Discord analytics dashboard — Express + MySQL API, React/Vite + MUI client.",
   "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "e2e"
+  ],
   "scripts": {
-    "install:client": "npm install --prefix client",
-    "install:server": "npm install --prefix server",
-    "install:e2e": "npm install --prefix e2e",
-    "install:all": "npm run install:server && npm run install:client",
-    "dev:client": "npm run dev --prefix client",
-    "dev:server": "npm run dev --prefix server",
     "dev": "npm-run-all --parallel dev:client dev:server",
-    "start:client": "npm run dev --prefix client",
-    "start:server": "npm start --prefix server",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
     "start": "npm-run-all --parallel start:client start:server",
-    "migrate": "npm run migrate --prefix server",
-    "test": "npm test --prefix server",
-    "test:e2e": "npm test --prefix e2e"
+    "start:client": "npm run dev -w client",
+    "start:server": "npm run start -w server",
+    "build": "npm run build -w client",
+    "migrate": "npm run migrate -w server",
+    "test": "npm run test -w server",
+    "test:e2e": "npm run test -w e2e"
   },
-  "keywords": ["dinkboard", "express", "mysql", "react", "vite"],
+  "keywords": [
+    "dinkboard",
+    "express",
+    "mysql",
+    "react",
+    "vite"
+  ],
   "author": "ajkeast",
   "license": "ISC",
   "devDependencies": {

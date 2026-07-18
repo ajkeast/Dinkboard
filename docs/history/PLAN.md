@@ -1,3 +1,5 @@
+> **Historical.** This modernization plan (Phases 1–5 / M1–M10) was completed. Kept for context only — do not treat as an active backlog. Current setup: npm workspaces monorepo (`client`, `server`, `e2e`), Vite client, Express + MySQL API.
+
 # Dinkboard Modernization Plan
 
 Phase 1 deliverable (audit + baseline verified). This plan sequences Phases 2–5 into

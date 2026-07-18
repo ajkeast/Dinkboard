@@ -2,10 +2,13 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+# Workspace install from repo root (single lockfile)
+COPY package.json package-lock.json ./
+COPY server/package.json ./server/
+RUN npm ci -w server --omit=dev
 
-COPY . .
+COPY server ./server
+WORKDIR /app/server
 
 ENV NODE_ENV=production
 ENV PORT=5000
