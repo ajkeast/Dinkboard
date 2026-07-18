@@ -211,6 +211,7 @@ const MemberProfile = () => {
         <Button
           component={RouterLink}
           to="/members"
+          color="secondary"
           startIcon={<ArrowBackRounded />}
           sx={{ mb: 2 }}
         >
@@ -235,6 +236,7 @@ const MemberProfile = () => {
       <Button
         component={RouterLink}
         to="/members"
+        color="secondary"
         startIcon={<ArrowBackRounded />}
         size="small"
         sx={{ mb: 1.5 }}
