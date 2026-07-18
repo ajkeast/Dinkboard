@@ -28,11 +28,11 @@ export function clientUrl() {
 }
 
 export function oauthFailureRedirect() {
-    return `${clientUrl()}/#/login?error=discord_auth_failed`;
+    return `${clientUrl()}/login?error=discord_auth_failed`;
 }
 
 export function oauthSuccessRedirect() {
-    return `${clientUrl()}/#/dashboard`;
+    return `${clientUrl()}/dashboard`;
 }
 
 export function generateOAuthState() {

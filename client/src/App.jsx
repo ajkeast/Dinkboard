@@ -2,7 +2,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { themeSettings } from "theme";
 import { AuthBootstrap, PublicOnly, RequireAuth, RequireAdmin } from "components/AuthGate";
 import AnalyticsTracker from "components/AnalyticsTracker";
@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div className="app">
-      <HashRouter>
+      <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthBootstrap>
@@ -87,7 +87,7 @@ function App() {
             </Routes>
           </AuthBootstrap>
         </ThemeProvider>
-      </HashRouter>
+      </BrowserRouter>
     </div>
   );
 }

@@ -134,7 +134,7 @@ export function track(eventType, opts = {}) {
   const event = {
     event_type: eventType,
     session_id: getSessionId(),
-    path: opts.path ?? (window.location.hash?.replace(/^#/, "") || window.location.pathname),
+    path: opts.path ?? `${window.location.pathname}${window.location.search || ""}`,
     referrer: opts.referrer ?? (document.referrer || null),
     device_type: ctx.device_type,
     os: ctx.os,

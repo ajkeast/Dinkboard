@@ -35,7 +35,7 @@ AirPlay squats 5000 on this machine, so `.env` sets 5001).
 | POST | `/api/auth/logout` | — | 200 `{success:true}` + cookies cleared, refresh token revoked |
 | GET | `/api/auth/me` | — (requires auth) | 200 `{user}` |
 | GET | `/api/auth/discord` | — | 302 → Discord authorize (sets CSRF state cookie) |
-| GET | `/api/auth/discord/callback` | — (query: `code`, `state`) | 302 → `{CLIENT_URL}/#/dashboard` + cookies, or `/#/login?error=discord_auth_failed` |
+| GET | `/api/auth/discord/callback` | — (query: `code`, `state`) | 302 → `{CLIENT_URL}/dashboard` + cookies, or `/login?error=discord_auth_failed` |
 
 `user` = `{id:number, email, username, role:'admin'|'viewer', member_id:string|null, avatar_url:string|null}`
 

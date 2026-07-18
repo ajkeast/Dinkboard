@@ -92,7 +92,7 @@ Community “juice” metric — the pulse of server patience over time.
 
 | Layer | Tech |
 |---|---|
-| Client | React 18, Vite, MUI 5, Recharts, Redux Toolkit / RTK Query, React Router (`HashRouter`) |
+| Client | React 18, Vite, MUI 5, Recharts, Redux Toolkit / RTK Query, React Router (`BrowserRouter`) |
 | API | Node.js, Express, mysql2, argon2, JWT, Zod, helmet, express-rate-limit |
 | Auth | `access_token` + `refresh_token` httpOnly cookies (Bearer fallback for tests/curl) |
 | DB | MySQL |
