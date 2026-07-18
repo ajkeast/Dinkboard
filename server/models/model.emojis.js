@@ -11,7 +11,7 @@ export class Emojis extends BaseModel {
                 e.id,
                 e.emoji_name,
                 e.url,
-                DATE_FORMAT(e.created_at, '%b %e, %Y') AS created_at,
+                e.created_at,
                 e.last_updated,
                 COALESCE(occurences, 0) AS occurrences
             FROM ${this.tableName} as e

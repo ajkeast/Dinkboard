@@ -4,6 +4,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { TableSkeleton } from "./skeletons/DashSkeleton";
 import UsageBarCell from "./UsageBarCell";
 import { dataGridSx } from "utils/dataGridSx";
+import { formatDate } from "utils/datetime";
 
 const EmojiCell = ({ name, url }) => (
   <Box
@@ -92,7 +93,7 @@ const EmojisDataGrid = ({ data, isLoading }) => {
             noWrap
             sx={{ fontVariantNumeric: "tabular-nums" }}
           >
-            {params.value || "—"}
+            {params.value ? formatDate(params.value) : "—"}
           </Typography>
         ),
       },

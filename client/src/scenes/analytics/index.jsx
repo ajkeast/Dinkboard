@@ -36,6 +36,11 @@ import {
   useGetUsageSummaryQuery,
   useGetUsageActivityQuery,
 } from "state/api";
+import {
+  formatDate,
+  formatDateShort,
+  formatDateTime,
+} from "utils/datetime";
 
 const RANGE_OPTIONS = [
   { value: 7, label: "7d" },
@@ -43,51 +48,12 @@ const RANGE_OPTIONS = [
   { value: 90, label: "90d" },
 ];
 
-const formatAxisDate = (value) => {
-  if (!value) return "";
-  if (typeof value === "string" && !value.includes("T") && value.length >= 10) {
-    const d = new Date(`${value.slice(0, 10)}T12:00:00`);
-    if (!Number.isNaN(d.getTime())) {
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    }
-  }
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-};
+const formatAxisDate = (value) => formatDateShort(value);
 
-const formatTooltipDate = (value) => {
-  if (!value) return "";
-  if (typeof value === "string" && value.length >= 10 && !value.includes(",")) {
-    const d = new Date(`${value.slice(0, 10)}T12:00:00`);
-    if (!Number.isNaN(d.getTime())) {
-      return d.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    }
-  }
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+const formatTooltipDate = (value) =>
+  formatDate(value, { month: "long" });
 
-const formatWhen = (value) => {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
+const formatWhen = (value) => formatDateTime(value);
 
 const SectionHeader = ({ title, subtitle, icon }) => {
   const theme = useTheme();
