@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import { themeSettings } from "theme";
-import { AuthBootstrap, PublicOnly, RequireAuth } from "components/AuthGate";
+import { AuthBootstrap, PublicOnly, RequireAuth, RequireAdmin } from "components/AuthGate";
+import AnalyticsTracker from "components/AnalyticsTracker";
 import Layout from "scenes/layout";
 import Dashboard from "scenes/dashboard";
 import Members from "scenes/members";
@@ -15,6 +16,7 @@ import Firsts from "scenes/firsts";
 import Juice from "scenes/juice";
 import AI from "scenes/ai";
 import Economy from "scenes/economy";
+import Analytics from "scenes/analytics";
 import Login from "scenes/login";
 import Register from "scenes/register";
 
@@ -28,6 +30,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AuthBootstrap>
+            <AnalyticsTracker />
             <Routes>
               <Route
                 path="/login"
@@ -62,6 +65,14 @@ function App() {
                 <Route path="/juice" element={<Juice />} />
                 <Route path="/ai" element={<AI />} />
                 <Route path="/economy" element={<Economy />} />
+                <Route
+                  path="/analytics"
+                  element={
+                    <RequireAdmin>
+                      <Analytics />
+                    </RequireAdmin>
+                  }
+                />
               </Route>
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

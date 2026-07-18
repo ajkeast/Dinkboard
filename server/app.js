@@ -11,6 +11,7 @@ import messageRoutes from "./routes/messageRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import dinkcoinRoutes from "./routes/dinkcoinRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import { requireAuth } from "./middleware/auth.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { apiLimiter } from "./middleware/rateLimit.js";
@@ -46,6 +47,7 @@ export function createApp() {
         }
     });
     app.use("/api/auth", authRoutes);
+    app.use("/api/analytics", analyticsRoutes);
 
     app.use("/api/firsts", requireAuth, firstsRoutes);
     app.use("/api/emojis", requireAuth, emojiRoutes);

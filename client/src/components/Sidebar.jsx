@@ -27,13 +27,15 @@ import {
   BlenderRounded,
   MonetizationOnOutlined,
   LogoutOutlined,
+  InsightsOutlined,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import { useLogoutMutation } from "state/api";
+import { trackAuth, flush } from "utils/analytics";
 
-const navItems = [
+const baseNavItems = [
   { text: "Dashboard", icon: <HomeOutlined fontSize="small" />, path: "dashboard" },
   { text: "Chat", icon: null },
   { text: "Messages", icon: <MessageRounded fontSize="small" />, path: "messages" },
@@ -60,11 +62,30 @@ const Sidebar = ({
   const theme = useTheme();
   const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
 
+  const navItems = useMemo(() => {
+    if (user?.role !== "admin") return baseNavItems;
+    return [
+      ...baseNavItems,
+      { text: "Admin", icon: null },
+      {
+        text: "Analytics",
+        icon: <InsightsOutlined fontSize="small" />,
+        path: "analytics",
+      },
+    ];
+  }, [user?.role]);
+
   useEffect(() => {
     setActive(pathname.substring(1));
   }, [pathname]);
 
   const handleLogout = async () => {
+    trackAuth("logout");
+    try {
+      await flush();
+    } catch {
+      // ignore analytics flush failures
+    }
     try {
       await logout().unwrap();
     } catch {
