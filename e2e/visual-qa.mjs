@@ -45,8 +45,9 @@ const QA_USER = {
 
 mkdirSync(OUT, { recursive: true });
 
-function hashUrl(path) {
-  return `${BASE}/#${path}`;
+function appUrl(path) {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${BASE}${normalized}`;
 }
 
 async function waitSettled(page, ms = 1200) {
@@ -156,7 +157,7 @@ async function softLogin(page, browserContext, apiContext) {
       path: c.path || "/",
     }))
   );
-  await page.goto(hashUrl("/dashboard"), {
+  await page.goto(appUrl("/dashboard"), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });
@@ -240,7 +241,7 @@ async function main() {
   console.log("QA user:", QA_USER.email);
 
   // Prime app + store
-  await page.goto(hashUrl("/dashboard"), {
+  await page.goto(appUrl("/dashboard"), {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });
@@ -260,7 +261,7 @@ async function main() {
         localStorage.setItem("dinkboard.mode", t);
       }, theme);
       // Force remount with stored theme
-      await page.goto(hashUrl("/login"), {
+      await page.goto(appUrl("/login"), {
         waitUntil: "domcontentloaded",
         timeout: 60000,
       });
@@ -271,7 +272,7 @@ async function main() {
       await setTheme(page, theme);
 
       for (const scene of PUBLIC_SCENES) {
-        await page.goto(hashUrl(`/${scene}`), {
+        await page.goto(appUrl(`/${scene}`), {
           waitUntil: "domcontentloaded",
           timeout: 60000,
         });
@@ -288,7 +289,7 @@ async function main() {
       await setTheme(page, theme);
 
       for (const scene of AUTH_SCENES) {
-        await page.goto(hashUrl(`/${scene}`), {
+        await page.goto(appUrl(`/${scene}`), {
           waitUntil: "domcontentloaded",
           timeout: 60000,
         });
@@ -306,7 +307,7 @@ async function main() {
           await waitSettled(page, 2500);
           await softLogin(page, context, apiContext);
           await setTheme(page, theme);
-          await page.goto(hashUrl(`/${scene}`), {
+          await page.goto(appUrl(`/${scene}`), {
             waitUntil: "domcontentloaded",
             timeout: 60000,
           });

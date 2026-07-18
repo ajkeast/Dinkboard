@@ -43,8 +43,9 @@ const USER = {
 
 mkdirSync(OUT, { recursive: true });
 
-function hashUrl(path) {
-  return `${BASE}/#${path}`;
+function appUrl(path) {
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  return `${BASE}${normalized}`;
 }
 
 async function sleep(ms) {
@@ -137,7 +138,7 @@ async function capture(page, file) {
 }
 
 async function gotoScene(page, path) {
-  await page.goto(hashUrl(path), {
+  await page.goto(appUrl(path), {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
   });
@@ -146,7 +147,7 @@ async function gotoScene(page, path) {
 }
 
 async function loginViaUi(page) {
-  await page.goto(hashUrl("/login"), {
+  await page.goto(appUrl("/login"), {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
   });
@@ -157,7 +158,7 @@ async function loginViaUi(page) {
   await page.getByLabel(/email/i).fill(USER.email);
   await page.getByLabel(/^password$/i).fill(USER.password);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/#\/dashboard/, { timeout: 60_000 });
+  await page.waitForURL(/\/dashboard/, { timeout: 60_000 });
   await waitSettled(page, 2500);
   await page
     .getByRole("button", { name: "Log out" })
@@ -215,7 +216,7 @@ async function main() {
   const firstMember = page.locator("text=/^@/").first();
   await firstMember.waitFor({ state: "visible", timeout: 45_000 });
   await firstMember.click();
-  await page.waitForURL(/#\/members\/\d+/, { timeout: 30_000 });
+  await page.waitForURL(/\/members\/\d+/, { timeout: 30_000 });
   await waitSettled(page, 2500);
   await waitForCharts(page);
   // Heatmap / charts on profile can take an extra beat

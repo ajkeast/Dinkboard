@@ -293,7 +293,7 @@ describe('Discord OAuth', () => {
             .redirects(0);
 
         expect(cb.status).toBe(302);
-        expect(cb.headers.location).toBe('http://localhost:3000/#/dashboard');
+        expect(cb.headers.location).toBe('http://localhost:3000/dashboard');
         expect(cb.headers['set-cookie']).toEqual(
             expect.arrayContaining([
                 expect.stringMatching(/^access_token=/),
@@ -336,7 +336,7 @@ describe('Discord OAuth', () => {
             .redirects(0);
 
         expect(cb.status).toBe(302);
-        expect(cb.headers.location).toBe('http://localhost:3000/#/dashboard');
+        expect(cb.headers.location).toBe('http://localhost:3000/dashboard');
 
         const me = await agent.get('/api/auth/me');
         expect(me.status).toBe(200);
@@ -362,7 +362,7 @@ describe('Discord OAuth', () => {
 
         expect(cb.status).toBe(302);
         expect(cb.headers.location).toBe(
-            'http://localhost:3000/#/login?error=discord_auth_failed'
+            'http://localhost:3000/login?error=discord_auth_failed'
         );
     });
 

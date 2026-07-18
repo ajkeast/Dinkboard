@@ -6,11 +6,14 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import QueryState from "./QueryState";
+
+const MOBILE_CHART_HEIGHT = 220;
 
 const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
   const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
 
   const chartData = useMemo(() => {
     if (!Array.isArray(data)) return [];
@@ -36,6 +39,10 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
     "#7c3aed",
   ];
 
+  // ResponsiveContainer needs a concrete pixel height on narrow screens —
+  // percentage height collapses to 0 when the parent uses height: auto / flex.
+  const chartHeight = isSmUp ? "100%" : MOBILE_CHART_HEIGHT;
+
   return (
     <QueryState
       isLoading={isLoading}
@@ -54,8 +61,15 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
         width="100%"
         flexDirection={{ xs: "column", sm: "row" }}
       >
-        <Box flex="1 1 55%" minWidth={0} height={{ xs: 200, sm: "100%" }}>
-          <ResponsiveContainer width="100%" height="100%">
+        <Box
+          flex="1 1 55%"
+          minWidth={0}
+          width="100%"
+          height={chartHeight}
+          minHeight={MOBILE_CHART_HEIGHT}
+          flexShrink={0}
+        >
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <PieChart>
               <Pie
                 data={chartData}

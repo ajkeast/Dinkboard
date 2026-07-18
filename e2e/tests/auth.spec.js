@@ -24,16 +24,16 @@ test.describe.configure({ mode: 'serial' });
 
 test.describe('Auth flow', () => {
   test('redirects unauthenticated users from dashboard to login', async ({ page }) => {
-    await page.goto('/#/dashboard');
+    await page.goto('/dashboard');
     await expect(page.getByRole('heading', { name: 'Dinkboard' })).toBeVisible({
       timeout: 30_000,
     });
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
-    expect(page.url()).toMatch(/#\/login/);
+    expect(page.url()).toMatch(/\/login/);
   });
 
   test('shows error on bad credentials', async ({ page }) => {
-    await page.goto('/#/login');
+    await page.goto('/login');
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible({
       timeout: 30_000,
     });
@@ -44,7 +44,7 @@ test.describe('Auth flow', () => {
 
     await expect(page.getByRole('alert')).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole('alert')).toContainText(/incorrect|failed|password/i);
-    expect(page.url()).toMatch(/#\/login/);
+    expect(page.url()).toMatch(/\/login/);
   });
 
   test('login success, logout, and guards re-engage', async ({ page, request }) => {
@@ -53,21 +53,21 @@ test.describe('Auth flow', () => {
     const body = await reg.text();
     expect(reg.ok(), `register failed: ${reg.status()} ${body}`).toBeTruthy();
 
-    await page.goto('/#/login');
+    await page.goto('/login');
     await page.getByLabel(/email/i).fill(creds.email);
     await page.getByLabel(/^password$/i).fill(creds.password);
     await page.getByRole('button', { name: /sign in/i }).click();
 
-    await expect(page).toHaveURL(/#\/dashboard/, { timeout: 60_000 });
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 60_000 });
     await expect(page.getByRole('button', { name: 'Log out' }).first()).toBeVisible({
       timeout: 60_000,
     });
 
     await page.getByRole('button', { name: 'Log out' }).first().click();
-    await expect(page).toHaveURL(/#\/login/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/login/, { timeout: 30_000 });
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
 
-    await page.goto('/#/members');
-    await expect(page).toHaveURL(/#\/login/, { timeout: 30_000 });
+    await page.goto('/members');
+    await expect(page).toHaveURL(/\/login/, { timeout: 30_000 });
   });
 });
