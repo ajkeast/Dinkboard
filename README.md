@@ -10,7 +10,7 @@ A full-stack analytics dashboard for a private Discord community. It surfaces me
 
 ## Screenshots
 
-Drop images into [`docs/screenshots/`](docs/screenshots/) using the filenames below.
+Portfolio captures from the live local stack (`node e2e/capture-readme-screenshots.mjs`, 1280×720, dark theme).
 
 ### Login
 

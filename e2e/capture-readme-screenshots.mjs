@@ -210,12 +210,12 @@ async function main() {
     await capture(page, shot.file);
   }
 
-  // Member profile: navigate from first "View profile" link
+  // Member profile: open the first directory entry (cards/rows are clickable).
   await gotoScene(page, "/members");
   await ensureSidebarOpen(page);
-  const profileLink = page.getByRole("link", { name: /view profile/i }).first();
-  await profileLink.waitFor({ state: "visible", timeout: 45_000 });
-  await profileLink.click();
+  const firstMember = page.locator("text=/^@/").first();
+  await firstMember.waitFor({ state: "visible", timeout: 45_000 });
+  await firstMember.click();
   await page.waitForURL(/\/members\/\d+/, { timeout: 30_000 });
   await waitSettled(page, 2500);
   await waitForCharts(page);
