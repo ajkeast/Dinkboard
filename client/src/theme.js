@@ -270,6 +270,23 @@ export const themeSettings = (mode) => {
         styleOverrides: {
           root: ({ theme }) => ({
             borderRadius: theme.shape.borderRadius,
+            // primary.main is near-black (dark) / near-white (light), so focus
+            // rings use secondary for readable contrast in both modes.
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: theme.palette.secondary.main,
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: theme.palette.secondary.main,
+            },
+          }),
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            "&.Mui-focused": {
+              color: theme.palette.secondary.main,
+            },
           }),
         },
       },

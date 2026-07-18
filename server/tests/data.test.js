@@ -109,6 +109,7 @@ describe('Protected data API (read-only Discord tables)', () => {
                     firsts: expect.anything(),
                 })
             );
+            expect(res.body[0]).toHaveProperty('avatar');
         }
     });
 

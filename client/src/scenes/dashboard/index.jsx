@@ -113,8 +113,15 @@ const Dashboard = () => {
           error={statsError}
         />
 
-        <DashCard sx={{ gridColumn: span(7), gridRow: "span 2", minHeight: 400 }}>
-          <CardContent sx={{ height: "100%" }}>
+        <DashCard
+          sx={{
+            gridColumn: span(7),
+            gridRow: "span 2",
+            alignSelf: "start",
+            width: "100%",
+          }}
+        >
+          <CardContent>
             <Typography variant="h6" fontWeight={600} gutterBottom>
               <LeaderboardRounded
                 fontSize="small"
