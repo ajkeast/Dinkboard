@@ -8,7 +8,7 @@ import {
   useGetChatGPTModelStatsQuery,
 } from "state/api";
 import { SmartToy, Image, Token } from "@mui/icons-material";
-import StatBox from "components/StatBox";
+import StatStrip from "components/StatStrip";
 import Header from "components/Header";
 import QueryState from "components/QueryState";
 import DashCard from "components/DashCard";
@@ -110,6 +110,52 @@ const AI = () => {
     <Box>
       <Header title="AI Usage" subtitle="LLM prompts and image generation" />
 
+      <Box mt={1.5}>
+        <StatStrip
+          items={[
+            {
+              title: "LLM Prompts",
+              description: "vs. prior 30 days",
+              data: chatgptData,
+              icon: (
+                <SmartToy
+                  sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
+                />
+              ),
+              isLoading: statsLoading,
+              error: statsError,
+              time: "month",
+            },
+            {
+              title: "Images",
+              description: "vs. prior 30 days",
+              data: dalleData,
+              icon: (
+                <Image
+                  sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
+                />
+              ),
+              isLoading: statsLoading,
+              error: statsError,
+              time: "month",
+            },
+            {
+              title: "Total Tokens",
+              description: "vs. prior 30 days",
+              data: tokenData,
+              icon: (
+                <Token
+                  sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
+                />
+              ),
+              isLoading: statsLoading,
+              error: statsError,
+              time: "month",
+            },
+          ]}
+        />
+      </Box>
+
       <Box
         mt={1.5}
         display="grid"
@@ -117,54 +163,9 @@ const AI = () => {
         gridAutoRows="160px"
         gap={1.5}
       >
-        <StatBox
-          title="LLM Prompts"
-          description="vs. prior 30 days"
-          data={chatgptData}
-          icon={
-            <SmartToy
-              sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
-            />
-          }
-          isLoading={statsLoading}
-          error={statsError}
-          time="month"
-          sx={{ gridColumn: span(2) }}
-        />
-
-        <StatBox
-          title="Images"
-          description="vs. prior 30 days"
-          data={dalleData}
-          icon={
-            <Image
-              sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
-            />
-          }
-          isLoading={statsLoading}
-          error={statsError}
-          time="month"
-          sx={{ gridColumn: span(2) }}
-        />
-
-        <StatBox
-          title="Total Tokens"
-          description="vs. prior 30 days"
-          data={tokenData}
-          icon={
-            <Token
-              sx={{ color: theme.palette.secondary[300], fontSize: 20 }}
-            />
-          }
-          isLoading={statsLoading}
-          error={statsError}
-          time="month"
-          sx={{ gridColumn: span(2) }}
-        />
-
         <DashCard
           sx={{
-            gridColumn: span(8),
+            gridColumn: "span 12",
             gridRow: "span 2",
             p: 1.5,
           }}

@@ -20,7 +20,6 @@ import Analytics from "scenes/analytics";
 import UsersAdmin from "scenes/users";
 import Login from "scenes/login";
 import Register from "scenes/register";
-import StatBoxPreview from "scenes/dev/StatBoxPreview";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -67,7 +66,6 @@ function App() {
                 <Route path="/juice" element={<Juice />} />
                 <Route path="/ai" element={<AI />} />
                 <Route path="/economy" element={<Economy />} />
-                <Route path="/dev/stat-boxes" element={<StatBoxPreview />} />
                 <Route
                   path="/analytics"
                   element={
