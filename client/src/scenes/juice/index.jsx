@@ -9,27 +9,36 @@ const Juice = () => {
   const { data, isLoading, error, refetch } = useGetJuiceQuery();
 
   return (
-    <Box>
+    <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
       <Header title="Juice" subtitle="The pulse of server patience" />
-      <Box
-        mt={1.5}
-        display="grid"
-        gridTemplateColumns="repeat(12, minmax(0, 1fr))"
-        gap={1.5}
+      <DashCard
+        sx={{
+          mt: 1.5,
+          height: "calc(100% - 64px)",
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <DashCard sx={{ gridColumn: "span 12", gridRow: "span 2" }}>
-          <CardContent>
-            <Box height={{ xs: 320, md: 420 }} width="100%">
-              <JuiceAreaChart
-                data={data}
-                isLoading={isLoading}
-                error={error}
-                onRetry={refetch}
-              />
-            </Box>
-          </CardContent>
-        </DashCard>
-      </Box>
+        <CardContent
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            "&:last-child": { pb: 1.5 },
+          }}
+        >
+          <Box flex={1} minHeight={320} width="100%" height="100%">
+            <JuiceAreaChart
+              data={data}
+              isLoading={isLoading}
+              error={error}
+              onRetry={refetch}
+            />
+          </Box>
+        </CardContent>
+      </DashCard>
     </Box>
   );
 };

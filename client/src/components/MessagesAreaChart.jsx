@@ -26,6 +26,8 @@ const MessagesAreaChart = ({ data, isLoading, error, onRetry }) => {
   const theme = useTheme();
   const chart = getChartTheme(theme);
   const chartData = useMemo(() => trimTrailingEmpty(data), [data]);
+  const stroke = theme.palette.secondary[300];
+  const fill = theme.palette.secondary[500];
 
   return (
     <QueryState
@@ -37,32 +39,45 @@ const MessagesAreaChart = ({ data, isLoading, error, onRetry }) => {
       skeletonHeight={280}
     >
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={chart.margin}>
+        <AreaChart
+          data={chartData}
+          margin={{ ...chart.margin, top: 8, right: 12, bottom: 0 }}
+        >
           <defs>
-            <linearGradient id="secondary" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="20%"
-                stopColor={theme.palette.secondary[500]}
-                stopOpacity={0.35}
-              />
-              <stop
-                offset="95%"
-                stopColor={theme.palette.secondary[500]}
-                stopOpacity={0}
-              />
+            <linearGradient id="messagesAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={fill} stopOpacity={0.4} />
+              <stop offset="70%" stopColor={fill} stopOpacity={0.08} />
+              <stop offset="100%" stopColor={fill} stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid {...chart.grid} />
-          <XAxis dataKey="month" {...chart.xAxisAngled} />
-          <YAxis {...chart.yAxis} />
-          <Tooltip {...chart.tooltip} />
+          <XAxis
+            dataKey="month"
+            {...chart.xAxis}
+            height={40}
+            minTickGap={40}
+          />
+          <YAxis {...chart.yAxis} width={40} />
+          <Tooltip
+            {...chart.tooltip}
+            cursor={{
+              stroke: theme.palette.divider,
+              strokeWidth: 1,
+            }}
+          />
           <Area
             type="monotone"
             dataKey="messages"
-            stroke={theme.palette.secondary[300]}
+            stroke={stroke}
             strokeWidth={chart.series.strokeWidth}
             fillOpacity={1}
-            fill="url(#secondary)"
+            fill="url(#messagesAreaGrad)"
+            dot={false}
+            activeDot={{
+              r: 4,
+              strokeWidth: 0,
+              fill: stroke,
+            }}
             animationDuration={chart.series.animationDuration}
             animationBegin={0}
           />

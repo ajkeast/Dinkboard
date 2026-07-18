@@ -16,7 +16,7 @@ const Messages = () => {
     <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
       <Header
         title="Messages"
-        subtitle="Last 12 months · top members by volume"
+        subtitle="Last 12 months by member · top volume"
       />
       <DashCard
         sx={{
