@@ -80,9 +80,7 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 ### /api/emojis
 
 - `GET /api/emojis` → `[{id, emoji_name, url, created_at, last_updated, occurrences:number}]`
-  (`occurrences` = messages containing Discord custom-emoji markup `<:name:id>` / `<a:name:id>`;
-  plain `:name:` shortcodes in usernames/mentions are not counted)
-- `GET /api/emojis/count` → `[{emoji_name, occurences:number}]` (sic, legacy field spelling; same match rules)
+- `GET /api/emojis/count` → `[{emoji_name, occurences:number}]` (sic, legacy field spelling)
 - `GET /api/emojis/:id` (numeric) → single emoji row, or `null`
 
 ### /api/firsts
