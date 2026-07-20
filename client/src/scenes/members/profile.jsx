@@ -380,6 +380,90 @@ const MemberProfile = () => {
           </Box>
 
           <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
+            <CardContent
+              sx={{
+                minWidth: 0,
+                overflow: "hidden",
+                pr: isMd ? 1 : undefined,
+              }}
+            >
+              <Typography variant="h6" fontWeight={600} mb={1.5}>
+                Contribution activity
+              </Typography>
+
+              <Box
+                display="flex"
+                flexDirection={isMd ? "row" : "column"}
+                gap={1}
+                alignItems={isMd ? "flex-start" : "stretch"}
+                sx={{ minWidth: 0 }}
+              >
+                <Box flex={1} minWidth={0} maxWidth="100%" overflow="hidden">
+                  {isSummaryLoading || isDailyLoading ? (
+                    <Box
+                      height={140}
+                      borderRadius={1}
+                      sx={{ bgcolor: theme.palette.action.hover }}
+                    />
+                  ) : dailyError || summaryError ? (
+                    <QueryState
+                      isLoading={false}
+                      error={dailyError || summaryError}
+                      onRetry={() => {
+                        refetchDaily();
+                        refetchSummary();
+                      }}
+                    />
+                  ) : (
+                    <ContributionHeatmap
+                      data={dailyData}
+                      startDate={range.startDate}
+                      endDate={range.endDate}
+                    />
+                  )}
+                </Box>
+
+                <Box
+                  display="flex"
+                  flexDirection={isMd ? "column" : "row"}
+                  flexWrap="wrap"
+                  sx={{
+                    flexShrink: 0,
+                    maxHeight: isMd ? 160 : undefined,
+                    overflowY: isMd ? "auto" : "visible",
+                    columnGap: 0,
+                    rowGap: 0.25,
+                    alignContent: "flex-start",
+                  }}
+                >
+                  {yearOptions.map((opt) => {
+                    const selected = opt.key === range.key;
+                    return (
+                      <Button
+                        key={opt.key}
+                        size="small"
+                        variant={selected ? "contained" : "text"}
+                        color={selected ? "secondary" : "inherit"}
+                        onClick={() => setSelectedKey(opt.key)}
+                        sx={{
+                          minWidth: isMd ? 72 : 0,
+                          justifyContent: isMd ? "flex-start" : "center",
+                          px: 0.75,
+                          py: 0.25,
+                          fontSize: 12,
+                          fontWeight: selected ? 700 : 500,
+                        }}
+                      >
+                        {opt.label}
+                      </Button>
+                    );
+                  })}
+                </Box>
+              </Box>
+            </CardContent>
+          </DashCard>
+
+          <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
             <CardContent sx={{ minWidth: 0 }}>
               <Box display="flex" alignItems="center" gap={0.75} mb={1}>
                 <GraphicEqRounded
@@ -546,90 +630,6 @@ const MemberProfile = () => {
                   )}
                 </Box>
               )}
-            </CardContent>
-          </DashCard>
-
-          <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
-            <CardContent
-              sx={{
-                minWidth: 0,
-                overflow: "hidden",
-                pr: isMd ? 1 : undefined,
-              }}
-            >
-              <Typography variant="h6" fontWeight={600} mb={1.5}>
-                Contribution activity
-              </Typography>
-
-              <Box
-                display="flex"
-                flexDirection={isMd ? "row" : "column"}
-                gap={1}
-                alignItems={isMd ? "flex-start" : "stretch"}
-                sx={{ minWidth: 0 }}
-              >
-                <Box flex={1} minWidth={0} maxWidth="100%" overflow="hidden">
-                  {isSummaryLoading || isDailyLoading ? (
-                    <Box
-                      height={140}
-                      borderRadius={1}
-                      sx={{ bgcolor: theme.palette.action.hover }}
-                    />
-                  ) : dailyError || summaryError ? (
-                    <QueryState
-                      isLoading={false}
-                      error={dailyError || summaryError}
-                      onRetry={() => {
-                        refetchDaily();
-                        refetchSummary();
-                      }}
-                    />
-                  ) : (
-                    <ContributionHeatmap
-                      data={dailyData}
-                      startDate={range.startDate}
-                      endDate={range.endDate}
-                    />
-                  )}
-                </Box>
-
-                <Box
-                  display="flex"
-                  flexDirection={isMd ? "column" : "row"}
-                  flexWrap="wrap"
-                  sx={{
-                    flexShrink: 0,
-                    maxHeight: isMd ? 160 : undefined,
-                    overflowY: isMd ? "auto" : "visible",
-                    columnGap: 0,
-                    rowGap: 0.25,
-                    alignContent: "flex-start",
-                  }}
-                >
-                  {yearOptions.map((opt) => {
-                    const selected = opt.key === range.key;
-                    return (
-                      <Button
-                        key={opt.key}
-                        size="small"
-                        variant={selected ? "contained" : "text"}
-                        color={selected ? "secondary" : "inherit"}
-                        onClick={() => setSelectedKey(opt.key)}
-                        sx={{
-                          minWidth: isMd ? 72 : 0,
-                          justifyContent: isMd ? "flex-start" : "center",
-                          px: 0.75,
-                          py: 0.25,
-                          fontSize: 12,
-                          fontWeight: selected ? 700 : 500,
-                        }}
-                      >
-                        {opt.label}
-                      </Button>
-                    );
-                  })}
-                </Box>
-              </Box>
             </CardContent>
           </DashCard>
 
