@@ -15,6 +15,7 @@ import {
   EmojiEventsRounded,
   CalendarMonthRounded,
   Tag,
+  GraphicEqRounded,
 } from "@mui/icons-material";
 import DashCard from "components/DashCard";
 import ContributionHeatmap from "components/ContributionHeatmap";
@@ -27,6 +28,7 @@ import {
   useGetMessagesMemberSummaryQuery,
   useGetScoreQuery,
   useGetJuiceByMemberQuery,
+  useGetMemberVibeQuery,
   getApiErrorMessage,
 } from "state/api";
 import {
@@ -148,6 +150,13 @@ const MemberProfile = () => {
 
   const { data: scoreData } = useGetScoreQuery();
   const { data: juiceData } = useGetJuiceByMemberQuery();
+
+  const {
+    data: vibe,
+    isLoading: isVibeLoading,
+    error: vibeError,
+    refetch: refetchVibe,
+  } = useGetMemberVibeQuery({ memberId: id }, { skip: !id });
 
   const yearOptions = useMemo(
     () =>
@@ -369,6 +378,176 @@ const MemberProfile = () => {
               }
             />
           </Box>
+
+          <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
+            <CardContent sx={{ minWidth: 0 }}>
+              <Box display="flex" alignItems="center" gap={0.75} mb={1}>
+                <GraphicEqRounded
+                  sx={{ fontSize: 18, color: theme.palette.secondary[400] }}
+                />
+                <Typography variant="h6" fontWeight={600}>
+                  Vibes
+                </Typography>
+              </Box>
+              {isVibeLoading || vibeError ? (
+                <QueryState
+                  isLoading={isVibeLoading}
+                  error={vibeError}
+                  onRetry={refetchVibe}
+                />
+              ) : !vibe?.scoredMessages ? (
+                <Typography variant="body2" color="text.secondary">
+                  No scored messages yet for this member.
+                </Typography>
+              ) : (
+                <Box>
+                  <Typography variant="h5" fontWeight={700}>
+                    {vibe.label}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mt={0.5} mb={1.5}>
+                    {vibe.blurb}
+                  </Typography>
+
+                  <Box display="flex" flexWrap="wrap" gap={1} mb={1.5}>
+                    <Box
+                      sx={{
+                        px: 1.25,
+                        py: 0.75,
+                        borderRadius: `${theme.shape.borderRadius}px`,
+                        bgcolor:
+                          theme.palette.mode === "dark"
+                            ? theme.palette.white[1000]
+                            : theme.palette.grey[50],
+                        border: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Avg score
+                      </Typography>
+                      <Typography variant="body1" fontWeight={700}>
+                        {Number(vibe.avgScore) > 0 ? "+" : ""}
+                        {Number(vibe.avgScore).toFixed(3)}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        px: 1.25,
+                        py: 0.75,
+                        borderRadius: `${theme.shape.borderRadius}px`,
+                        bgcolor:
+                          theme.palette.mode === "dark"
+                            ? theme.palette.white[1000]
+                            : theme.palette.grey[50],
+                        border: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Sarcasm
+                      </Typography>
+                      <Typography variant="body1" fontWeight={700}>
+                        {Math.round((vibe.sarcasmRate || 0) * 100)}%
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        px: 1.25,
+                        py: 0.75,
+                        borderRadius: `${theme.shape.borderRadius}px`,
+                        bgcolor:
+                          theme.palette.mode === "dark"
+                            ? theme.palette.white[1000]
+                            : theme.palette.grey[50],
+                        border: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Scored msgs
+                      </Typography>
+                      <Typography variant="body1" fontWeight={700}>
+                        {formatCompactCount(vibe.scoredMessages)}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                    Polarity mix
+                  </Typography>
+                  <Box
+                    display="flex"
+                    height={10}
+                    borderRadius={1}
+                    overflow="hidden"
+                    mb={0.5}
+                    sx={{ bgcolor: theme.palette.action.hover }}
+                  >
+                    {[
+                      { key: "positive", color: theme.palette.green.default },
+                      { key: "neutral", color: theme.palette.grey[500] },
+                      { key: "mixed", color: theme.palette.secondary[400] },
+                      { key: "negative", color: theme.palette.red.default },
+                    ].map(({ key, color }) => {
+                      const pct = (vibe.polarity?.[key] || 0) * 100;
+                      if (pct < 0.5) return null;
+                      return (
+                        <Box
+                          key={key}
+                          sx={{ width: `${pct}%`, bgcolor: color, minWidth: pct > 0 ? 2 : 0 }}
+                          title={`${key}: ${Math.round(pct)}%`}
+                        />
+                      );
+                    })}
+                  </Box>
+                  <Box display="flex" flexWrap="wrap" gap={1.5} mb={1.5}>
+                    {[
+                      { key: "positive", label: "Pos" },
+                      { key: "neutral", label: "Neu" },
+                      { key: "mixed", label: "Mixed" },
+                      { key: "negative", label: "Neg" },
+                    ].map(({ key, label }) => (
+                      <Typography key={key} variant="caption" color="text.secondary">
+                        {label} {Math.round((vibe.polarity?.[key] || 0) * 100)}%
+                      </Typography>
+                    ))}
+                  </Box>
+
+                  {vibe.topEmotions?.length > 0 && (
+                    <>
+                      <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                        Top emotions
+                      </Typography>
+                      <Box display="flex" flexWrap="wrap" gap={0.75}>
+                        {vibe.topEmotions
+                          .filter((e) => e.emotion !== "neutral")
+                          .slice(0, 5)
+                          .map((e) => (
+                            <Box
+                              key={e.emotion}
+                              sx={{
+                                px: 1,
+                                py: 0.35,
+                                borderRadius: `${theme.shape.borderRadius}px`,
+                                border: `1px solid ${theme.palette.divider}`,
+                                bgcolor:
+                                  theme.palette.mode === "dark"
+                                    ? theme.palette.white[1000]
+                                    : theme.palette.grey[50],
+                              }}
+                            >
+                              <Typography variant="caption" fontWeight={600}>
+                                {e.emotion}{" "}
+                                <Box component="span" color="text.secondary" fontWeight={400}>
+                                  {formatCompactCount(e.count)}
+                                </Box>
+                              </Typography>
+                            </Box>
+                          ))}
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              )}
+            </CardContent>
+          </DashCard>
 
           <DashCard sx={{ minWidth: 0, maxWidth: "100%", overflow: "hidden" }}>
             <CardContent

@@ -10,6 +10,7 @@ import memberRoutes from "./routes/memberRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import dinkcoinRoutes from "./routes/dinkcoinRoutes.js";
+import sentimentRoutes from "./routes/sentimentRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usageRoutes from "./routes/usageRoutes.js";
 import userAdminRoutes from "./routes/userAdminRoutes.js";
@@ -58,6 +59,7 @@ export function createApp() {
     app.use("/api/messages", requireAuth, messageRoutes);
     app.use("/api/ai", requireAuth, aiRoutes);
     app.use("/api/dinkcoin", requireAuth, dinkcoinRoutes);
+    app.use("/api/vibes", requireAuth, sentimentRoutes);
 
     app.use(notFoundHandler);
     app.use(errorHandler);

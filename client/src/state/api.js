@@ -40,7 +40,7 @@ export const getApiErrorMessage = (error, fallback = "Something went wrong") =>
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
   reducerPath: "adminApi",
-  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Usage", "Users"],
+  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Usage", "Users", "Vibes"],
   endpoints: (build) => ({
     // AUTH
     login: build.mutation({
@@ -276,6 +276,43 @@ export const api = createApi({
       providesTags: ["AI"],
     }),
 
+    // VIBES (sentiment)
+    getVibeStats: build.query({
+      query: (range = "month") => ({
+        url: "api/vibes/stats",
+        params: { range },
+      }),
+      providesTags: ["Vibes"],
+    }),
+    getVibeTimeline: build.query({
+      query: (range = "month") => ({
+        url: "api/vibes/timeline",
+        params: { range },
+      }),
+      providesTags: ["Vibes"],
+    }),
+    getVibeEmotions: build.query({
+      query: (range = "month") => ({
+        url: "api/vibes/emotions",
+        params: { range },
+      }),
+      providesTags: ["Vibes"],
+    }),
+    getVibeMembers: build.query({
+      query: (range = "month") => ({
+        url: "api/vibes/members",
+        params: { range },
+      }),
+      providesTags: ["Vibes"],
+    }),
+    getMemberVibe: build.query({
+      query: ({ memberId, range } = {}) => ({
+        url: `api/vibes/member/${memberId}`,
+        params: range ? { range } : undefined,
+      }),
+      providesTags: ["Vibes"],
+    }),
+
     // DINKCOIN
     getDinkcoinBalances: build.query({
       query: () => "api/dinkcoin/balances",
@@ -326,6 +363,11 @@ export const {
   useGetDalleTimelineQuery,
   useGetRecentDalleQuery,
   useGetAIStatsQuery,
+  useGetVibeStatsQuery,
+  useGetVibeTimelineQuery,
+  useGetVibeEmotionsQuery,
+  useGetVibeMembersQuery,
+  useGetMemberVibeQuery,
   useGetDinkcoinBalancesQuery,
   useGetDinkcoinTransactionsQuery,
   useGetUsageSummaryQuery,

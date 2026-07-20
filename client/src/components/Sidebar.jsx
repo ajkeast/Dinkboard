@@ -30,6 +30,7 @@ import {
   InsightsOutlined,
   ManageAccountsOutlined,
   MenuOpenOutlined,
+  GraphicEqRounded,
 } from "@mui/icons-material";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "state/api";
@@ -44,6 +45,7 @@ const baseNavItems = [
   { text: "Messages", icon: <MessageRounded fontSize="small" />, path: "messages" },
   { text: "Members", icon: <Groups2Rounded fontSize="small" />, path: "members" },
   { text: "Emojis", icon: <EmojiEmotions fontSize="small" />, path: "emojis" },
+  { text: "Vibes", icon: <GraphicEqRounded fontSize="small" />, path: "vibes" },
   { text: "AI Usage", icon: <SmartToyOutlined fontSize="small" />, path: "ai" },
   { text: "Economy", icon: null },
   { text: "DinkCoin", icon: <MonetizationOnOutlined fontSize="small" />, path: "economy" },
