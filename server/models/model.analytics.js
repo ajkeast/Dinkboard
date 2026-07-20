@@ -60,7 +60,11 @@ export const Analytics = {
     },
 
     async list({ limit = 50, offset = 0, eventType = null, days = 30 } = {}) {
-        const where = ['e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)'];
+        // Exclude admin activity so analytics reflect real (viewer) usage only.
+        const where = [
+            'e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)',
+            "(u.role IS NULL OR u.role <> 'admin')"
+        ];
         const params = [days];
 
         if (eventType) {
@@ -86,56 +90,57 @@ export const Analytics = {
     },
 
     async summary({ days = 30 } = {}) {
+        // Join users so admin-authored events are omitted from every aggregate.
+        const nonAdminFrom = `FROM app_analytics_events e
+             LEFT JOIN app_users u ON u.id = e.user_id
+             WHERE e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+               AND (u.role IS NULL OR u.role <> 'admin')`;
+
         const [totals] = await db.query(
             `SELECT
                 COUNT(*) AS total_events,
-                COUNT(DISTINCT session_id) AS sessions,
-                COUNT(DISTINCT user_id) AS users,
-                SUM(event_type = 'page_view') AS page_views,
-                SUM(event_type = 'error') AS errors,
-                SUM(event_type = 'auth') AS auth_events,
-                SUM(event_type = 'action') AS actions,
-                SUM(event_type = 'web_vital') AS web_vitals
-             FROM app_analytics_events
-             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)`,
+                COUNT(DISTINCT e.session_id) AS sessions,
+                COUNT(DISTINCT e.user_id) AS users,
+                SUM(e.event_type = 'page_view') AS page_views,
+                SUM(e.event_type = 'error') AS errors,
+                SUM(e.event_type = 'auth') AS auth_events,
+                SUM(e.event_type = 'action') AS actions,
+                SUM(e.event_type = 'web_vital') AS web_vitals
+             ${nonAdminFrom}`,
             [days]
         );
 
         const byDevice = await db.query(
-            `SELECT device_type, COUNT(*) AS count
-             FROM app_analytics_events
-             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-             GROUP BY device_type
+            `SELECT e.device_type, COUNT(*) AS count
+             ${nonAdminFrom}
+             GROUP BY e.device_type
              ORDER BY count DESC`,
             [days]
         );
 
         const byPath = await db.query(
-            `SELECT path, COUNT(*) AS count
-             FROM app_analytics_events
-             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-               AND event_type = 'page_view'
-               AND path IS NOT NULL
-             GROUP BY path
+            `SELECT e.path, COUNT(*) AS count
+             ${nonAdminFrom}
+               AND e.event_type = 'page_view'
+               AND e.path IS NOT NULL
+             GROUP BY e.path
              ORDER BY count DESC
              LIMIT 20`,
             [days]
         );
 
         const byDay = await db.query(
-            `SELECT DATE(created_at) AS day, COUNT(*) AS count
-             FROM app_analytics_events
-             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-             GROUP BY DATE(created_at)
+            `SELECT DATE(e.created_at) AS day, COUNT(*) AS count
+             ${nonAdminFrom}
+             GROUP BY DATE(e.created_at)
              ORDER BY day ASC`,
             [days]
         );
 
         const byBrowser = await db.query(
-            `SELECT COALESCE(browser, 'unknown') AS browser, COUNT(*) AS count
-             FROM app_analytics_events
-             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-             GROUP BY browser
+            `SELECT COALESCE(e.browser, 'unknown') AS browser, COUNT(*) AS count
+             ${nonAdminFrom}
+             GROUP BY e.browser
              ORDER BY count DESC
              LIMIT 10`,
             [days]

@@ -70,7 +70,7 @@ describe('Usage API', () => {
         expect(activity.status).toBe(403);
     });
 
-    it('allows admins to read summary and activity with usernames', async () => {
+    it('skips ingest for admin users', async () => {
         const { agent, user, creds } = await registerAgent();
         track(creds);
         await db.query('UPDATE app_users SET role = ? WHERE id = ?', ['admin', user.id]);
@@ -81,19 +81,57 @@ describe('Usage API', () => {
         });
         expect(login.status).toBe(200);
 
-        await agent.post('/api/usage/ingest').send({ events: [sampleEvent] });
+        const res = await agent.post('/api/usage/ingest').send({ events: [sampleEvent] });
+        expect(res.status).toBe(202);
+        expect(res.body.inserted).toBe(0);
 
-        const summary = await agent.get('/api/usage/summary').query({ days: 7 });
+        const rows = await db.query(
+            'SELECT id FROM app_analytics_events WHERE user_id = ? AND session_id = ?',
+            [user.id, sessionId]
+        );
+        expect(rows.length).toBe(0);
+    });
+
+    it('allows admins to read summary and activity, excluding admin events', async () => {
+        const viewer = await registerAgent();
+        track(viewer.creds);
+
+        const admin = await registerAgent();
+        track(admin.creds);
+        await db.query('UPDATE app_users SET role = ? WHERE id = ?', ['admin', admin.user.id]);
+
+        const adminLogin = await admin.agent.post('/api/auth/login').send({
+            email: admin.creds.email,
+            password: admin.creds.password,
+        });
+        expect(adminLogin.status).toBe(200);
+
+        // Viewer event should appear; plant a historical admin row that must be filtered out.
+        await viewer.agent.post('/api/usage/ingest').send({ events: [sampleEvent] });
+        await db.query(
+            `INSERT INTO app_analytics_events (
+                event_type, user_id, session_id, path, device_type, os, browser
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['page_view', admin.user.id, sessionId, '/analytics', 'desktop', 'macOS', 'Chrome']
+        );
+
+        const summary = await admin.agent.get('/api/usage/summary').query({ days: 7 });
         expect(summary.status).toBe(200);
         expect(summary.body.totals.page_views).toBeGreaterThanOrEqual(1);
         expect(summary.body.totals.users).toBeGreaterThanOrEqual(1);
 
-        const activity = await agent.get('/api/usage/activity').query({ days: 7, limit: 10 });
+        const activity = await admin.agent.get('/api/usage/activity').query({ days: 7, limit: 50 });
         expect(activity.status).toBe(200);
         expect(Array.isArray(activity.body)).toBe(true);
-        const mine = activity.body.find((e) => e.path === '/dashboard' && e.user_id === user.id);
-        expect(mine).toBeTruthy();
-        expect(mine.username).toBe(user.username);
+
+        const viewerEvent = activity.body.find(
+            (e) => e.path === '/dashboard' && e.user_id === viewer.user.id
+        );
+        expect(viewerEvent).toBeTruthy();
+        expect(viewerEvent.username).toBe(viewer.user.username);
+
+        const adminEvent = activity.body.find((e) => e.user_id === admin.user.id);
+        expect(adminEvent).toBeUndefined();
     });
 
     it('rejects unauthenticated ingest', async () => {
