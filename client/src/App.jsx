@@ -15,6 +15,7 @@ import Emojis from "scenes/emojis";
 import Firsts from "scenes/firsts";
 import Juice from "scenes/juice";
 import AI from "scenes/ai";
+import Vibes from "scenes/vibes";
 import Economy from "scenes/economy";
 import Analytics from "scenes/analytics";
 import UsersAdmin from "scenes/users";
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/firsts" element={<Firsts />} />
                 <Route path="/juice" element={<Juice />} />
                 <Route path="/ai" element={<AI />} />
+                <Route path="/vibes" element={<Vibes />} />
                 <Route path="/economy" element={<Economy />} />
                 <Route
                   path="/analytics"
