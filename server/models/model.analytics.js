@@ -60,10 +60,10 @@ export const Analytics = {
     },
 
     async list({ limit = 50, offset = 0, eventType = null, days = 30 } = {}) {
-        // Exclude admin activity so analytics reflect real (viewer) usage only.
+        // Real viewer traffic only: drop admins and orphaned rows (deleted CI/test users).
         const where = [
             'e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)',
-            "(u.role IS NULL OR u.role <> 'admin')"
+            "u.role <> 'admin'"
         ];
         const params = [days];
 
@@ -80,7 +80,7 @@ export const Analytics = {
                 e.properties, e.created_at,
                 u.username, u.email
              FROM app_analytics_events e
-             LEFT JOIN app_users u ON u.id = e.user_id
+             INNER JOIN app_users u ON u.id = e.user_id
              WHERE ${where.join(' AND ')}
              ORDER BY e.created_at DESC
              LIMIT ? OFFSET ?`,
@@ -90,11 +90,11 @@ export const Analytics = {
     },
 
     async summary({ days = 30 } = {}) {
-        // Join users so admin-authored events are omitted from every aggregate.
+        // Inner-join users so admin + orphaned (deleted) events never affect aggregates.
         const nonAdminFrom = `FROM app_analytics_events e
-             LEFT JOIN app_users u ON u.id = e.user_id
+             INNER JOIN app_users u ON u.id = e.user_id
              WHERE e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-               AND (u.role IS NULL OR u.role <> 'admin')`;
+               AND u.role <> 'admin'`;
 
         const [totals] = await db.query(
             `SELECT
