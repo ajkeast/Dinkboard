@@ -9,12 +9,23 @@ const Juice = () => {
   const { data, isLoading, error, refetch } = useGetJuiceQuery();
 
   return (
-    <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
+    // Fixed vh clips the legend under iOS browser chrome; grow on mobile.
+    // Flex column lets the Header size itself — no magic header-height calc.
+    <Box
+      width="100%"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: { xs: "auto", md: "80vh" },
+        minHeight: { xs: "70dvh", md: 0 },
+      }}
+    >
       <Header title="Juice" subtitle="The pulse of server patience" />
       <DashCard
         sx={{
           mt: 1.5,
-          height: "calc(100% - 64px)",
+          flex: 1,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
         }}
@@ -23,13 +34,17 @@ const Juice = () => {
           sx={{
             flex: 1,
             minHeight: 0,
-            height: "100%",
             display: "flex",
             flexDirection: "column",
-            "&:last-child": { pb: 1.5 },
+            "&:last-child": {
+              pb: {
+                xs: "max(16px, env(safe-area-inset-bottom))",
+                md: 1.5,
+              },
+            },
           }}
         >
-          <Box flex={1} minHeight={320} width="100%" height="100%">
+          <Box flex={1} minHeight={{ xs: "auto", md: 0 }} width="100%">
             <JuiceAreaChart
               data={data}
               isLoading={isLoading}

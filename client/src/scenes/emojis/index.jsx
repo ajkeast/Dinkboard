@@ -12,12 +12,21 @@ const Emojis = () => {
   const showSkeleton = !Array.isArray(data) && !error;
 
   return (
-    <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
+    <Box
+      width="100%"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: { xs: "auto", md: "80vh" },
+        minHeight: { xs: "70dvh", md: 0 },
+      }}
+    >
       <Header title="Emojis" subtitle="All custom emojis on the server" />
       <DashCard
         sx={{
           mt: 1.5,
-          height: "calc(100% - 64px)",
+          flex: 1,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
         }}
@@ -26,13 +35,12 @@ const Emojis = () => {
           sx={{
             flex: 1,
             minHeight: 0,
-            height: "100%",
             display: "flex",
             flexDirection: "column",
             "&:last-child": { pb: 1.5 },
           }}
         >
-          <Box flex={1} minHeight={320} width="100%" height="100%">
+          <Box flex={1} minHeight={{ xs: 320, md: 0 }} width="100%">
             <QueryState
               isLoading={showSkeleton}
               error={error}

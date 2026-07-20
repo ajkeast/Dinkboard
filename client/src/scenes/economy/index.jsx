@@ -753,7 +753,14 @@ const Economy = () => {
   const summaryLoading = balancesLoading || transactionsLoading;
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: { xs: "auto", md: "100%" },
+        minHeight: 0,
+      }}
+    >
       <Header
         title="DinkCoin Economy"
         subtitle="Live balances and ledger"
@@ -770,14 +777,15 @@ const Economy = () => {
           display="flex"
           gap={2.5}
           mt={2.5}
-          alignItems="stretch"
+          flex={1}
           minHeight={0}
+          alignItems="stretch"
         >
           <Box
             flex="0 0 38%"
             maxWidth={420}
             minWidth={280}
-            maxHeight="calc(100vh - 220px)"
+            minHeight={0}
             overflow="auto"
             pr={0.5}
           >
@@ -787,7 +795,7 @@ const Economy = () => {
           <Box
             flex="1 1 62%"
             minWidth={0}
-            maxHeight="calc(100vh - 220px)"
+            minHeight={0}
             overflow="auto"
             pl={0.5}
             borderLeft={`1px solid ${theme.palette.divider}`}
