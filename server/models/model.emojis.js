@@ -1,5 +1,4 @@
 import { BaseModel } from "./BaseModel.js";
-import { sqlMessageUsesCustomEmoji } from "../utils/emojiUsage.js";
 
 export class Emojis extends BaseModel {
     constructor() {
@@ -7,7 +6,6 @@ export class Emojis extends BaseModel {
     }
 
     async getAll() {
-        const usesEmoji = sqlMessageUsesCustomEmoji('m', 'emojis');
         const query = `
             SELECT
                 e.id,
@@ -23,23 +21,22 @@ export class Emojis extends BaseModel {
                     emojis.emoji_name,
                     COUNT(*) AS occurences
                 FROM ${this.tableName}
-                JOIN messages m ON ${usesEmoji}
+                JOIN messages m ON LOCATE(CONCAT(':', emojis.emoji_name, ':'), m.content) > 0
                 GROUP BY emojis.id
             ) AS subquery ON e.id = subquery.id`;
-
+        
         return await this.db.query(query);
     }
 
     async getCount() {
-        const usesEmoji = sqlMessageUsesCustomEmoji('messages', 'emojis');
         const query = `
             SELECT
                 emoji_name,
                 COUNT(*) AS occurences
             FROM ${this.tableName}
-            JOIN messages ON ${usesEmoji}
+            JOIN messages ON LOCATE(CONCAT(':',emoji_name,':'), content) > 0
             GROUP BY emojis.id`;
-
+        
         return await this.db.query(query);
     }
 
