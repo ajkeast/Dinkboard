@@ -1,9 +1,8 @@
 name: CI
 
+# Gate merges only — do not re-run on main after merge.
 on:
   pull_request:
-  push:
-    branches: [main]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
