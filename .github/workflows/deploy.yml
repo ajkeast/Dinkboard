@@ -1,10 +1,8 @@
 name: Deploy
 
-# Runs after CI succeeds on main, or manually from the Actions tab.
+# Ship on merge to main (CI already passed on the PR). Manual runs from Actions tab still work.
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -15,9 +13,6 @@ concurrency:
 jobs:
   deploy:
     name: Deploy to VPS
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: production
     steps:
