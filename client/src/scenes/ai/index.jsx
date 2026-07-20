@@ -168,12 +168,15 @@ const AI = () => {
             gridColumn: "span 12",
             gridRow: "span 2",
             p: 1.5,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+          <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             AI Usage Timeline
           </Typography>
-          <Box height="calc(100% - 28px)">
+          <Box flex={1} minHeight={0}>
             <QueryState
               isLoading={timelineLoading}
               error={timelineError}
@@ -227,12 +230,15 @@ const AI = () => {
             gridColumn: span(4),
             gridRow: "span 2",
             p: 1.5,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+          <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Model Distribution
           </Typography>
-          <Box height="calc(100% - 28px)">
+          <Box flex={1} minHeight={0}>
             <QueryState
               isLoading={modelLoading}
               error={modelError}
@@ -309,12 +315,15 @@ const AI = () => {
             gridColumn: span(6),
             gridRow: "span 2",
             p: 1.5,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+          <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Top LLM Users
           </Typography>
-          <Box height="calc(100% - 28px)">
+          <Box flex={1} minHeight={0}>
             <QueryState
               isLoading={chatgptUsersLoading}
               error={chatgptUsersError}
@@ -368,12 +377,15 @@ const AI = () => {
             gridColumn: span(6),
             gridRow: "span 2",
             p: 1.5,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
+          <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Top Image Users
           </Typography>
-          <Box height="calc(100% - 28px)">
+          <Box flex={1} minHeight={0}>
             <QueryState
               isLoading={dalleUsersLoading}
               error={dalleUsersError}

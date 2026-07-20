@@ -172,12 +172,23 @@ const Firsts = () => {
   );
 
   return (
-    <Box height={{ xs: "70vh", md: "80vh" }} width="100%">
+    // Fixed vh clips the legend under iOS browser chrome; grow on mobile.
+    // Flex column lets the Header size itself — no magic header-height calc.
+    <Box
+      width="100%"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: { xs: "auto", md: "80vh" },
+        minHeight: { xs: "70dvh", md: 0 },
+      }}
+    >
       <Header title="Firsts" subtitle="Cumulative count of firsts" />
       <DashCard
         sx={{
           mt: 1.5,
-          height: "calc(100% - 64px)",
+          flex: 1,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
         }}
@@ -186,13 +197,17 @@ const Firsts = () => {
           sx={{
             flex: 1,
             minHeight: 0,
-            height: "100%",
             display: "flex",
             flexDirection: "column",
-            "&:last-child": { pb: 1.5 },
+            "&:last-child": {
+              pb: {
+                xs: "max(16px, env(safe-area-inset-bottom))",
+                md: 1.5,
+              },
+            },
           }}
         >
-          <Box flex={1} minHeight={320} width="100%" height="100%">
+          <Box flex={1} minHeight={{ xs: "auto", md: 0 }} width="100%">
             <QueryState
               isLoading={showSkeleton}
               error={error}
@@ -207,10 +222,15 @@ const Firsts = () => {
                 flexDirection={{ xs: "column", md: "row" }}
                 gap={{ xs: 1.5, md: 2 }}
                 width="100%"
-                height="100%"
+                height={{ xs: "auto", md: "100%" }}
                 minHeight={0}
               >
-                <Box flex="1 1 auto" minWidth={0} minHeight={{ xs: 260, md: 0 }}>
+                <Box
+                  flex="1 1 auto"
+                  minWidth={0}
+                  height={{ xs: 260, md: "100%" }}
+                  minHeight={{ xs: 260, md: 0 }}
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart margin={chartMargin}>
                       <CartesianGrid {...chart.grid} />
@@ -285,6 +305,7 @@ const Firsts = () => {
                       gap: 0.75,
                       maxHeight: { xs: "none", md: "100%" },
                       overflowY: { xs: "visible", md: "auto" },
+                      pb: { xs: 0.5, md: 0 },
                       pl: { xs: 0, md: 0.5 },
                       borderLeft: {
                         xs: "none",

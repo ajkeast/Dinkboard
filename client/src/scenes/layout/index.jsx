@@ -25,6 +25,7 @@ const Layout = () => {
         sx={{
           width: "100%",
           minWidth: 0,
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           transition: theme.transitions.create("width", {
@@ -42,12 +43,16 @@ const Layout = () => {
         <Box
           component="main"
           sx={{
+            flex: 1,
+            minHeight: 0,
             px: { xs: 1, sm: 1.5, md: 2 },
             pb: 2,
-            minHeight: "calc(100vh - 52px)",
             minWidth: 0,
             maxWidth: "100%",
-            overflowX: "hidden",
+            overflowY: "auto",
+            // clip avoids the overflow-x:hidden → overflow-y:auto quirk that
+            // can crop chart legends on real iOS browsers.
+            overflowX: "clip",
           }}
         >
           <Outlet />

@@ -360,10 +360,15 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
         flexDirection={{ xs: "column", md: "row" }}
         gap={{ xs: 1.5, md: 2 }}
         width="100%"
-        height="100%"
+        height={{ xs: "auto", md: "100%" }}
         minHeight={0}
       >
-        <Box flex="1 1 auto" minWidth={0} minHeight={{ xs: 260, md: 0 }}>
+        <Box
+          flex="1 1 auto"
+          minWidth={0}
+          height={{ xs: 260, md: "100%" }}
+          minHeight={{ xs: 260, md: 0 }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -430,7 +435,7 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
               flexDirection: "column",
               gap: 1.25,
               minHeight: 0,
-              overflow: "hidden",
+              overflow: { xs: "visible", md: "hidden" },
               pl: { xs: 0, md: 0.5 },
               borderLeft: {
                 xs: "none",
@@ -488,13 +493,13 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
             <Box
               aria-label="Member legend"
               sx={{
-                flex: 1,
+                flex: { xs: "0 0 auto", md: 1 },
                 minHeight: 0,
                 display: "flex",
                 alignItems: "flex-start",
                 gap: 0.75,
-                overflowY: "auto",
-                pb: 1,
+                overflowY: { xs: "visible", md: "auto" },
+                pb: { xs: 0.5, md: 1 },
               }}
             >
               {legendColumns.map((column, colIndex) => (

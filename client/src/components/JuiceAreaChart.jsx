@@ -169,10 +169,15 @@ const JuiceAreaChart = ({ data, isLoading, error, onRetry }) => {
         flexDirection={{ xs: "column", md: "row" }}
         gap={{ xs: 1.5, md: 2 }}
         width="100%"
-        height="100%"
+        height={{ xs: "auto", md: "100%" }}
         minHeight={0}
       >
-        <Box flex="1 1 auto" minWidth={0} minHeight={{ xs: 260, md: 0 }}>
+        <Box
+          flex="1 1 auto"
+          minWidth={0}
+          height={{ xs: 260, md: "100%" }}
+          minHeight={{ xs: 260, md: 0 }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData} margin={chartMargin}>
               <defs>
@@ -279,6 +284,7 @@ const JuiceAreaChart = ({ data, isLoading, error, onRetry }) => {
                 maxHeight: { xs: "none", md: "100%" },
                 overflowY: { xs: "visible", md: "auto" },
                 minHeight: 0,
+                pb: { xs: 0.5, md: 0 },
               }}
             >
               {legendColumns.map((column, colIndex) => (

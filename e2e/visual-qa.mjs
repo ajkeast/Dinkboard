@@ -1,25 +1,24 @@
 /**
  * Dinkboard M8 visual QA screenshot matrix.
- * Usage: node e2e/visual-qa.mjs [passName]
+ * Usage: node e2e/visual-qa.mjs [passName] [scene1,scene2,...]
  *
  * Auth: one API register/login → cookies into the browser context.
  * Theme: localStorage + Redux setModeExplicit (no repeated login/logout).
  */
-import { createRequire } from "node:module";
+import { chromium } from "@playwright/test";
 import { mkdirSync, writeFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const require = createRequire("/tmp/pw-dinkboard/package.json");
-const { chromium } = require("playwright");
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const PASS = process.argv[2] || "pass1";
+const SCENE_FILTER = process.argv[3]
+  ? new Set(process.argv[3].split(",").map((s) => s.trim()).filter(Boolean))
+  : null;
 const OUT = join(ROOT, "client/smoke-evidence", PASS);
 const BASE = process.env.DINK_BASE || "http://localhost:3000";
 const API = process.env.DINK_API || "http://localhost:5001";
-
 const WIDTHS = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "mobile", width: 390, height: 844 },
@@ -34,8 +33,15 @@ const AUTH_SCENES = [
   "firsts",
   "juice",
   "ai",
+  "economy",
 ];
 
+const publicScenes = SCENE_FILTER
+  ? PUBLIC_SCENES.filter((s) => SCENE_FILTER.has(s))
+  : PUBLIC_SCENES;
+const authScenes = SCENE_FILTER
+  ? AUTH_SCENES.filter((s) => SCENE_FILTER.has(s))
+  : AUTH_SCENES;
 const stamp = Date.now();
 const QA_USER = {
   email: `qa.visual.${stamp}@dinkboard.test`,
@@ -271,7 +277,7 @@ async function main() {
       await waitSettled(page, 1000);
       await setTheme(page, theme);
 
-      for (const scene of PUBLIC_SCENES) {
+      for (const scene of publicScenes) {
         await page.goto(appUrl(`/${scene}`), {
           waitUntil: "domcontentloaded",
           timeout: 60000,
@@ -284,11 +290,13 @@ async function main() {
         console.log("shot", file, statSync(path).size);
       }
 
-      // Auth scenes
+      // Auth scenes — skip softLogin when capturing public-only
+      if (authScenes.length === 0) continue;
+
       await softLogin(page, context, apiContext);
       await setTheme(page, theme);
 
-      for (const scene of AUTH_SCENES) {
+      for (const scene of authScenes) {
         await page.goto(appUrl(`/${scene}`), {
           waitUntil: "domcontentloaded",
           timeout: 60000,
