@@ -9,6 +9,12 @@ export const ingestEvents = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'UNAUTHORIZED', 'Authentication required');
     }
 
+    // Do not store admin browsing — analytics are for viewer usage.
+    if (req.user?.role === 'admin') {
+        res.status(202).json({ inserted: 0 });
+        return;
+    }
+
     const rows = events.map((e) => ({
         event_type: e.event_type,
         user_id: userId,
