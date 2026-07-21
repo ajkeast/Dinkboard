@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -10,10 +10,51 @@ import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import QueryState from "./QueryState";
 
 const MOBILE_CHART_HEIGHT = 220;
+const RADIAN = Math.PI / 180;
+/** Hide in-slice images when a wedge is too thin to fit them cleanly. */
+const MIN_SLICE_PCT_FOR_IMAGE = 6;
+
+const COLORS = [
+  "#694fce",
+  "#22a06b",
+  "#d97706",
+  "#2563eb",
+  "#db2777",
+  "#0891b2",
+  "#ca8a04",
+  "#7c3aed",
+];
+
+const EmojiLegendIcon = ({ url, name, color, size }) => (
+  <Box
+    width={size}
+    height={size}
+    flexShrink={0}
+    borderRadius={0.5}
+    bgcolor={color}
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    overflow="hidden"
+  >
+    {url ? (
+      <Box
+        component="img"
+        src={url}
+        alt={name}
+        width={size - 4}
+        height={size - 4}
+        sx={{ objectFit: "contain" }}
+      />
+    ) : null}
+  </Box>
+);
 
 const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
+  const emojiSize = isSmUp ? 22 : 16;
+  const legendIconSize = isSmUp ? 22 : 20;
 
   const chartData = useMemo(() => {
     if (!Array.isArray(data)) return [];
@@ -28,16 +69,35 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
       }));
   }, [data, topN]);
 
-  const COLORS = [
-    "#694fce",
-    "#22a06b",
-    "#d97706",
-    "#2563eb",
-    "#db2777",
-    "#0891b2",
-    "#ca8a04",
-    "#7c3aed",
-  ];
+  const total = useMemo(
+    () => chartData.reduce((sum, e) => sum + e.value, 0),
+    [chartData]
+  );
+
+  const renderSliceEmoji = useCallback(
+    ({ cx, cy, midAngle, innerRadius, outerRadius, percent, url, name }) => {
+      if (!url || percent * 100 < MIN_SLICE_PCT_FOR_IMAGE) return null;
+
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.55;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+      const half = emojiSize / 2;
+
+      return (
+        <image
+          key={`emoji-${name}`}
+          href={url}
+          xlinkHref={url}
+          x={x - half}
+          y={y - half}
+          width={emojiSize}
+          height={emojiSize}
+          style={{ pointerEvents: "none" }}
+        />
+      );
+    },
+    [emojiSize]
+  );
 
   // ResponsiveContainer needs a concrete pixel height on narrow screens —
   // percentage height collapses to 0 when the parent uses height: auto / flex.
@@ -79,6 +139,8 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
                 dataKey="value"
                 nameKey="name"
                 animationDuration={300}
+                label={renderSliceEmoji}
+                labelLine={false}
               >
                 {chartData.map((entry, index) => (
                   <Cell
@@ -93,6 +155,12 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
                   borderRadius: theme.shape.borderRadius,
                   border: `1px solid ${theme.palette.divider}`,
                 }}
+                formatter={(value, name) => [
+                  total
+                    ? `${value} (${Math.round((value / total) * 100)}%)`
+                    : value,
+                  name,
+                ]}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -120,12 +188,11 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
                 width: { xs: "calc(50% - 8px)", sm: "auto" },
               }}
             >
-              <Box
-                width={10}
-                height={10}
-                borderRadius={0}
-                flexShrink={0}
-                bgcolor={COLORS[index % COLORS.length]}
+              <EmojiLegendIcon
+                url={entry.url}
+                name={entry.name}
+                color={COLORS[index % COLORS.length]}
+                size={legendIconSize}
               />
               <Typography
                 variant="body2"
