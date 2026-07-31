@@ -59,14 +59,14 @@ const EmojisPieChart = ({ data, isLoading, error, onRetry, topN = 8 }) => {
   const chartData = useMemo(() => {
     if (!Array.isArray(data)) return [];
     return [...data]
-      .filter((e) => (e.occurrences ?? 0) > 0)
-      .sort((a, b) => b.occurrences - a.occurrences)
-      .slice(0, topN)
       .map((e) => ({
         name: e.emoji_name,
-        value: e.occurrences,
+        value: Number(e.occurrences) || 0,
         url: e.url,
-      }));
+      }))
+      .filter((e) => e.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, topN);
   }, [data, topN]);
 
   const total = useMemo(

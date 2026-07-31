@@ -12,6 +12,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-dinkboard}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-dinkboard}
+    # Localhost only — use SSH tunnel / TablePlus SSH; never expose publicly.
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./deploy/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro

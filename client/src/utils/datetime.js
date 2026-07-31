@@ -66,3 +66,18 @@ export function formatDateShort(value) {
   if (!d) return value == null || value === "" ? "" : String(value);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+/** Chart axis labels for month buckets (YYYY-MM or Date) — matches Firsts/Juice. */
+export function formatMonthLabel(value) {
+  if (value == null || value === "") return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}$/.test(raw)) {
+    const d = new Date(`${raw}-01T12:00:00`);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    }
+  }
+  const d = parseDate(raw);
+  if (!d) return raw;
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
