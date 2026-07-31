@@ -7,7 +7,10 @@ cd "$APP_DIR"
 
 echo "==> Fetching origin/main"
 git fetch --depth=1 origin main
-git checkout -B main origin/main
+# Discard local edits on the VPS so deploy always matches origin/main.
+# Untracked files (.env, server/.env) are left alone.
+git checkout -f -B main origin/main
+git reset --hard origin/main
 
 if [[ ! -f server/.env ]]; then
   echo "ERROR: server/.env missing in $APP_DIR (not in git — restore from backup)" >&2

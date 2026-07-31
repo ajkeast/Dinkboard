@@ -22,7 +22,11 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script_stop: true
           script: |
             set -euo pipefail
+            # Reset first so a dirty VPS working tree (and an outdated deploy.sh)
+            # cannot block checkout of the new main.
+            cd /opt/apps/dinkboard
+            git fetch --depth=1 origin main
+            git reset --hard origin/main
             /opt/apps/dinkboard/deploy/deploy.sh
