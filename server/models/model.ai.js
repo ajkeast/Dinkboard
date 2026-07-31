@@ -253,12 +253,12 @@ export class AI extends BaseModel {
                       AND timesent < CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_prev_30_days,
                 (
-                    SELECT SUM(total_tokens)
+                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as total_tokens_last_30_days,
                 (
-                    SELECT SUM(total_tokens)
+                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
                       AND created_at < CURRENT_DATE - INTERVAL '30 days'

@@ -20,9 +20,9 @@ export async function cleanupUsersByEmail(...emails) {
         // Extra safety: only delete emails created by this suite's PREFIX.
         if (!email || !String(email).includes(PREFIX)) continue;
         await db.query(
-            `DELETE e FROM app_analytics_events e
-             INNER JOIN app_users u ON u.id = e.user_id
-             WHERE u.email = ?`,
+            `DELETE FROM app_analytics_events e
+             USING app_users u
+             WHERE u.id = e.user_id AND u.email = ?`,
             [email]
         );
         await db.query('DELETE FROM app_users WHERE email = ?', [email]);
@@ -31,9 +31,9 @@ export async function cleanupUsersByEmail(...emails) {
 
 export async function cleanupUsersByUsernamePrefix(prefix = PREFIX) {
     await db.query(
-        `DELETE e FROM app_analytics_events e
-         INNER JOIN app_users u ON u.id = e.user_id
-         WHERE u.username LIKE ?`,
+        `DELETE FROM app_analytics_events e
+         USING app_users u
+         WHERE u.id = e.user_id AND u.username LIKE ?`,
         [`${prefix}%`]
     );
     await db.query('DELETE FROM app_users WHERE username LIKE ?', [`${prefix}%`]);
