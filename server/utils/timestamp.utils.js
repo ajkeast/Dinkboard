@@ -3,7 +3,19 @@ import moment from 'moment-timezone';
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MINUTES_PER_DAY = 1440;
 
+/** Parse stored UTC wall-clock (Date, epoch ms, or bare datetime string) to Eastern. */
 export const convertToEasternTime = (utcTimestamp) => {
+    if (typeof utcTimestamp === 'string') {
+        const trimmed = utcTimestamp.trim();
+        const bare = trimmed.match(
+            /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})(\.\d+)?$/
+        );
+        if (bare) {
+            return moment
+                .utc(`${bare[1]}T${bare[2]}${bare[3] || ''}`)
+                .tz('America/New_York');
+        }
+    }
     return moment.utc(utcTimestamp).tz('America/New_York');
 };
 

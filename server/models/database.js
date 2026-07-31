@@ -3,7 +3,22 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { Pool } = pg;
+const { Pool, types } = pg;
+
+/**
+ * TIMESTAMP WITHOUT TIME ZONE is stored as UTC wall-clock (same contract as the
+ * former mysql2 `timezone: 'Z'` pool and DiscordBot's `tz_localize("utc")`).
+ * Default node-pg parses these in the process local TZ, which shifts Eastern
+ * juice by the UTC offset (~240 minutes per claim on America/New_York).
+ */
+types.setTypeParser(types.builtins.TIMESTAMP, (value) => {
+    if (value == null) return null;
+    const iso = String(value).replace(" ", "T");
+    return new Date(iso.endsWith("Z") ? iso : `${iso}Z`);
+});
+
+/** Keep calendar dates as YYYY-MM-DD (avoid local-midnight Date / JSON TZ shifts). */
+types.setTypeParser(types.builtins.DATE, (value) => value);
 
 export class DatabaseError extends Error {
     constructor(message, originalError = null) {
@@ -51,6 +66,8 @@ class Database {
             user: env('SQL_USER'),
             password: env('SQL_PASSWORD'),
             database: env('SQL_DATABASE'),
+            // Align CURRENT_DATE / DATE_TRUNC with UTC wall-clock TIMESTAMP storage.
+            options: '-c TimeZone=UTC',
             max: 10,
             idleTimeoutMillis: 60000,
             connectionTimeoutMillis: 10000,

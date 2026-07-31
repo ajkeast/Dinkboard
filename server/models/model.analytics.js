@@ -128,7 +128,7 @@ export const Analytics = {
         );
 
         const byDay = await db.query(
-            `SELECT e.created_at::date AS day, COUNT(*) AS count
+            `SELECT TO_CHAR(e.created_at::date, 'YYYY-MM-DD') AS day, COUNT(*)::int AS count
              ${nonAdminFrom}
              GROUP BY e.created_at::date
              ORDER BY day ASC`,

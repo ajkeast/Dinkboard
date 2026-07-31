@@ -130,7 +130,9 @@ const Firsts = () => {
 
   const { domain, xAxisTicks } = useMemo(() => {
     const allDates = series.flatMap((item) =>
-      item.data.map((d) => d.timesent).filter((t) => Number.isFinite(t))
+      item.data
+        .map((d) => Number(d.timesent))
+        .filter((t) => Number.isFinite(t))
     );
     if (!allDates.length) {
       return { domain: [0, 0], xAxisTicks: [] };
