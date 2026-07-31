@@ -6,6 +6,7 @@ export class Emojis extends BaseModel {
     }
 
     async getAll() {
+        // Postgres: strpos(haystack, needle) replaces MySQL LOCATE(needle, haystack).
         const query = `
             SELECT
                 e.id,
@@ -13,30 +14,31 @@ export class Emojis extends BaseModel {
                 e.url,
                 e.created_at,
                 e.last_updated,
-                COALESCE(occurences, 0) AS occurrences
-            FROM ${this.tableName} as e
+                COALESCE(subquery.occurences, 0)::int AS occurrences
+            FROM ${this.tableName} AS e
             LEFT JOIN (
                 SELECT
                     emojis.id,
-                    emojis.emoji_name,
                     COUNT(*) AS occurences
-                FROM ${this.tableName}
-                JOIN messages m ON LOCATE(CONCAT(':', emojis.emoji_name, ':'), m.content) > 0
+                FROM ${this.tableName} AS emojis
+                JOIN messages m
+                  ON strpos(m.content, ':' || emojis.emoji_name || ':') > 0
                 GROUP BY emojis.id
             ) AS subquery ON e.id = subquery.id`;
-        
+
         return await this.db.query(query);
     }
 
     async getCount() {
         const query = `
             SELECT
-                emoji_name,
-                COUNT(*) AS occurences
-            FROM ${this.tableName}
-            JOIN messages ON LOCATE(CONCAT(':',emoji_name,':'), content) > 0
-            GROUP BY emojis.id`;
-        
+                emojis.emoji_name,
+                COUNT(*)::int AS occurences
+            FROM ${this.tableName} AS emojis
+            JOIN messages m
+              ON strpos(m.content, ':' || emojis.emoji_name || ':') > 0
+            GROUP BY emojis.id, emojis.emoji_name`;
+
         return await this.db.query(query);
     }
 

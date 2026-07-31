@@ -27,8 +27,9 @@ export class AI extends BaseModel {
     async generateDateSeries(startDate, endDate, groupBy = 'day') {
         const { step, timeFormat } = resolveGroupBy(groupBy);
         const query = `
-            SELECT DISTINCT TO_CHAR(gs, ?) AS time_period
+            SELECT TO_CHAR(gs, ?) AS time_period
             FROM generate_series(?::timestamp, ?::timestamp, ?::interval) AS gs
+            ORDER BY gs
         `;
         return await this.db.query(query, [timeFormat, startDate, endDate, step]);
     }
@@ -38,11 +39,11 @@ export class AI extends BaseModel {
             SELECT 
                 m.user_name,
                 COALESCE(m.display_name, m.user_name) as display_name,
-                COUNT(*) as total_calls,
-                SUM(input_tokens) as total_input_tokens,
-                SUM(output_tokens) as total_output_tokens,
-                SUM(total_tokens) as total_tokens,
-                COUNT(DISTINCT c.created_at::date) as days_used
+                COUNT(*)::int as total_calls,
+                COALESCE(SUM(input_tokens), 0)::bigint as total_input_tokens,
+                COALESCE(SUM(output_tokens), 0)::bigint as total_output_tokens,
+                COALESCE(SUM(total_tokens), 0)::bigint as total_tokens,
+                COUNT(DISTINCT c.created_at::date)::int as days_used
             FROM ${this.tableName} c
             JOIN members m ON c.user_id = m.id`;
 
@@ -61,14 +62,14 @@ export class AI extends BaseModel {
     async getChatGPTUsageByModel() {
         const query = `
             SELECT 
-                model,
-                COUNT(*) as total_calls,
-                SUM(input_tokens) as total_input_tokens,
-                SUM(output_tokens) as total_output_tokens,
-                SUM(total_tokens) as total_tokens,
-                AVG(total_tokens) as avg_tokens_per_call
+                COALESCE(NULLIF(TRIM(model), ''), 'unknown') as model,
+                COUNT(*)::int as total_calls,
+                COALESCE(SUM(input_tokens), 0)::bigint as total_input_tokens,
+                COALESCE(SUM(output_tokens), 0)::bigint as total_output_tokens,
+                COALESCE(SUM(total_tokens), 0)::bigint as total_tokens,
+                COALESCE(AVG(total_tokens), 0)::float as avg_tokens_per_call
             FROM ${this.tableName}
-            GROUP BY model
+            GROUP BY COALESCE(NULLIF(TRIM(model), ''), 'unknown')
             ORDER BY total_calls DESC`;
 
         return await this.db.query(query);
@@ -77,10 +78,11 @@ export class AI extends BaseModel {
     async getChatGPTUsageOverTime(groupBy = 'day') {
         const { timeFormat } = resolveGroupBy(groupBy);
 
+        // ::text avoids node-pg Date objects / TZ shifts breaking series merge keys.
         const rangeQuery = `
             SELECT 
-                MIN(created_at)::date as start_date,
-                MAX(created_at)::date as end_date
+                MIN(created_at)::date::text as start_date,
+                MAX(created_at)::date::text as end_date
             FROM ${this.tableName}`;
         const [dateRange] = await this.db.query(rangeQuery);
         
@@ -91,10 +93,10 @@ export class AI extends BaseModel {
         const dataQuery = `
             SELECT 
                 TO_CHAR(created_at, ?) as time_period,
-                COUNT(*) as total_calls,
-                SUM(input_tokens) as total_input_tokens,
-                SUM(output_tokens) as total_output_tokens,
-                SUM(total_tokens) as total_tokens
+                COUNT(*)::int as total_calls,
+                COALESCE(SUM(input_tokens), 0)::bigint as total_input_tokens,
+                COALESCE(SUM(output_tokens), 0)::bigint as total_output_tokens,
+                COALESCE(SUM(total_tokens), 0)::bigint as total_tokens
             FROM ${this.tableName}
             GROUP BY time_period
             ORDER BY MIN(created_at)`;
@@ -115,10 +117,10 @@ export class AI extends BaseModel {
             const matchingData = data.find(d => d.time_period === date.time_period);
             return {
                 time_period: date.time_period,
-                total_calls: matchingData ? matchingData.total_calls : 0,
-                total_input_tokens: matchingData ? matchingData.total_input_tokens : 0,
-                total_output_tokens: matchingData ? matchingData.total_output_tokens : 0,
-                total_tokens: matchingData ? matchingData.total_tokens : 0
+                total_calls: matchingData ? Number(matchingData.total_calls) || 0 : 0,
+                total_input_tokens: matchingData ? Number(matchingData.total_input_tokens) || 0 : 0,
+                total_output_tokens: matchingData ? Number(matchingData.total_output_tokens) || 0 : 0,
+                total_tokens: matchingData ? Number(matchingData.total_tokens) || 0 : 0
             };
         });
     }
@@ -143,8 +145,8 @@ export class AI extends BaseModel {
             SELECT 
                 m.user_name,
                 COALESCE(m.display_name, m.user_name) as display_name,
-                COUNT(*) as total_prompts,
-                COUNT(DISTINCT d.timesent::date) as days_used
+                COUNT(*)::int as total_prompts,
+                COUNT(DISTINCT d.timesent::date)::int as days_used
             FROM ${this.dalleTable} d
             JOIN members m ON d.user_id = m.id`;
 
@@ -165,8 +167,8 @@ export class AI extends BaseModel {
 
         const rangeQuery = `
             SELECT 
-                MIN(timesent)::date as start_date,
-                MAX(timesent)::date as end_date
+                MIN(timesent)::date::text as start_date,
+                MAX(timesent)::date::text as end_date
             FROM ${this.dalleTable}`;
         const [dateRange] = await this.db.query(rangeQuery);
         
@@ -177,7 +179,7 @@ export class AI extends BaseModel {
         const dataQuery = `
             SELECT 
                 TO_CHAR(timesent, ?) as time_period,
-                COUNT(*) as total_prompts
+                COUNT(*)::int as total_prompts
             FROM ${this.dalleTable}
             GROUP BY time_period
             ORDER BY MIN(timesent)`;
@@ -196,7 +198,9 @@ export class AI extends BaseModel {
 
         return dateSeries.map(date => ({
             time_period: date.time_period,
-            total_prompts: data.find(d => d.time_period === date.time_period)?.total_prompts || 0
+            total_prompts: Number(
+                data.find(d => d.time_period === date.time_period)?.total_prompts
+            ) || 0
         }));
     }
 
@@ -249,12 +253,12 @@ export class AI extends BaseModel {
                       AND timesent < CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_prev_30_days,
                 (
-                    SELECT SUM(total_tokens)
+                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as total_tokens_last_30_days,
                 (
-                    SELECT SUM(total_tokens)
+                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
                       AND created_at < CURRENT_DATE - INTERVAL '30 days'

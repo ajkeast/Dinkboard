@@ -17,6 +17,7 @@ import {
   getSeriesColor,
   splitLegendColumns,
 } from "utils/chartTheme";
+import { formatMonthLabel } from "utils/datetime";
 
 const OTHER_KEY = "Other";
 const TOP_MEMBERS = 5;
@@ -117,7 +118,7 @@ const MessagesTooltip = ({
           display: "block",
         }}
       >
-        {label}
+        {formatMonthLabel(label)}
       </Typography>
       <Typography
         variant="caption"
@@ -381,6 +382,7 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
                 {...chart.xAxis}
                 height={40}
                 minTickGap={28}
+                tickFormatter={formatMonthLabel}
               />
               <YAxis {...chart.yAxis} width={40} />
               <Tooltip
@@ -391,6 +393,7 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
                     memberKeys={visibleKeys}
                   />
                 }
+                labelFormatter={formatMonthLabel}
                 cursor={{
                   fill:
                     theme.palette.mode === "dark"
@@ -453,11 +456,15 @@ const MessagesBarChart = ({ data, isLoading, error, onRetry }) => {
                 { label: "12-mo total", value: formatCompact(stats.total) },
                 { label: "Avg / month", value: formatCompact(stats.average) },
                 {
-                  label: stats.latestMonth || "Latest",
+                  label: stats.latestMonth
+                    ? formatMonthLabel(stats.latestMonth)
+                    : "Latest",
                   value: formatCompact(stats.latest),
                 },
                 {
-                  label: stats.peakMonth ? `Peak · ${stats.peakMonth}` : "Peak",
+                  label: stats.peakMonth
+                    ? `Peak · ${formatMonthLabel(stats.peakMonth)}`
+                    : "Peak",
                   value: formatCompact(stats.peak),
                 },
               ].map((stat) => (

@@ -80,32 +80,33 @@ export class Messages extends BaseModel {
     }
 
     async getByMonth() {
+        // YYYY-MM keeps sorting stable; client formats axis labels.
         const query = `
             SELECT
-                TO_CHAR(messages.created_at, 'Mon YYYY') AS month,
-                COUNT(*) AS messages
+                TO_CHAR(messages.created_at, 'YYYY-MM') AS month,
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
             WHERE messages.created_at > '2017-08-01'
-            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM'), TO_CHAR(messages.created_at, 'Mon YYYY')
+            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM')
             ORDER BY TO_CHAR(messages.created_at, 'YYYY-MM')`;
-        
+
         return await this.db.query(query);
     }
 
     async getByMonthByMember() {
         const query = `
             SELECT
-                TO_CHAR(messages.created_at, 'Mon YYYY') AS month,
+                TO_CHAR(messages.created_at, 'YYYY-MM') AS month,
                 COALESCE(display_name, user_name) AS user_name,
-                COUNT(*) AS messages
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
             WHERE messages.created_at >= DATE_TRUNC('month', NOW() - INTERVAL '11 months')
-            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM'), TO_CHAR(messages.created_at, 'Mon YYYY'),
+            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM'),
                      COALESCE(display_name, user_name)
             ORDER BY TO_CHAR(messages.created_at, 'YYYY-MM')`;
-        
+
         return await this.db.query(query);
     }
 

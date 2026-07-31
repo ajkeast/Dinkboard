@@ -72,9 +72,9 @@ export function getChartTheme(theme) {
   };
 
   return {
-    margin: { top: 12, right: 16, left: 4, bottom: 4 },
-    /** Horizontal bar charts need room for category labels. */
-    marginVertical: { top: 8, right: 16, left: 8, bottom: 8 },
+    margin: { top: 12, right: 16, left: 8, bottom: 28 },
+    /** Horizontal bar charts need room for category labels + value tip. */
+    marginVertical: { top: 8, right: 28, left: 8, bottom: 20 },
     gridStroke,
     axisStroke,
     tick,
@@ -110,8 +110,8 @@ export function getChartTheme(theme) {
       interval: "preserveStartEnd",
       angle: -30,
       textAnchor: "end",
-      height: 52,
-      padding: { left: 4, right: 4 },
+      height: 56,
+      padding: { left: 8, right: 12 },
     },
     yAxis: {
       tick,

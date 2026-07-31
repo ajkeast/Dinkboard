@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import QueryState from "./QueryState";
 import { getChartTheme } from "utils/chartTheme";
+import { formatMonthLabel } from "utils/datetime";
 
 /** Drop trailing all-zero months so the chart isn't mostly empty. */
 function trimTrailingEmpty(rows) {
@@ -25,7 +26,15 @@ function trimTrailingEmpty(rows) {
 const MessagesAreaChart = ({ data, isLoading, error, onRetry }) => {
   const theme = useTheme();
   const chart = getChartTheme(theme);
-  const chartData = useMemo(() => trimTrailingEmpty(data), [data]);
+  const chartData = useMemo(
+    () =>
+      trimTrailingEmpty(data).map((row) => ({
+        ...row,
+        // pg COUNT can arrive as string; string max breaks the Y domain (~1K clip).
+        messages: Number(row.messages) || 0,
+      })),
+    [data]
+  );
   const stroke = theme.palette.secondary[300];
   const fill = theme.palette.secondary[500];
 
@@ -41,7 +50,7 @@ const MessagesAreaChart = ({ data, isLoading, error, onRetry }) => {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
-          margin={{ ...chart.margin, top: 8, right: 12, bottom: 0 }}
+          margin={{ top: 16, right: 20, left: 4, bottom: 8 }}
         >
           <defs>
             <linearGradient id="messagesAreaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -54,12 +63,19 @@ const MessagesAreaChart = ({ data, isLoading, error, onRetry }) => {
           <XAxis
             dataKey="month"
             {...chart.xAxis}
-            height={40}
-            minTickGap={40}
+            height={36}
+            minTickGap={48}
+            padding={{ left: 8, right: 8 }}
+            tickFormatter={formatMonthLabel}
           />
-          <YAxis {...chart.yAxis} width={40} />
+          <YAxis
+            {...chart.yAxis}
+            width={44}
+            domain={[0, (dataMax) => Math.ceil(Number(dataMax) * 1.08) || "auto"]}
+          />
           <Tooltip
             {...chart.tooltip}
+            labelFormatter={formatMonthLabel}
             cursor={{
               stroke: theme.palette.divider,
               strokeWidth: 1,

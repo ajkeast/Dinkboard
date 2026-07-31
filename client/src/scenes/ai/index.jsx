@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, useTheme, Typography, useMediaQuery } from "@mui/material";
 import {
   useGetAIStatsQuery,
@@ -26,7 +26,19 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { getChartTheme } from "utils/chartTheme";
+import { getChartTheme, formatSeriesLabel } from "utils/chartTheme";
+import { formatDateShort, formatMonthLabel } from "utils/datetime";
+
+const COLORS = [
+  "#694fce",
+  "#22a06b",
+  "#d97706",
+  "#2563eb",
+  "#db2777",
+  "#0891b2",
+];
+
+const cleanDisplayName = (v) => formatSeriesLabel(v);
 
 const AI = () => {
   const theme = useTheme();
@@ -64,20 +76,52 @@ const AI = () => {
     refetch: refetchModels,
   } = useGetChatGPTModelStatsQuery();
 
-  const COLORS = [
-    "#694fce",
-    "#22a06b",
-    "#d97706",
-    "#2563eb",
-    "#db2777",
-    "#0891b2",
-  ];
+  const timelineData = useMemo(
+    () =>
+      (chatgptTimeline || []).map((row) => ({
+        ...row,
+        total_calls: Number(row.total_calls) || 0,
+      })),
+    [chatgptTimeline]
+  );
+
+  const modelData = useMemo(
+    () =>
+      (modelStats || [])
+        .map((row) => ({
+          ...row,
+          total_calls: Number(row.total_calls) || 0,
+          model: row.model || "unknown",
+        }))
+        .filter((row) => row.total_calls > 0),
+    [modelStats]
+  );
+
+  const llmUserData = useMemo(
+    () =>
+      (chatgptUsers || []).slice(0, 5).map((row) => ({
+        ...row,
+        total_calls: Number(row.total_calls) || 0,
+        display_name: cleanDisplayName(row.display_name || row.user_name),
+      })),
+    [chatgptUsers]
+  );
+
+  const imageUserData = useMemo(
+    () =>
+      (dalleUsers || []).slice(0, 5).map((row) => ({
+        ...row,
+        total_prompts: Number(row.total_prompts) || 0,
+        display_name: cleanDisplayName(row.display_name || row.user_name),
+      })),
+    [dalleUsers]
+  );
 
   const chatgptData = aiStats
     ? [
         {
-          thisMTD: aiStats.chatgpt_last_30_days || 0,
-          lastMTD: aiStats.chatgpt_prev_30_days || 0,
+          thisMTD: Number(aiStats.chatgpt_last_30_days) || 0,
+          lastMTD: Number(aiStats.chatgpt_prev_30_days) || 0,
         },
       ]
     : [];
@@ -85,8 +129,8 @@ const AI = () => {
   const dalleData = aiStats
     ? [
         {
-          thisMTD: aiStats.dalle_last_30_days || 0,
-          lastMTD: aiStats.dalle_prev_30_days || 0,
+          thisMTD: Number(aiStats.dalle_last_30_days) || 0,
+          lastMTD: Number(aiStats.dalle_prev_30_days) || 0,
         },
       ]
     : [];
@@ -104,6 +148,15 @@ const AI = () => {
     if (isXl) return `span ${n}`;
     if (isMd) return n <= 4 ? "span 6" : "span 12";
     return "span 12";
+  };
+
+  const chartCardSx = {
+    p: 1.5,
+    display: "flex",
+    flexDirection: "column",
+    minHeight: 0,
+    minWidth: 0,
+    overflow: "visible",
   };
 
   return (
@@ -165,32 +218,26 @@ const AI = () => {
       >
         <DashCard
           sx={{
+            ...chartCardSx,
             gridColumn: "span 12",
             gridRow: "span 2",
-            p: 1.5,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             AI Usage Timeline
           </Typography>
-          <Box flex={1} minHeight={0}>
+          <Box flex={1} minHeight={0} minWidth={0}>
             <QueryState
               isLoading={timelineLoading}
               error={timelineError}
-              isEmpty={
-                !timelineLoading &&
-                (!chatgptTimeline || chatgptTimeline.length === 0)
-              }
+              isEmpty={!timelineLoading && timelineData.length === 0}
               emptyMessage="No timeline data"
               onRetry={refetchTimeline}
               skeletonVariant="area"
               skeletonHeight="100%"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chatgptTimeline} margin={chart.margin}>
+                <AreaChart data={timelineData} margin={chart.margin}>
                   <defs>
                     <linearGradient id="colorLlmPrompts" x1="0" y1="0" x2="0" y2="1">
                       <stop
@@ -206,9 +253,24 @@ const AI = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid {...chart.grid} />
-                  <XAxis dataKey="time_period" {...chart.xAxisAngled} />
-                  <YAxis {...chart.yAxis} />
-                  <Tooltip {...chart.tooltip} />
+                  <XAxis
+                    dataKey="time_period"
+                    {...chart.xAxisAngled}
+                    tickFormatter={(v) =>
+                      /^\d{4}-\d{2}$/.test(String(v))
+                        ? formatMonthLabel(v)
+                        : formatDateShort(v)
+                    }
+                  />
+                  <YAxis {...chart.yAxis} width={48} />
+                  <Tooltip
+                    {...chart.tooltip}
+                    labelFormatter={(v) =>
+                      /^\d{4}-\d{2}$/.test(String(v))
+                        ? formatMonthLabel(v)
+                        : formatDateShort(v)
+                    }
+                  />
                   <Area
                     type="monotone"
                     dataKey="total_calls"
@@ -227,33 +289,30 @@ const AI = () => {
 
         <DashCard
           sx={{
+            ...chartCardSx,
             gridColumn: span(4),
             gridRow: "span 2",
-            p: 1.5,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Model Distribution
           </Typography>
-          <Box flex={1} minHeight={0}>
+          <Box flex={1} minHeight={0} minWidth={0}>
             <QueryState
               isLoading={modelLoading}
               error={modelError}
-              isEmpty={!modelLoading && (!modelStats || modelStats.length === 0)}
+              isEmpty={!modelLoading && modelData.length === 0}
               emptyMessage="No model data"
               onRetry={refetchModels}
               skeletonVariant="pie"
               skeletonHeight="100%"
             >
-              <Box height="100%" display="flex" flexDirection="column">
-                <Box flex="1 1 auto" minHeight={140}>
+              <Box height="100%" display="flex" flexDirection="column" minHeight={0}>
+                <Box flex="1 1 auto" minHeight={140} minWidth={0}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={modelStats || []}
+                        data={modelData}
                         innerRadius="42%"
                         outerRadius="70%"
                         paddingAngle={3}
@@ -261,9 +320,9 @@ const AI = () => {
                         nameKey="model"
                         animationDuration={300}
                       >
-                        {(modelStats || []).map((entry, index) => (
+                        {modelData.map((entry, index) => (
                           <Cell
-                            key={`cell-${index}`}
+                            key={`cell-${entry.model}-${index}`}
                             fill={COLORS[index % COLORS.length]}
                           />
                         ))}
@@ -279,7 +338,7 @@ const AI = () => {
                   justifyContent="center"
                   pt={1}
                 >
-                  {(modelStats || []).map((entry, index) => (
+                  {modelData.map((entry, index) => (
                     <Box
                       key={entry.model || index}
                       display="flex"
@@ -312,25 +371,19 @@ const AI = () => {
 
         <DashCard
           sx={{
+            ...chartCardSx,
             gridColumn: span(6),
             gridRow: "span 2",
-            p: 1.5,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Top LLM Users
           </Typography>
-          <Box flex={1} minHeight={0}>
+          <Box flex={1} minHeight={0} minWidth={0}>
             <QueryState
               isLoading={chatgptUsersLoading}
               error={chatgptUsersError}
-              isEmpty={
-                !chatgptUsersLoading &&
-                (!chatgptUsers || chatgptUsers.length === 0)
-              }
+              isEmpty={!chatgptUsersLoading && llmUserData.length === 0}
               emptyMessage="No user data"
               onRetry={refetchChatgptUsers}
               skeletonVariant="bars"
@@ -338,7 +391,7 @@ const AI = () => {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={(chatgptUsers || []).slice(0, 5)}
+                  data={llmUserData}
                   layout="vertical"
                   margin={chart.marginVertical}
                   barCategoryGap={chart.barCategoryGap}
@@ -353,10 +406,7 @@ const AI = () => {
                     {...chart.yAxisCategory}
                     type="category"
                     dataKey="display_name"
-                    width={120}
-                    tickFormatter={(v) =>
-                      String(v || "").replace(/\s*:[^:]+:\s*/g, " ").trim()
-                    }
+                    width={100}
                   />
                   <Tooltip {...chart.tooltip} />
                   <Bar
@@ -374,24 +424,19 @@ const AI = () => {
 
         <DashCard
           sx={{
+            ...chartCardSx,
             gridColumn: span(6),
             gridRow: "span 2",
-            p: 1.5,
-            display: "flex",
-            flexDirection: "column",
-            minHeight: 0,
           }}
         >
           <Typography variant="h6" fontWeight={600} sx={{ mb: 1, flexShrink: 0 }}>
             Top Image Users
           </Typography>
-          <Box flex={1} minHeight={0}>
+          <Box flex={1} minHeight={0} minWidth={0}>
             <QueryState
               isLoading={dalleUsersLoading}
               error={dalleUsersError}
-              isEmpty={
-                !dalleUsersLoading && (!dalleUsers || dalleUsers.length === 0)
-              }
+              isEmpty={!dalleUsersLoading && imageUserData.length === 0}
               emptyMessage="No user data"
               onRetry={refetchDalleUsers}
               skeletonVariant="bars"
@@ -399,7 +444,7 @@ const AI = () => {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={(dalleUsers || []).slice(0, 5)}
+                  data={imageUserData}
                   layout="vertical"
                   margin={chart.marginVertical}
                   barCategoryGap={chart.barCategoryGap}
@@ -414,10 +459,7 @@ const AI = () => {
                     {...chart.yAxisCategory}
                     type="category"
                     dataKey="display_name"
-                    width={120}
-                    tickFormatter={(v) =>
-                      String(v || "").replace(/\s*:[^:]+:\s*/g, " ").trim()
-                    }
+                    width={100}
                   />
                   <Tooltip {...chart.tooltip} />
                   <Bar

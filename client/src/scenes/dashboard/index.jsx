@@ -380,15 +380,27 @@ const Dashboard = () => {
           </DashCard>
         </Box>
 
-        <DashCard sx={{ gridColumn: "span 12", gridRow: "span 2" }}>
-          <CardContent>
+        <DashCard
+          sx={{
+            gridColumn: "span 12",
+            gridRow: "span 2",
+            minWidth: 0,
+            overflow: "visible",
+          }}
+        >
+          <CardContent sx={{ minWidth: 0, overflow: "visible" }}>
             <SectionHeader
               title="Message volume"
               subtitle="Monthly totals across the server"
               to="/messages"
               icon={<MessageRounded />}
             />
-            <Box height={{ xs: 280, md: 360 }} width="100%">
+            <Box
+              height={{ xs: 280, md: 360 }}
+              width="100%"
+              minWidth={0}
+              sx={{ overflow: "visible" }}
+            >
               <MessagesAreaChart
                 data={messagesByMonthData}
                 isLoading={isMessagesByMonthLoading}
