@@ -18,7 +18,6 @@ function formatDayLabel(value) {
         return value.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
     if (typeof value === 'string') {
-        // MySQL DATE often arrives as YYYY-MM-DD
         const d = new Date(`${value.slice(0, 10)}T12:00:00`);
         if (!Number.isNaN(d.getTime())) {
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -31,7 +30,7 @@ export const Analytics = {
     async insertMany(events) {
         if (!events.length) return { inserted: 0 };
 
-        const placeholders = events.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(', ');
+        const placeholders = events.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)').join(', ');
         const params = [];
         for (const e of events) {
             params.push(
@@ -60,12 +59,11 @@ export const Analytics = {
     },
 
     async list({ limit = 50, offset = 0, eventType = null, days = 30 } = {}) {
-        // Real viewer traffic only: drop admins and orphaned rows (deleted CI/test users).
         const where = [
-            'e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)',
+            "e.created_at >= NOW() - (? || ' days')::interval",
             "u.role <> 'admin'"
         ];
-        const params = [days];
+        const params = [String(days)];
 
         if (eventType) {
             where.push('e.event_type = ?');
@@ -90,24 +88,24 @@ export const Analytics = {
     },
 
     async summary({ days = 30 } = {}) {
-        // Inner-join users so admin + orphaned (deleted) events never affect aggregates.
         const nonAdminFrom = `FROM app_analytics_events e
              INNER JOIN app_users u ON u.id = e.user_id
-             WHERE e.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+             WHERE e.created_at >= NOW() - (? || ' days')::interval
                AND u.role <> 'admin'`;
+        const dayParam = [String(days)];
 
         const [totals] = await db.query(
             `SELECT
                 COUNT(*) AS total_events,
                 COUNT(DISTINCT e.session_id) AS sessions,
                 COUNT(DISTINCT e.user_id) AS users,
-                SUM(e.event_type = 'page_view') AS page_views,
-                SUM(e.event_type = 'error') AS errors,
-                SUM(e.event_type = 'auth') AS auth_events,
-                SUM(e.event_type = 'action') AS actions,
-                SUM(e.event_type = 'web_vital') AS web_vitals
+                COUNT(*) FILTER (WHERE e.event_type = 'page_view') AS page_views,
+                COUNT(*) FILTER (WHERE e.event_type = 'error') AS errors,
+                COUNT(*) FILTER (WHERE e.event_type = 'auth') AS auth_events,
+                COUNT(*) FILTER (WHERE e.event_type = 'action') AS actions,
+                COUNT(*) FILTER (WHERE e.event_type = 'web_vital') AS web_vitals
              ${nonAdminFrom}`,
-            [days]
+            dayParam
         );
 
         const byDevice = await db.query(
@@ -115,7 +113,7 @@ export const Analytics = {
              ${nonAdminFrom}
              GROUP BY e.device_type
              ORDER BY count DESC`,
-            [days]
+            dayParam
         );
 
         const byPath = await db.query(
@@ -126,15 +124,15 @@ export const Analytics = {
              GROUP BY e.path
              ORDER BY count DESC
              LIMIT 20`,
-            [days]
+            dayParam
         );
 
         const byDay = await db.query(
-            `SELECT DATE(e.created_at) AS day, COUNT(*) AS count
+            `SELECT e.created_at::date AS day, COUNT(*) AS count
              ${nonAdminFrom}
-             GROUP BY DATE(e.created_at)
+             GROUP BY e.created_at::date
              ORDER BY day ASC`,
-            [days]
+            dayParam
         );
 
         const byBrowser = await db.query(
@@ -143,7 +141,7 @@ export const Analytics = {
              GROUP BY e.browser
              ORDER BY count DESC
              LIMIT 10`,
-            [days]
+            dayParam
         );
 
         return {

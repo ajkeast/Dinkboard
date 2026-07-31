@@ -1,4 +1,4 @@
-// Tiny plain-SQL migration runner.
+// Tiny plain-SQL migration runner (Postgres).
 //
 // - Tracks applied files in `app_schema_migrations`.
 // - Applies pending .sql files in lexicographic order.
@@ -7,9 +7,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
+const { Client } = pg;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -25,26 +26,26 @@ function connectionConfig() {
     const [host, port] = env('SQL_HOST').split(':');
     return {
         host,
-        port: port ? Number(port) : 3306,
+        port: port ? Number(port) : 5432,
         user: env('SQL_USER'),
         password: env('SQL_PASSWORD'),
         database: env('SQL_DATABASE'),
-        multipleStatements: false
     };
 }
 
 async function main() {
-    const conn = await mysql.createConnection(connectionConfig());
+    const client = new Client(connectionConfig());
+    await client.connect();
     try {
-        await conn.query(`
+        await client.query(`
             CREATE TABLE IF NOT EXISTS app_schema_migrations (
                 filename   VARCHAR(255) NOT NULL PRIMARY KEY,
                 applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            )
         `);
 
-        const [appliedRows] = await conn.query('SELECT filename FROM app_schema_migrations');
-        const applied = new Set(appliedRows.map(r => r.filename));
+        const appliedResult = await client.query('SELECT filename FROM app_schema_migrations');
+        const applied = new Set(appliedResult.rows.map(r => r.filename));
 
         const files = fs.readdirSync(__dirname)
             .filter(f => f.endsWith('.sql'))
@@ -60,25 +61,22 @@ async function main() {
             if (FORBIDDEN.test(sql)) {
                 throw new Error(`Refusing to run ${file}: contains a destructive statement against a protected table.`);
             }
-            // Split on semicolons at end of statements (files are plain DDL, no
-            // procedures/triggers, so this simple split is safe).
-            const statements = sql.split(/;\s*(?:\n|$)/).map(s => s.trim()).filter(Boolean);
-            console.log(`apply   ${file} (${statements.length} statement${statements.length === 1 ? '' : 's'})`);
-            for (const stmt of statements) {
-                await conn.query(stmt);
-            }
-            await conn.query('INSERT INTO app_schema_migrations (filename) VALUES (?)', [file]);
+            console.log(`apply   ${file}`);
+            await client.query(sql);
+            await client.query(
+                'INSERT INTO app_schema_migrations (filename) VALUES ($1)',
+                [file]
+            );
             ranAny = true;
         }
         console.log(ranAny ? 'Migrations complete.' : 'Nothing to migrate.');
     } finally {
-        await conn.end();
+        await client.end();
     }
 }
 
 main().catch(err => {
     console.error('Migration failed:', err.message || err);
     if (err.code) console.error('code:', err.code);
-    if (err.errno) console.error('errno:', err.errno);
     process.exit(1);
 });

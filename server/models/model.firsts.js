@@ -63,10 +63,10 @@ export class Firsts extends BaseModel {
                 COALESCE(display_name, user_name) AS user_name,
                 members.avatar AS avatar,
                 COUNT(*) AS firsts,
-                DATEDIFF(NOW(), MAX(timesent)) AS days_since_first
+                (CURRENT_DATE - MAX(timesent)::date) AS days_since_first
             FROM ${this.tableName}
             JOIN members ON firstlist_id.user_id = members.id
-            GROUP BY user_id
+            GROUP BY members.id, display_name, user_name, members.avatar
             ORDER BY firsts DESC`;
         
         return await this.db.query(query);
@@ -76,7 +76,7 @@ export class Firsts extends BaseModel {
         const query = `
             SELECT
                 COALESCE(display_name,user_name) AS user_name,
-                UNIX_TIMESTAMP(timesent) AS timesent,
+                EXTRACT(EPOCH FROM timesent)::bigint AS timesent,
                 ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY timesent) AS cum_count
             FROM ${this.tableName}
             JOIN members ON firstlist_id.user_id = members.id

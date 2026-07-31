@@ -100,7 +100,7 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 - `GET /api/ai/chatgpt/models` → `[{model, total_calls, total_input_tokens, total_output_tokens, total_tokens, avg_tokens_per_call}]`
 - `GET /api/ai/chatgpt/timeline?groupBy=day|hour|month` (default day) → `[{time_period, total_calls, total_input_tokens, total_output_tokens, total_tokens}]`
   - day/month: contiguous zero-filled series; hour: sparse (only hours with activity)
-  - SUM columns come back as strings (MySQL DECIMAL); COUNT columns as numbers
+  - SUM columns may come back as strings (Postgres NUMERIC); COUNT columns as numbers
 - `GET /api/ai/chatgpt/recent?limit=1-500` (default 50) → recent log rows joined with user_name
 - `GET /api/ai/dalle/users?startDate&endDate` → `[{user_name, display_name, total_prompts, days_used}]`
 - `GET /api/ai/dalle/timeline?groupBy=day|hour|month` → `[{time_period, total_prompts}]`

@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Dinkboard Express + MySQL API.",
+  "description": "Dinkboard Express + Postgres API.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -25,7 +25,7 @@
     "jsonwebtoken": "^9.0.3",
     "moment-timezone": "^0.5.45",
     "morgan": "^1.10.0",
-    "mysql2": "^3.6.5",
+    "pg": "^8.22.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

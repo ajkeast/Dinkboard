@@ -8,7 +8,7 @@ export class Messages extends BaseModel {
     async getAll() {
         return await this.findAll({
             fields: [
-                'CAST(messages.id AS CHAR(20)) AS id',
+                'CAST(messages.id AS TEXT) AS id',
                 'COALESCE(display_name, user_name) AS user_name',
                 "CONCAT('#', channel_name) AS channel_name",
                 'content',
@@ -37,7 +37,7 @@ export class Messages extends BaseModel {
                 COUNT(*) AS messages
             FROM ${this.tableName}
             JOIN channels on channel_id = channels.id
-            GROUP BY channel_id
+            GROUP BY channel_id, channel_name
             ORDER BY COUNT(*)`;
         
         return await this.db.query(query);
@@ -46,7 +46,7 @@ export class Messages extends BaseModel {
     async getById(id) {
         return await this.findById(id, {
             fields: [
-                'CAST(messages.id AS CHAR(20)) AS id',
+                'CAST(messages.id AS TEXT) AS id',
                 'COALESCE(display_name, user_name) AS user_name',
                 "CONCAT('#', channel_name) AS channel_name",
                 'content',
@@ -69,12 +69,12 @@ export class Messages extends BaseModel {
     async getByMember() {
         const query = `
             SELECT
-                members.id AS 'user_id',
+                members.id AS user_id,
                 COALESCE(display_name, user_name) AS user_name,
-                COUNT(*) AS 'messages'
+                COUNT(*) AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
-            GROUP BY messages.member_id`;
+            GROUP BY members.id, display_name, user_name`;
         
         return await this.db.query(query);
     }
@@ -82,13 +82,13 @@ export class Messages extends BaseModel {
     async getByMonth() {
         const query = `
             SELECT
-                DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
-                COUNT(*) AS 'messages'
+                TO_CHAR(messages.created_at, 'Mon YYYY') AS month,
+                COUNT(*) AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
             WHERE messages.created_at > '2017-08-01'
-            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m')
-            ORDER BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
+            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM'), TO_CHAR(messages.created_at, 'Mon YYYY')
+            ORDER BY TO_CHAR(messages.created_at, 'YYYY-MM')`;
         
         return await this.db.query(query);
     }
@@ -96,15 +96,15 @@ export class Messages extends BaseModel {
     async getByMonthByMember() {
         const query = `
             SELECT
-                DATE_FORMAT(messages.created_at, '%b %Y') AS 'month',
+                TO_CHAR(messages.created_at, 'Mon YYYY') AS month,
                 COALESCE(display_name, user_name) AS user_name,
-                COUNT(*) AS 'messages'
+                COUNT(*) AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
-            -- Last 12 calendar months inclusive (INTERVAL 12 MONTH can span 13 buckets).
-            WHERE messages.created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 11 MONTH), '%Y-%m-01')
-            GROUP BY DATE_FORMAT(messages.created_at, '%Y-%m'), user_name
-            ORDER BY DATE_FORMAT(messages.created_at, '%Y-%m')`;
+            WHERE messages.created_at >= DATE_TRUNC('month', NOW() - INTERVAL '11 months')
+            GROUP BY TO_CHAR(messages.created_at, 'YYYY-MM'), TO_CHAR(messages.created_at, 'Mon YYYY'),
+                     COALESCE(display_name, user_name)
+            ORDER BY TO_CHAR(messages.created_at, 'YYYY-MM')`;
         
         return await this.db.query(query);
     }
@@ -116,13 +116,13 @@ export class Messages extends BaseModel {
     async getByDayByMember(memberId, startDate, endDate) {
         const query = `
             SELECT
-                DATE_FORMAT(created_at, '%Y-%m-%d') AS date,
+                TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
                 COUNT(*) AS messages
             FROM ${this.tableName}
             WHERE member_id = ?
               AND created_at >= ?
-              AND created_at < DATE_ADD(?, INTERVAL 1 DAY)
-            GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+              AND created_at < (?::date + INTERVAL '1 day')
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
             ORDER BY date`;
 
         return await this.db.query(query, [memberId, startDate, endDate]);
@@ -136,7 +136,7 @@ export class Messages extends BaseModel {
             FROM ${this.tableName}
             JOIN channels ON messages.channel_id = channels.id
             WHERE messages.member_id = ?
-            GROUP BY messages.channel_id
+            GROUP BY messages.channel_id, channels.channel_name
             ORDER BY messages DESC`;
 
         return await this.db.query(query, [memberId]);
@@ -146,9 +146,9 @@ export class Messages extends BaseModel {
         const query = `
             SELECT
                 COUNT(*) AS total_messages,
-                COUNT(DISTINCT DATE(created_at)) AS active_days,
-                DATE_FORMAT(MIN(created_at), '%Y-%m-%d') AS first_message_date,
-                DATE_FORMAT(MAX(created_at), '%Y-%m-%d') AS last_message_date
+                COUNT(DISTINCT created_at::date) AS active_days,
+                TO_CHAR(MIN(created_at), 'YYYY-MM-DD') AS first_message_date,
+                TO_CHAR(MAX(created_at), 'YYYY-MM-DD') AS last_message_date
             FROM ${this.tableName}
             WHERE member_id = ?`;
 
@@ -169,25 +169,26 @@ export class Messages extends BaseModel {
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(NOW(), '%Y-%m-01') AND NOW()
-                ) AS thisMTD,
+                    WHERE created_at::date BETWEEN DATE_TRUNC('month', NOW())::date AND NOW()::date
+                ) AS "thisMTD",
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') AND DATE_SUB(NOW(), INTERVAL 1 MONTH)
-                ) AS lastMTD,
+                    WHERE created_at::date BETWEEN DATE_TRUNC('month', NOW() - INTERVAL '1 month')::date
+                      AND (NOW() - INTERVAL '1 month')::date
+                ) AS "lastMTD",
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(NOW(), '%Y-01-01') AND NOW()
-                ) AS thisYTD,
+                    WHERE created_at::date BETWEEN DATE_TRUNC('year', NOW())::date AND NOW()::date
+                ) AS "thisYTD",
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE DATE_FORMAT(created_at, '%Y-%m-%d') BETWEEN DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 YEAR), '%Y-01-01') AND DATE_SUB(NOW(), INTERVAL 1 YEAR)
-                ) AS lastYTD`;
+                    WHERE created_at::date BETWEEN DATE_TRUNC('year', NOW() - INTERVAL '1 year')::date
+                      AND (NOW() - INTERVAL '1 year')::date
+                ) AS "lastYTD"`;
         
         return await this.db.query(query);
     }
 }
-

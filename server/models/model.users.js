@@ -39,11 +39,13 @@ export const Users = {
     },
 
     async createUser({ email, username, passwordHash = null, memberId = null, avatarUrl = null }) {
-        const result = await db.query(
-            'INSERT INTO app_users (email, username, password_hash, member_id, avatar_url) VALUES (?, ?, ?, ?, ?)',
+        const rows = await db.query(
+            `INSERT INTO app_users (email, username, password_hash, member_id, avatar_url)
+             VALUES (?, ?, ?, ?, ?)
+             RETURNING id`,
             [email, username, passwordHash, memberId, avatarUrl]
         );
-        return result.insertId;
+        return rows[0].id;
     },
 
     async createOAuthUser({ email, username, memberId, avatarUrl = null }) {

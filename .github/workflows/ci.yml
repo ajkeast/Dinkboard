@@ -28,6 +28,25 @@ jobs:
   server-test:
     name: Server tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: dinkboard
+          POSTGRES_PASSWORD: dinkboard
+          POSTGRES_DB: dinkboard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dinkboard -d dinkboard"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SQL_HOST: localhost
+      SQL_USER: dinkboard
+      SQL_PASSWORD: dinkboard
+      SQL_DATABASE: dinkboard
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,42 +55,17 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - name: Check DB secrets present
-        env:
-          SQL_HOST: ${{ secrets.SQL_HOST }}
-          SQL_USER: ${{ secrets.SQL_USER }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
+      - name: Init Discord ingest schema
         run: |
-          node --input-type=module <<'EOF'
-          const keys = ['SQL_HOST', 'SQL_USER', 'SQL_PASSWORD', 'SQL_DATABASE'];
-          let ok = true;
-          for (const k of keys) {
-            const v = process.env[k] ?? '';
-            const trimmed = v.replace(/^['"]|['"]$/g, '').trim();
-            console.log(`${k}: length=${v.length} quoted=${/^['"]/.test(v.trim())} empty=${trimmed.length === 0}`);
-            if (!trimmed) ok = false;
-          }
-          if (!ok) {
-            console.error('One or more SQL_* secrets are missing/empty. Re-add them in repo Settings → Secrets (no quotes).');
-            process.exit(1);
-          }
-          EOF
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          PGPASSWORD=dinkboard psql -h localhost -U dinkboard -d dinkboard -f deploy/postgres/init.sql
       - name: Run migrations
         run: npm run migrate
-        env:
-          SQL_HOST: ${{ secrets.SQL_HOST }}
-          SQL_USER: ${{ secrets.SQL_USER }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
       - name: Run vitest
         run: npm test
         env:
           NODE_ENV: test
-          SQL_HOST: ${{ secrets.SQL_HOST }}
-          SQL_USER: ${{ secrets.SQL_USER }}
-          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
-          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           CORS_ORIGIN: http://localhost:3000
           CLIENT_URL: http://localhost:3000

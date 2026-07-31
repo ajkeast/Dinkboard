@@ -69,7 +69,7 @@ export class BaseModel {
         }
 
         const result = await this.db.query(query, params);
-        return result[0].count;
+        return Number(result[0].count);
     }
 
     async transaction(callback) {
