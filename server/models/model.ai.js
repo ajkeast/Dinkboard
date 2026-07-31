@@ -104,7 +104,13 @@ export class AI extends BaseModel {
         const data = await this.db.query(dataQuery, [timeFormat]);
 
         if (String(groupBy).toLowerCase() === 'hour') {
-            return data;
+            return data.map((row) => ({
+                time_period: row.time_period,
+                total_calls: Number(row.total_calls) || 0,
+                total_input_tokens: Number(row.total_input_tokens) || 0,
+                total_output_tokens: Number(row.total_output_tokens) || 0,
+                total_tokens: Number(row.total_tokens) || 0,
+            }));
         }
 
         const dateSeries = await this.generateDateSeries(
@@ -187,7 +193,10 @@ export class AI extends BaseModel {
         const data = await this.db.query(dataQuery, [timeFormat]);
 
         if (String(groupBy).toLowerCase() === 'hour') {
-            return data;
+            return data.map((row) => ({
+                time_period: row.time_period,
+                total_prompts: Number(row.total_prompts) || 0,
+            }));
         }
 
         const dateSeries = await this.generateDateSeries(
@@ -221,44 +230,44 @@ export class AI extends BaseModel {
         const query = `
             SELECT
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at::date = CURRENT_DATE
                 ) as chatgpt_today,
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.dalleTable}
                     WHERE timesent::date = CURRENT_DATE
                 ) as dalle_today,
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as chatgpt_last_30_days,
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.dalleTable}
                     WHERE timesent >= CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_last_30_days,
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
                       AND created_at < CURRENT_DATE - INTERVAL '30 days'
                 ) as chatgpt_prev_30_days,
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.dalleTable}
                     WHERE timesent >= CURRENT_DATE - INTERVAL '60 days'
                       AND timesent < CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_prev_30_days,
                 (
-                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
+                    SELECT COALESCE(SUM(total_tokens), 0)::double precision
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as total_tokens_last_30_days,
                 (
-                    SELECT COALESCE(SUM(total_tokens), 0)::bigint
+                    SELECT COALESCE(SUM(total_tokens), 0)::double precision
                     FROM ${this.tableName}
                     WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
                       AND created_at < CURRENT_DATE - INTERVAL '30 days'

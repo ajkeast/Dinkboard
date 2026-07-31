@@ -34,7 +34,7 @@ export class Messages extends BaseModel {
         const query = `
             SELECT 
                 channel_name,
-                COUNT(*) AS messages
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             JOIN channels on channel_id = channels.id
             GROUP BY channel_id, channel_name
@@ -71,7 +71,7 @@ export class Messages extends BaseModel {
             SELECT
                 members.id AS user_id,
                 COALESCE(display_name, user_name) AS user_name,
-                COUNT(*) AS messages
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             JOIN members ON messages.member_id = members.id
             GROUP BY members.id, display_name, user_name`;
@@ -118,7 +118,7 @@ export class Messages extends BaseModel {
         const query = `
             SELECT
                 TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
-                COUNT(*) AS messages
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             WHERE member_id = ?
               AND created_at >= ?
@@ -133,7 +133,7 @@ export class Messages extends BaseModel {
         const query = `
             SELECT
                 channels.channel_name,
-                COUNT(*) AS messages
+                COUNT(*)::int AS messages
             FROM ${this.tableName}
             JOIN channels ON messages.channel_id = channels.id
             WHERE messages.member_id = ?
@@ -146,8 +146,8 @@ export class Messages extends BaseModel {
     async getMemberSummary(memberId) {
         const query = `
             SELECT
-                COUNT(*) AS total_messages,
-                COUNT(DISTINCT created_at::date) AS active_days,
+                COUNT(*)::int AS total_messages,
+                COUNT(DISTINCT created_at::date)::int AS active_days,
                 TO_CHAR(MIN(created_at), 'YYYY-MM-DD') AS first_message_date,
                 TO_CHAR(MAX(created_at), 'YYYY-MM-DD') AS last_message_date
             FROM ${this.tableName}
@@ -168,23 +168,23 @@ export class Messages extends BaseModel {
         const query = `
             SELECT
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at::date BETWEEN DATE_TRUNC('month', NOW())::date AND NOW()::date
                 ) AS "thisMTD",
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at::date BETWEEN DATE_TRUNC('month', NOW() - INTERVAL '1 month')::date
                       AND (NOW() - INTERVAL '1 month')::date
                 ) AS "lastMTD",
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at::date BETWEEN DATE_TRUNC('year', NOW())::date AND NOW()::date
                 ) AS "thisYTD",
                 (
-                    SELECT COUNT(*) 
+                    SELECT COUNT(*)::int
                     FROM ${this.tableName}
                     WHERE created_at::date BETWEEN DATE_TRUNC('year', NOW() - INTERVAL '1 year')::date
                       AND (NOW() - INTERVAL '1 year')::date

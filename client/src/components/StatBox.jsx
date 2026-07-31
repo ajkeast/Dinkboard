@@ -22,15 +22,15 @@ export const normalizeStats = (data) => {
 
 export const resolveMetric = (stats, time) => {
   if (!stats) return { value: 0, change: 0 };
-  const change =
-    time === "month"
-      ? stats.lastMTD
-        ? stats.thisMTD / stats.lastMTD - 1
-        : 0
-      : stats.lastYTD
-        ? stats.thisYTD / stats.lastYTD - 1
-        : 0;
-  const value = time === "month" ? stats.thisMTD : stats.thisYTD;
+  // Coerce first — node-pg COUNT(*) can arrive as string; `"0"` is truthy and
+  // used to produce Infinity% change for empty prior periods.
+  const thisMTD = Number(stats.thisMTD) || 0;
+  const lastMTD = Number(stats.lastMTD) || 0;
+  const thisYTD = Number(stats.thisYTD) || 0;
+  const lastYTD = Number(stats.lastYTD) || 0;
+  const value = time === "month" ? thisMTD : thisYTD;
+  const prior = time === "month" ? lastMTD : lastYTD;
+  const change = prior ? value / prior - 1 : 0;
   return { value, change };
 };
 
