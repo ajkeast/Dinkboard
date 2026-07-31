@@ -9,7 +9,7 @@ export class Dinkcoin extends BaseModel {
         const query = `
             SELECT
                 b.user_id,
-                CAST(b.balance AS CHAR) AS balance,
+                CAST(b.balance AS TEXT) AS balance,
                 m.user_name,
                 COALESCE(m.display_name, m.user_name) AS display_name,
                 m.avatar
@@ -26,7 +26,7 @@ export class Dinkcoin extends BaseModel {
                 t.id,
                 t.from_user_id,
                 t.to_user_id,
-                CAST(t.amount AS CHAR) AS amount,
+                CAST(t.amount AS TEXT) AS amount,
                 t.tx_type,
                 t.tx_hash,
                 t.created_at,

@@ -1,12 +1,11 @@
 import { BaseModel } from "./BaseModel.js";
 
-// Whitelist of allowed groupBy values -> { SQL interval keyword, DATE_FORMAT pattern }.
-// groupBy comes from user input and the interval is interpolated into SQL, so it
-// MUST pass through this map (never interpolate the raw value).
+// Whitelist of allowed groupBy values -> { generate_series step, to_char pattern }.
+// groupBy comes from user input and must pass through this map.
 export const GROUP_BY_INTERVALS = {
-    day: { interval: 'DAY', timeFormat: '%Y-%m-%d' },
-    hour: { interval: 'HOUR', timeFormat: '%Y-%m-%d %H:00:00' },
-    month: { interval: 'MONTH', timeFormat: '%Y-%m' }
+    day: { step: '1 day', timeFormat: 'YYYY-MM-DD' },
+    hour: { step: '1 hour', timeFormat: 'YYYY-MM-DD HH24:00:00' },
+    month: { step: '1 month', timeFormat: 'YYYY-MM' }
 };
 
 function resolveGroupBy(groupBy) {
@@ -25,25 +24,15 @@ export class AI extends BaseModel {
         this.dalleTable = 'dalle_3_prompts';
     }
 
-    // Helper method to generate date series. The series is formatted with the
-    // same DATE_FORMAT pattern as the data query so the merge keys line up
-    // (raw DATE values never matched the formatted strings, yielding zeros).
     async generateDateSeries(startDate, endDate, groupBy = 'day') {
-        const { interval, timeFormat } = resolveGroupBy(groupBy);
+        const { step, timeFormat } = resolveGroupBy(groupBy);
         const query = `
-            WITH RECURSIVE date_series AS (
-                SELECT DATE(?) as date
-                UNION ALL
-                SELECT DATE_ADD(date, INTERVAL 1 ${interval})
-                FROM date_series
-                WHERE date < DATE(?)
-            )
-            SELECT DISTINCT DATE_FORMAT(date, ?) as time_period FROM date_series
+            SELECT DISTINCT TO_CHAR(gs, ?) AS time_period
+            FROM generate_series(?::timestamp, ?::timestamp, ?::interval) AS gs
         `;
-        return await this.db.query(query, [startDate, endDate, timeFormat]);
+        return await this.db.query(query, [timeFormat, startDate, endDate, step]);
     }
 
-    // ChatGPT Logs Methods
     async getChatGPTUsageByUser(startDate = null, endDate = null) {
         let query = `
             SELECT 
@@ -53,7 +42,7 @@ export class AI extends BaseModel {
                 SUM(input_tokens) as total_input_tokens,
                 SUM(output_tokens) as total_output_tokens,
                 SUM(total_tokens) as total_tokens,
-                COUNT(DISTINCT DATE(c.created_at)) as days_used
+                COUNT(DISTINCT c.created_at::date) as days_used
             FROM ${this.tableName} c
             JOIN members m ON c.user_id = m.id`;
 
@@ -88,11 +77,10 @@ export class AI extends BaseModel {
     async getChatGPTUsageOverTime(groupBy = 'day') {
         const { timeFormat } = resolveGroupBy(groupBy);
 
-        // Get date range
         const rangeQuery = `
             SELECT 
-                DATE(MIN(created_at)) as start_date,
-                DATE(MAX(created_at)) as end_date
+                MIN(created_at)::date as start_date,
+                MAX(created_at)::date as end_date
             FROM ${this.tableName}`;
         const [dateRange] = await this.db.query(rangeQuery);
         
@@ -102,7 +90,7 @@ export class AI extends BaseModel {
 
         const dataQuery = `
             SELECT 
-                DATE_FORMAT(created_at, ?) as time_period,
+                TO_CHAR(created_at, ?) as time_period,
                 COUNT(*) as total_calls,
                 SUM(input_tokens) as total_input_tokens,
                 SUM(output_tokens) as total_output_tokens,
@@ -113,13 +101,10 @@ export class AI extends BaseModel {
 
         const data = await this.db.query(dataQuery, [timeFormat]);
 
-        // Hourly series over the full history would blow past MySQL's CTE
-        // recursion cap; return sparse rows (only hours with activity).
         if (String(groupBy).toLowerCase() === 'hour') {
             return data;
         }
 
-        // Generate complete date series and zero-fill gaps
         const dateSeries = await this.generateDateSeries(
             dateRange.start_date,
             dateRange.end_date,
@@ -153,14 +138,13 @@ export class AI extends BaseModel {
         });
     }
 
-    // DALL-E 3 Methods
     async getDalleUsageByUser(startDate = null, endDate = null) {
         let query = `
             SELECT 
                 m.user_name,
                 COALESCE(m.display_name, m.user_name) as display_name,
                 COUNT(*) as total_prompts,
-                COUNT(DISTINCT DATE(d.timesent)) as days_used
+                COUNT(DISTINCT d.timesent::date) as days_used
             FROM ${this.dalleTable} d
             JOIN members m ON d.user_id = m.id`;
 
@@ -179,11 +163,10 @@ export class AI extends BaseModel {
     async getDalleUsageOverTime(groupBy = 'day') {
         const { timeFormat } = resolveGroupBy(groupBy);
 
-        // Get date range
         const rangeQuery = `
             SELECT 
-                DATE(MIN(timesent)) as start_date,
-                DATE(MAX(timesent)) as end_date
+                MIN(timesent)::date as start_date,
+                MAX(timesent)::date as end_date
             FROM ${this.dalleTable}`;
         const [dateRange] = await this.db.query(rangeQuery);
         
@@ -193,7 +176,7 @@ export class AI extends BaseModel {
 
         const dataQuery = `
             SELECT 
-                DATE_FORMAT(timesent, ?) as time_period,
+                TO_CHAR(timesent, ?) as time_period,
                 COUNT(*) as total_prompts
             FROM ${this.dalleTable}
             GROUP BY time_period
@@ -201,12 +184,10 @@ export class AI extends BaseModel {
 
         const data = await this.db.query(dataQuery, [timeFormat]);
 
-        // See getChatGPTUsageOverTime: sparse rows for hourly grouping.
         if (String(groupBy).toLowerCase() === 'hour') {
             return data;
         }
 
-        // Generate complete date series and zero-fill gaps
         const dateSeries = await this.generateDateSeries(
             dateRange.start_date,
             dateRange.end_date,
@@ -232,56 +213,54 @@ export class AI extends BaseModel {
         return await this.db.query(query, [limit]);
     }
 
-    // Combined AI Usage Stats
     async getAIUsageStats() {
         const query = `
             SELECT
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE DATE(created_at) = CURDATE()
+                    WHERE created_at::date = CURRENT_DATE
                 ) as chatgpt_today,
                 (
                     SELECT COUNT(*) 
                     FROM ${this.dalleTable}
-                    WHERE DATE(timesent) = CURDATE()
+                    WHERE timesent::date = CURRENT_DATE
                 ) as dalle_today,
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as chatgpt_last_30_days,
                 (
                     SELECT COUNT(*) 
                     FROM ${this.dalleTable}
-                    WHERE timesent >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE timesent >= CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_last_30_days,
                 (
                     SELECT COUNT(*) 
                     FROM ${this.tableName}
-                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-                      AND created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
+                      AND created_at < CURRENT_DATE - INTERVAL '30 days'
                 ) as chatgpt_prev_30_days,
                 (
                     SELECT COUNT(*) 
                     FROM ${this.dalleTable}
-                    WHERE timesent >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-                      AND timesent < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE timesent >= CURRENT_DATE - INTERVAL '60 days'
+                      AND timesent < CURRENT_DATE - INTERVAL '30 days'
                 ) as dalle_prev_30_days,
                 (
                     SELECT SUM(total_tokens)
                     FROM ${this.tableName}
-                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 ) as total_tokens_last_30_days,
                 (
                     SELECT SUM(total_tokens)
                     FROM ${this.tableName}
-                    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-                      AND created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE created_at >= CURRENT_DATE - INTERVAL '60 days'
+                      AND created_at < CURRENT_DATE - INTERVAL '30 days'
                 ) as total_tokens_prev_30_days`;
 
         const result = await this.db.query(query);
-        // Single-row aggregate: return the object, not a 1-element array.
         return result[0];
     }
-} 
+}

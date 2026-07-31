@@ -39,16 +39,16 @@ export function rangeWindows(range = "month") {
 
 const AGG_SELECT = `
     COUNT(*) AS scored_count,
-    ROUND(AVG(ms.polarity_score), 4) AS avg_score,
-    SUM(ms.polarity = 'positive') AS positive_count,
-    SUM(ms.polarity = 'negative') AS negative_count,
-    SUM(ms.polarity = 'neutral') AS neutral_count,
-    SUM(ms.polarity = 'mixed') AS mixed_count,
-    SUM(ms.sarcasm = 1) AS sarcasm_count,
-    SUM(ms.toxicity = 'none') AS toxicity_none,
-    SUM(ms.toxicity = 'mild') AS toxicity_mild,
-    SUM(ms.toxicity = 'moderate') AS toxicity_moderate,
-    SUM(ms.toxicity = 'severe') AS toxicity_severe
+    ROUND(AVG(ms.polarity_score)::numeric, 4) AS avg_score,
+    COUNT(*) FILTER (WHERE ms.polarity = 'positive') AS positive_count,
+    COUNT(*) FILTER (WHERE ms.polarity = 'negative') AS negative_count,
+    COUNT(*) FILTER (WHERE ms.polarity = 'neutral') AS neutral_count,
+    COUNT(*) FILTER (WHERE ms.polarity = 'mixed') AS mixed_count,
+    COUNT(*) FILTER (WHERE ms.sarcasm IS TRUE) AS sarcasm_count,
+    COUNT(*) FILTER (WHERE ms.toxicity = 'none') AS toxicity_none,
+    COUNT(*) FILTER (WHERE ms.toxicity = 'mild') AS toxicity_mild,
+    COUNT(*) FILTER (WHERE ms.toxicity = 'moderate') AS toxicity_moderate,
+    COUNT(*) FILTER (WHERE ms.toxicity = 'severe') AS toxicity_severe
 `;
 
 function emptyAgg() {
@@ -93,7 +93,7 @@ export class Sentiment extends BaseModel {
         const params = [startDate, endDate];
         let memberClause = "";
         if (memberId) {
-            memberClause = " AND CAST(m.member_id AS CHAR(20)) = ?";
+            memberClause = " AND CAST(m.member_id AS TEXT) = ?";
             params.push(String(memberId));
         }
 
@@ -101,7 +101,7 @@ export class Sentiment extends BaseModel {
             SELECT ${AGG_SELECT}
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            WHERE m.created_at >= ? AND m.created_at < DATE_ADD(?, INTERVAL 1 DAY)
+            WHERE m.created_at >= ? AND m.created_at < (?::date + INTERVAL '1 day')
             ${memberClause}
         `;
         const rows = await this.db.query(query, params);
@@ -119,20 +119,20 @@ export class Sentiment extends BaseModel {
 
     async getTimeline(range = "month") {
         const windows = rangeWindows(range);
-        const timeFormat = windows.groupBy === "month" ? "%Y-%m" : "%Y-%m-%d";
+        const timeFormat = windows.groupBy === "month" ? "YYYY-MM" : "YYYY-MM-DD";
 
         const query = `
             SELECT
-                DATE_FORMAT(m.created_at, ?) AS period,
+                TO_CHAR(m.created_at, ?) AS period,
                 COUNT(*) AS scored_count,
-                ROUND(AVG(ms.polarity_score), 4) AS avg_score,
-                SUM(ms.polarity = 'positive') AS positive_count,
-                SUM(ms.polarity = 'negative') AS negative_count,
-                SUM(ms.polarity = 'neutral') AS neutral_count,
-                SUM(ms.polarity = 'mixed') AS mixed_count
+                ROUND(AVG(ms.polarity_score)::numeric, 4) AS avg_score,
+                COUNT(*) FILTER (WHERE ms.polarity = 'positive') AS positive_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'negative') AS negative_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'neutral') AS neutral_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'mixed') AS mixed_count
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            WHERE m.created_at >= ? AND m.created_at < DATE_ADD(?, INTERVAL 1 DAY)
+            WHERE m.created_at >= ? AND m.created_at < (?::date + INTERVAL '1 day')
             GROUP BY period
             ORDER BY period ASC
         `;
@@ -164,7 +164,7 @@ export class Sentiment extends BaseModel {
         const params = [windows.startDate, windows.endDate];
         let memberClause = "";
         if (memberId) {
-            memberClause = " AND CAST(m.member_id AS CHAR(20)) = ?";
+            memberClause = " AND CAST(m.member_id AS TEXT) = ?";
             params.push(String(memberId));
         }
 
@@ -172,7 +172,7 @@ export class Sentiment extends BaseModel {
             SELECT ms.emotions, COUNT(*) AS cnt
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            WHERE m.created_at >= ? AND m.created_at < DATE_ADD(?, INTERVAL 1 DAY)
+            WHERE m.created_at >= ? AND m.created_at < (?::date + INTERVAL '1 day')
             ${memberClause}
             GROUP BY ms.emotions
         `;
@@ -184,7 +184,7 @@ export class Sentiment extends BaseModel {
             SELECT ms.emotions, COUNT(*) AS cnt
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            WHERE CAST(m.member_id AS CHAR(20)) = ?
+            WHERE CAST(m.member_id AS TEXT) = ?
             GROUP BY ms.emotions
         `;
         return this.db.query(query, [String(memberId)]);
@@ -194,25 +194,25 @@ export class Sentiment extends BaseModel {
         const windows = rangeWindows(range);
         const query = `
             SELECT
-                CAST(m.member_id AS CHAR(20)) AS member_id,
+                CAST(m.member_id AS TEXT) AS member_id,
                 COALESCE(mem.display_name, mem.user_name) AS display_name,
                 mem.user_name,
                 mem.avatar,
                 COUNT(*) AS scored_count,
-                ROUND(AVG(ms.polarity_score), 4) AS avg_score,
-                SUM(ms.polarity = 'positive') AS positive_count,
-                SUM(ms.polarity = 'negative') AS negative_count,
-                SUM(ms.polarity = 'neutral') AS neutral_count,
-                SUM(ms.polarity = 'mixed') AS mixed_count,
-                SUM(ms.sarcasm = 1) AS sarcasm_count,
-                SUM(ms.toxicity != 'none') AS toxicity_count
+                ROUND(AVG(ms.polarity_score)::numeric, 4) AS avg_score,
+                COUNT(*) FILTER (WHERE ms.polarity = 'positive') AS positive_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'negative') AS negative_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'neutral') AS neutral_count,
+                COUNT(*) FILTER (WHERE ms.polarity = 'mixed') AS mixed_count,
+                COUNT(*) FILTER (WHERE ms.sarcasm IS TRUE) AS sarcasm_count,
+                COUNT(*) FILTER (WHERE ms.toxicity <> 'none') AS toxicity_count
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            JOIN members mem ON CAST(mem.id AS CHAR(20)) = CAST(m.member_id AS CHAR(20))
-            WHERE m.created_at >= ? AND m.created_at < DATE_ADD(?, INTERVAL 1 DAY)
+            JOIN members mem ON CAST(mem.id AS TEXT) = CAST(m.member_id AS TEXT)
+            WHERE m.created_at >= ? AND m.created_at < (?::date + INTERVAL '1 day')
             GROUP BY m.member_id, mem.display_name, mem.user_name, mem.avatar
-            HAVING scored_count >= ?
-            ORDER BY avg_score DESC
+            HAVING COUNT(*) >= ?
+            ORDER BY AVG(ms.polarity_score) DESC
         `;
         const rows = await this.db.query(query, [
             windows.startDate,
@@ -262,7 +262,7 @@ export class Sentiment extends BaseModel {
             SELECT ${AGG_SELECT}
             FROM ${this.tableName} ms
             JOIN messages m ON m.id = ms.message_id
-            WHERE CAST(m.member_id AS CHAR(20)) = ?
+            WHERE CAST(m.member_id AS TEXT) = ?
         `;
         const rows = await this.db.query(query, [String(memberId)]);
         return normalizeAgg(rows[0]);

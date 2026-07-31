@@ -2,9 +2,9 @@
 
 **[Live demo → dinkscord.com](https://dinkscord.com)**
 
-A full-stack analytics dashboard for a private Discord community. It surfaces message volume, member activity, emoji usage, AI feature usage, an in-server economy, and community leaderboards — backed by a real MySQL dataset and a production deploy with CI/CD.
+A full-stack analytics dashboard for a private Discord community. It surfaces message volume, member activity, emoji usage, AI feature usage, an in-server economy, and community leaderboards — backed by a Postgres (+ pgvector) dataset co-located on the VPS with the Discord bot, and a production deploy with CI/CD.
 
-Stack: **React (Vite) + Express + MySQL**.
+Stack: **React (Vite) + Express + Postgres (pgvector)**.
 
 ---
 
