@@ -20,6 +20,7 @@ import {
   getSeriesColor,
   splitLegendColumns,
 } from "utils/chartTheme";
+import { cumulativeCountAt } from "utils/cumulativeCount";
 
 const formatAxisDate = (unixTime) => {
   const date = new Date(unixTime * 1000);
@@ -40,12 +41,24 @@ const seriesEndValue = (item) => {
   return Number(last?.cum_count) || 0;
 };
 
-const FirstsTooltip = ({ active, payload, label, theme, chart }) => {
-  if (!active || !payload?.length) return null;
+const FirstsTooltip = ({ active, label, theme, chart, series }) => {
+  if (!active || !series?.length) return null;
 
-  const rows = [...payload]
-    .filter((p) => p.value != null && p.value !== "")
-    .sort((a, b) => Number(b.value) - Number(a.value));
+  // Each Line keeps its own data array and the shared dataKey "cum_count".
+  // Recharts then reads every series at one tooltip index, so the key repeats
+  // the leader's total. Resolve each user against the hovered timestamp.
+  const rows = series
+    .filter((item) => !item.hidden)
+    .map((item) => ({
+      name: item.name,
+      color: item.color,
+      value: cumulativeCountAt(item.data, label),
+    }))
+    .filter((row) => row.value > 0)
+    .sort(
+      (a, b) =>
+        b.value - a.value || String(a.name).localeCompare(String(b.name))
+    );
 
   if (!rows.length) return null;
 
@@ -57,6 +70,8 @@ const FirstsTooltip = ({ active, payload, label, theme, chart }) => {
         py: 1,
         minWidth: 160,
         maxWidth: 240,
+        maxHeight: 280,
+        overflowY: "auto",
       }}
     >
       <Typography
@@ -173,6 +188,17 @@ const Firsts = () => {
     [series]
   );
 
+  const tooltipSeries = useMemo(
+    () =>
+      series.map((item, index) => ({
+        name: item.name,
+        data: item.data,
+        color: getSeriesColor(index),
+        hidden: hidden.has(item.name),
+      })),
+    [series, hidden]
+  );
+
   return (
     // Fixed vh clips the legend under iOS browser chrome; grow on mobile.
     // Flex column lets the Header size itself — no magic header-height calc.
@@ -244,12 +270,17 @@ const Firsts = () => {
                         ticks={xAxisTicks}
                         tickFormatter={formatAxisDate}
                         allowDataOverflow
+                        allowDuplicatedCategory={false}
                         height={40}
                       />
                       <YAxis {...chart.yAxis} width={40} />
                       <Tooltip
                         content={
-                          <FirstsTooltip theme={theme} chart={chart} />
+                          <FirstsTooltip
+                            theme={theme}
+                            chart={chart}
+                            series={tooltipSeries}
+                          />
                         }
                         cursor={{
                           stroke: theme.palette.divider,
