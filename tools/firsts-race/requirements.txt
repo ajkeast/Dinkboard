@@ -1,0 +1,2 @@
+pillow>=10
+psycopg[binary]>=3.1
