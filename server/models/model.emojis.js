@@ -1,4 +1,9 @@
 import { BaseModel } from "./BaseModel.js";
+import { currentMessageTextSql } from "./messageText.js";
+
+// Custom-emoji counts follow the text currently shown in Discord.
+// strpos cannot use the btree indexes on messages, and COALESCE does not add a filter.
+const CURRENT_TEXT = currentMessageTextSql('m');
 
 export class Emojis extends BaseModel {
     constructor() {
@@ -22,7 +27,7 @@ export class Emojis extends BaseModel {
                     COUNT(*) AS occurences
                 FROM ${this.tableName} AS emojis
                 JOIN messages m
-                  ON strpos(m.content, ':' || emojis.emoji_name || ':') > 0
+                  ON strpos(${CURRENT_TEXT}, ':' || emojis.emoji_name || ':') > 0
                 GROUP BY emojis.id
             ) AS subquery ON e.id = subquery.id`;
 
@@ -36,7 +41,7 @@ export class Emojis extends BaseModel {
                 COUNT(*)::int AS occurences
             FROM ${this.tableName} AS emojis
             JOIN messages m
-              ON strpos(m.content, ':' || emojis.emoji_name || ':') > 0
+              ON strpos(${CURRENT_TEXT}, ':' || emojis.emoji_name || ':') > 0
             GROUP BY emojis.id, emojis.emoji_name`;
 
         return await this.db.query(query);
