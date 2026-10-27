@@ -1,4 +1,18 @@
 import { BaseModel } from "./BaseModel.js";
+import { currentMessageTextSql } from "./messageText.js";
+
+// Same projection for the list and the single-message read.
+// `content` in the response is the text currently shown in Discord.
+const MESSAGE_ROW_FIELDS = [
+    'CAST(messages.id AS TEXT) AS id',
+    'COALESCE(display_name, user_name) AS user_name',
+    "CONCAT('#', channel_name) AS channel_name",
+    `${currentMessageTextSql('messages')} AS content`,
+    '(messages.edited_content IS NOT NULL) AS edited',
+    'messages.edited_at',
+    'messages.created_at',
+    'messages.last_updated',
+];
 
 export class Messages extends BaseModel {
     constructor() {
@@ -7,14 +21,7 @@ export class Messages extends BaseModel {
 
     async getAll() {
         return await this.findAll({
-            fields: [
-                'CAST(messages.id AS TEXT) AS id',
-                'COALESCE(display_name, user_name) AS user_name',
-                "CONCAT('#', channel_name) AS channel_name",
-                'content',
-                'messages.created_at',
-                'messages.last_updated'
-            ],
+            fields: MESSAGE_ROW_FIELDS,
             joins: [
                 {
                     table: 'members',
@@ -45,14 +52,7 @@ export class Messages extends BaseModel {
 
     async getById(id) {
         return await this.findById(id, {
-            fields: [
-                'CAST(messages.id AS TEXT) AS id',
-                'COALESCE(display_name, user_name) AS user_name',
-                "CONCAT('#', channel_name) AS channel_name",
-                'content',
-                'messages.created_at',
-                'messages.last_updated'
-            ],
+            fields: MESSAGE_ROW_FIELDS,
             joins: [
                 {
                     table: 'members',

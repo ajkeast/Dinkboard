@@ -59,13 +59,23 @@ CREATE TRIGGER emojis_last_updated
   FOR EACH ROW EXECUTE FUNCTION set_timestamp_last_updated();
 
 CREATE TABLE IF NOT EXISTS messages (
-  id            BIGINT PRIMARY KEY,
-  member_id     VARCHAR(20) REFERENCES members(id),
-  channel_id    BIGINT REFERENCES channels(id),
-  content       VARCHAR(4000),
-  created_at    TIMESTAMP,
-  last_updated  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  id              BIGINT PRIMARY KEY,
+  member_id       VARCHAR(20) REFERENCES members(id),
+  channel_id      BIGINT REFERENCES channels(id),
+  content         VARCHAR(4000),
+  edited_content  VARCHAR(4000),
+  edited_at       TIMESTAMP,
+  created_at      TIMESTAMP,
+  last_updated    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Match the columns already applied on the shared production database.
+-- content stays the original text. edited_content / edited_at stay NULL until a real content edit.
+COMMENT ON COLUMN messages.edited_content IS
+    'Latest message text after a real content edit. NULL if content was never edited. Embed-only updates are ignored.';
+
+COMMENT ON COLUMN messages.edited_at IS
+    'When edited_content was last set. NULL if content was never edited.';
 
 CREATE INDEX IF NOT EXISTS idx_messages_member_id ON messages(member_id);
 CREATE INDEX IF NOT EXISTS idx_messages_channel_id ON messages(channel_id);

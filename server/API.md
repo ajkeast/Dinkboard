@@ -59,7 +59,9 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 
 ### /api/messages
 
-- `GET /api/messages` → array (100 newest): `{id:string, user_name, channel_name:'#name', content, created_at, last_updated}`
+- `GET /api/messages` → array (100 newest): `{id:string, user_name, channel_name:'#name', content, edited:boolean, edited_at, created_at, last_updated}`
+  - `content` is the text currently shown in Discord: `COALESCE(edited_content, content)`. Rows that were never edited (`edited_content` NULL, including historical rows) return the stored original.
+  - `edited` is true when `edited_content` is not null. `edited_at` is when that column was last written, or null.
 - `GET /api/messages/members` → `[{user_id:string, user_name, messages:number}]`
 - `GET /api/messages/channels` → `[{channel_name, messages:number}]`
 - `GET /api/messages/channels/member?memberId=` → `[{channel_name, messages:number}]` (desc)
@@ -70,7 +72,7 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 - `GET /api/messages/month/member` → last 12 months only: `[{month:'Jan 2024', <user_name>: count, ...}]`
 - `GET /api/messages/stats` → **1-element array** `[{thisMTD, lastMTD, thisYTD, lastYTD}]`
   (intentionally still array-shaped until the M7 frontend cleanup)
-- `GET /api/messages/:id` (`^\d{1,20}$`) → single message object, or `null` if not found
+- `GET /api/messages/:id` (`^\d{1,20}$`) → same object as one `/api/messages` row, or `null` if not found
 
 ### /api/members
 
@@ -80,7 +82,8 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 ### /api/emojis
 
 - `GET /api/emojis` → `[{id, emoji_name, url, created_at, last_updated, occurrences:number}]`
-- `GET /api/emojis/count` → `[{emoji_name, occurences:number}]` (sic, legacy field spelling)
+  Counts use the current message text (`COALESCE(edited_content, content)`), so an edit that adds or removes a custom emoji is reflected.
+- `GET /api/emojis/count` → `[{emoji_name, occurences:number}]` (sic, legacy field spelling). Same current-text match as `/api/emojis`.
 - `GET /api/emojis/:id` (numeric) → single emoji row, or `null`
 
 ### /api/firsts

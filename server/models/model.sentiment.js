@@ -84,6 +84,11 @@ function normalizeAgg(row) {
     };
 }
 
+/**
+ * Joins `messages` for member and timestamp only.
+ * Scores stay tied to the original wording (`content`). Edits are not
+ * rescored, so these queries do not substitute the latest edit.
+ */
 export class Sentiment extends BaseModel {
     constructor() {
         super("message_sentiment");
