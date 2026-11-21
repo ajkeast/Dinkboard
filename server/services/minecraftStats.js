@@ -19,15 +19,15 @@ const ADVANCEMENT_TITLES = JSON.parse(
  * Weekly is that playday and the 6 before it. Monthly is that playday and the
  * 29 before it. All-time is the latest stats snapshot, not the sum of deltas
  * (deltas start 2026-11-20; the first snapshot is a baseline only).
- * Active time is public.minecraft_sessions where likely_afk is false. The bot
- * sets that flag when the unbroken session is longer than 6 hours.
+ * activeSeconds is public.minecraft_sessions where likely_afk is false. The bot
+ * sets that flag when the unbroken session is longer than 6 hours. The profile
+ * does not expose the AFK portion.
  */
 export const WINDOW_NOTE =
     'Daily, weekly, and monthly are playdays (05:00–05:00 America/New_York), labeled by the morning they start. '
     + 'Daily is the latest playday with any daily_stats row. Weekly is that playday and the 6 before it. '
     + 'Monthly is that playday and the 29 before it. All-time is the latest stats snapshot (lifetime), '
-    + 'not the sum of daily deltas. Active time sums Discord-recap session slices with likely_afk = false '
-    + '(the unbroken session was longer than 6 hours).';
+    + 'not the sum of daily deltas.';
 
 const DIAMOND_ORES = ['minecraft:diamond_ore', 'minecraft:deepslate_diamond_ore'];
 
@@ -108,8 +108,6 @@ export function summarizeStats(stats, { deathsExcluded = 0 } = {}) {
         playtimeTicks,
         playtimeSeconds: Math.round(playtimeTicks / 20),
         activeSeconds: null,
-        afkSeconds: null,
-        onlineSeconds: null,
         deaths: Math.max(0, num(custom['minecraft:deaths']) - num(deathsExcluded)),
         jumps: num(custom['minecraft:jump']),
         blocksMined: sumValues(mined),
@@ -143,8 +141,6 @@ export function withPresence(summary, presence) {
     return {
         ...summary,
         activeSeconds: num(presence.activeSeconds),
-        afkSeconds: num(presence.afkSeconds),
-        onlineSeconds: num(presence.onlineSeconds),
     };
 }
 

@@ -292,8 +292,7 @@ const MinecraftSection = ({ profile, logins, isAdmin }) => {
               {windowLabel(period, profile.windows)}
             </Typography>
             <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
-              Playdays run 5:00 AM to 5:00 AM ET. Active time skips sessions the recap
-              marked likely AFK (longer than 6 hours). Time in world is the vanilla
+              Playdays run 5:00 AM to 5:00 AM ET. Time in world is the vanilla
               playtime stat and includes idle time.
             </Typography>
 
@@ -302,9 +301,8 @@ const MinecraftSection = ({ profile, logins, isAdmin }) => {
               <StatTile
                 label="Active"
                 value={formatDuration(stats.activeSeconds)}
-                hint={stats.activeSeconds == null ? "Recap sessions unavailable" : "Not likely AFK"}
+                hint={stats.activeSeconds == null ? "Recap sessions unavailable" : null}
               />
-              <StatTile label="Likely AFK" value={formatDuration(stats.afkSeconds)} />
               <StatTile label="Deaths" value={formatCount(stats.deaths)} hint="Excludes rolled-back" />
               <StatTile label="Jumps" value={formatCount(stats.jumps)} />
               <StatTile label="Blocks mined" value={formatCount(stats.blocksMined)} />

@@ -266,7 +266,8 @@ describe('Minecraft member profile', () => {
         expect(res.body.stats.all.topMinedBlock.name).toBe('Stone');
         expect(res.body.stats.all.topKillerMob.id).toBe('minecraft:zombie');
         expect(res.body.stats.all.activeSeconds).toBe(600);
-        expect(res.body.stats.all.afkSeconds).toBe(6000);
+        expect(res.body.stats.all).not.toHaveProperty('afkSeconds');
+        expect(res.body.stats.all).not.toHaveProperty('onlineSeconds');
 
         expect(res.body.stats.day.playtimeSeconds).toBe(1200);
         expect(res.body.stats.day.deaths).toBe(1);
