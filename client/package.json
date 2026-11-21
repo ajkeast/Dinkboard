@@ -19,7 +19,8 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.9.0",
-    "recharts": "^2.10.4"
+    "recharts": "^2.10.4",
+    "skinview3d": "^3.4.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

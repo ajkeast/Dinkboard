@@ -1,0 +1,38 @@
+# Overlay for the production Dinkboard stack. deploy.sh does not start this.
+# From the repo root, after deploy/postgres/minecraft.sql (and the link seed):
+#
+#   docker compose \
+#     -f docker-compose.prod.yml \
+#     -f minecraft-collector/docker-compose.yml \
+#     --env-file .env up -d --build mc-telemetry
+#
+# Minecraft files are read-only. The process never joins the game (no plugin,
+# no RCON). The Docker socket is used only for GET /containers/<name>/stats.
+
+services:
+  mc-telemetry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mc-telemetry
+    restart: unless-stopped
+    mem_limit: 48m
+    environment:
+      MC_DIR: /mc
+      MC_CONTAINER: minecraft
+      SQL_HOST: postgres
+      SQL_USER: ${POSTGRES_USER:-dinkboard}
+      SQL_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+      SQL_DATABASE: ${POSTGRES_DB:-dinkboard}
+    volumes:
+      - /var/lib/docker/volumes/minecraft_data/_data:/mc:ro
+      - mc_telemetry_heartbeat:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dinkboard
+
+volumes:
+  mc_telemetry_heartbeat:
