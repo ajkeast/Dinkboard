@@ -168,7 +168,7 @@ const Sidebar = ({
           <Box
             component="img"
             alt="Peter Dinkboard"
-            src="image.webp"
+            src="/image.webp"
             sx={{
               height: 36,
               width: 36,

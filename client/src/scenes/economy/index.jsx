@@ -4,8 +4,6 @@ import {
   Box,
   CardContent,
   Chip,
-  Tab,
-  Tabs,
   Typography,
   useMediaQuery,
   useTheme,
@@ -19,6 +17,7 @@ import {
   PaymentsOutlined,
   TimelineOutlined,
 } from "@mui/icons-material";
+import CompactTabs from "components/CompactTabs";
 import Header from "components/Header";
 import DashCard from "components/DashCard";
 import QueryState from "components/QueryState";
@@ -805,30 +804,15 @@ const Economy = () => {
         </Box>
       ) : (
         <Box mx="auto" width="100%" maxWidth={520} mt={1}>
-          <Tabs
+          <CompactTabs
             value={tab}
-            onChange={(_, value) => setTab(value)}
-            sx={{
-              minHeight: 36,
-              "& .MuiTab-root": {
-                minHeight: 36,
-                textTransform: "none",
-                fontWeight: 600,
-                py: 0.5,
-                color: theme.palette.text.secondary,
-                opacity: 1,
-                "&.Mui-selected": {
-                  color: theme.palette.text.primary,
-                },
-              },
-              "& .MuiTabs-indicator": {
-                backgroundColor: theme.palette.secondary.main,
-              },
-            }}
-          >
-            <Tab label="Transactions" value="transactions" />
-            <Tab label="Balances" value="balances" />
-          </Tabs>
+            onChange={setTab}
+            ariaLabel="DinkCoin"
+            tabs={[
+              { value: "transactions", label: "Transactions" },
+              { value: "balances", label: "Balances" },
+            ]}
+          />
 
           <Box mt={1.5}>
             {tab === "transactions" ? (
