@@ -95,7 +95,7 @@ docker compose \
 docker logs mc-telemetry
 ```
 
-The container name stays `mc-telemetry`. A heartbeat file at `/data/heartbeat`
+The container name stays `mc-telemetry` and the image name stays `dinkboard-mc-telemetry`. The build context is `./minecraft-collector` relative to the repo root, because this file is an overlay on `docker-compose.prod.yml`. A heartbeat file at `/data/heartbeat`
 fails the healthcheck if it is older than 120 seconds.
 
 ## Period windows

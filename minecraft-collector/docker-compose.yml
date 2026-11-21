@@ -11,8 +11,12 @@
 
 services:
   mc-telemetry:
+    # Paths are resolved from the repo root: this file is an overlay on
+    # docker-compose.prod.yml (`docker compose -f docker-compose.prod.yml
+    # -f minecraft-collector/docker-compose.yml`). The root has no Dockerfile.
+    image: dinkboard-mc-telemetry
     build:
-      context: .
+      context: ./minecraft-collector
       dockerfile: Dockerfile
     container_name: mc-telemetry
     restart: unless-stopped

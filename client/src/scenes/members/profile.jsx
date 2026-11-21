@@ -1,6 +1,6 @@
-import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link as RouterLink, useParams } from "react-router-dom";
+import { Link as RouterLink, useParams, useSearchParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -44,6 +44,137 @@ import {
 import { formatDate } from "utils/datetime";
 
 const MinecraftSection = lazy(() => import("components/MinecraftSection"));
+
+const SLIDE = "320ms cubic-bezier(0.22, 1, 0.36, 1)";
+
+const MemberTabBar = ({ value, onChange }) => {
+  const theme = useTheme();
+  const index = value === "minecraft" ? 1 : 0;
+
+  return (
+    <Box
+      role="tablist"
+      aria-label="Member profile"
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+        event.preventDefault();
+        onChange(event.key === "ArrowRight" ? "minecraft" : "discord");
+      }}
+      sx={{
+        position: "relative",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        mb: 2,
+        p: "4px",
+        borderRadius: `${theme.shape.borderRadius}px`,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? theme.palette.white[1000]
+            : theme.palette.grey[50],
+      }}
+    >
+      <Box
+        aria-hidden
+        sx={{
+          position: "absolute",
+          top: 4,
+          bottom: 4,
+          left: 4,
+          width: "calc(50% - 4px)",
+          borderRadius: `${theme.shape.borderRadius}px`,
+          bgcolor: theme.palette.secondary.main,
+          transform: index === 1 ? "translateX(100%)" : "translateX(0)",
+          transition: `transform ${SLIDE}`,
+          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+        }}
+      />
+      {[
+        { id: "discord", label: "Discord" },
+        { id: "minecraft", label: "Minecraft" },
+      ].map((tab) => {
+        const selected = value === tab.id;
+        return (
+          <Button
+            key={tab.id}
+            role="tab"
+            id={`member-tab-${tab.id}`}
+            aria-selected={selected}
+            aria-controls={`member-panel-${tab.id}`}
+            onClick={() => onChange(tab.id)}
+            disableRipple
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              color: selected ? "#fff" : theme.palette.text.secondary,
+              fontWeight: selected ? 700 : 500,
+              "&:hover": { bgcolor: "transparent" },
+            }}
+          >
+            {tab.label}
+          </Button>
+        );
+      })}
+    </Box>
+  );
+};
+
+const SlidingPanels = ({ enabled, index, children }) => {
+  const panels = React.Children.toArray(children).filter(Boolean);
+  const refs = useRef([]);
+  const [height, setHeight] = useState(null);
+
+  useLayoutEffect(() => {
+    if (!enabled || panels.length < 2) return undefined;
+    const el = refs.current[index];
+    if (!el) return undefined;
+    const measure = () => setHeight(el.offsetHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [enabled, index, panels.length]);
+
+  if (!enabled || panels.length < 2) return panels[0] || null;
+
+  return (
+    <Box
+      sx={{
+        overflow: "hidden",
+        height: height == null ? "auto" : `${height}px`,
+        transition: `height ${SLIDE}`,
+        "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          width: "200%",
+          transform: index === 1 ? "translateX(-50%)" : "translateX(0)",
+          transition: `transform ${SLIDE}`,
+          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+        }}
+      >
+        {panels.map((panel, i) => (
+          <Box
+            key={i}
+            ref={(node) => {
+              refs.current[i] = node;
+            }}
+            role="tabpanel"
+            id={`member-panel-${i === 0 ? "discord" : "minecraft"}`}
+            aria-labelledby={`member-tab-${i === 0 ? "discord" : "minecraft"}`}
+            aria-hidden={index !== i}
+            inert={index !== i ? "" : undefined}
+            sx={{ width: "50%", flexShrink: 0, minWidth: 0 }}
+          >
+            {panel}
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+};
 
 const StatTile = ({ label, value, icon }) => {
   const theme = useTheme();
@@ -134,6 +265,7 @@ const MemberProfile = () => {
   const isMd = useMediaQuery("(min-width: 900px)");
   const currentUser = useSelector(selectCurrentUser);
   const isAdmin = currentUser?.role === "admin";
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: member,
@@ -158,6 +290,7 @@ const MemberProfile = () => {
 
   const {
     data: minecraft,
+    isLoading: isMinecraftLoading,
     isError: isMinecraftError,
     error: minecraftError,
     refetch: refetchMinecraft,
@@ -227,6 +360,25 @@ const MemberProfile = () => {
   );
 
   const displayName = member?.display_name || member?.user_name || "Member";
+  const showMinecraftTab = Boolean(minecraft?.linked);
+  const tabParam = searchParams.get("tab");
+  const tab = showMinecraftTab && tabParam === "minecraft" ? "minecraft" : "discord";
+
+  useEffect(() => {
+    if (!id || isMinecraftLoading) return;
+    if (tabParam === "minecraft" && !minecraft?.linked) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("tab");
+      setSearchParams(next, { replace: true });
+    }
+  }, [id, isMinecraftLoading, tabParam, minecraft?.linked, searchParams, setSearchParams]);
+
+  const selectTab = (next) => {
+    const params = new URLSearchParams(searchParams);
+    if (next === "minecraft") params.set("tab", "minecraft");
+    else params.delete("tab");
+    setSearchParams(params);
+  };
 
   if (!id) {
     return (
@@ -273,6 +425,20 @@ const MemberProfile = () => {
         Members
       </Button>
 
+      {showMinecraftTab ? (
+        <MemberTabBar value={tab} onChange={selectTab} />
+      ) : null}
+      {isMinecraftError ? (
+        <Box mb={2}>
+          <QueryState
+            isLoading={false}
+            error={minecraftError}
+            onRetry={refetchMinecraft}
+          />
+        </Box>
+      ) : null}
+
+      <SlidingPanels enabled={showMinecraftTab} index={tab === "minecraft" ? 1 : 0}>
       <Box
         display="grid"
         gridTemplateColumns={isMd ? "260px minmax(0, 1fr)" : "minmax(0, 1fr)"}
@@ -679,37 +845,24 @@ const MemberProfile = () => {
           </DashCard>
         </Box>
       </Box>
-
-      {minecraft?.linked ? (
+      {showMinecraftTab ? (
         <Suspense
           fallback={
             <Box
-              mt={2}
-              height={280}
+              height={320}
               borderRadius={1}
               sx={{ bgcolor: theme.palette.action.hover }}
             />
           }
         >
-          <Box mt={2}>
-            <MinecraftSection
-              profile={minecraft}
-              logins={minecraftLogins}
-              isAdmin={isAdmin}
-            />
-          </Box>
+          <MinecraftSection
+            profile={minecraft}
+            logins={minecraftLogins}
+            isAdmin={isAdmin}
+          />
         </Suspense>
       ) : null}
-
-      {isMinecraftError ? (
-        <Box mt={2}>
-          <QueryState
-            isLoading={false}
-            error={minecraftError}
-            onRetry={refetchMinecraft}
-          />
-        </Box>
-      ) : null}
+      </SlidingPanels>
     </Box>
   );
 };

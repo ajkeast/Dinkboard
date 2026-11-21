@@ -115,16 +115,14 @@ export class MinecraftProfile {
     }
 
     /**
-     * Active / AFK seconds from the Discord bot's recap table.
+     * Active seconds from the Discord bot's recap table (likely_afk slices excluded).
      * Read-only. null when that table is not installed.
      */
     async presence(uuid, name, from, to) {
         const ranged = Boolean(from && to);
         const sql = `
             SELECT
-              COALESCE(SUM(duration_seconds), 0)::float8 AS online_seconds,
-              COALESCE(SUM(duration_seconds) FILTER (WHERE NOT likely_afk), 0)::float8 AS active_seconds,
-              COALESCE(SUM(duration_seconds) FILTER (WHERE likely_afk), 0)::float8 AS afk_seconds
+              COALESCE(SUM(duration_seconds) FILTER (WHERE NOT likely_afk), 0)::float8 AS active_seconds
             FROM minecraft_sessions
             WHERE (
               replace(lower(COALESCE(player_uuid, '')), '-', '') = replace(lower(?), '-', '')
@@ -135,12 +133,7 @@ export class MinecraftProfile {
         const params = ranged ? [uuid, name || '', from, to] : [uuid, name || ''];
         try {
             const rows = await db.query(sql, params);
-            const row = rows[0] || {};
-            return {
-                onlineSeconds: Number(row.online_seconds) || 0,
-                activeSeconds: Number(row.active_seconds) || 0,
-                afkSeconds: Number(row.afk_seconds) || 0,
-            };
+            return { activeSeconds: Number(rows[0]?.active_seconds) || 0 };
         } catch (err) {
             if (isMissingRelation(err)) return null;
             throw err;
