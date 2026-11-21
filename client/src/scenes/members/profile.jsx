@@ -18,6 +18,7 @@ import {
   Tag,
   GraphicEqRounded,
 } from "@mui/icons-material";
+import CompactTabs from "components/CompactTabs";
 import DashCard from "components/DashCard";
 import ContributionHeatmap from "components/ContributionHeatmap";
 import MemberChannelsChart from "components/MemberChannelsChart";
@@ -46,78 +47,6 @@ import { formatDate } from "utils/datetime";
 const MinecraftSection = lazy(() => import("components/MinecraftSection"));
 
 const SLIDE = "320ms cubic-bezier(0.22, 1, 0.36, 1)";
-
-const MemberTabBar = ({ value, onChange }) => {
-  const theme = useTheme();
-  const index = value === "minecraft" ? 1 : 0;
-
-  return (
-    <Box
-      role="tablist"
-      aria-label="Member profile"
-      onKeyDown={(event) => {
-        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-        event.preventDefault();
-        onChange(event.key === "ArrowRight" ? "minecraft" : "discord");
-      }}
-      sx={{
-        position: "relative",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        mb: 2,
-        p: "4px",
-        borderRadius: `${theme.shape.borderRadius}px`,
-        border: `1px solid ${theme.palette.divider}`,
-        bgcolor:
-          theme.palette.mode === "dark"
-            ? theme.palette.white[1000]
-            : theme.palette.grey[50],
-      }}
-    >
-      <Box
-        aria-hidden
-        sx={{
-          position: "absolute",
-          top: 4,
-          bottom: 4,
-          left: 4,
-          width: "calc(50% - 4px)",
-          borderRadius: `${theme.shape.borderRadius}px`,
-          bgcolor: theme.palette.secondary.main,
-          transform: index === 1 ? "translateX(100%)" : "translateX(0)",
-          transition: `transform ${SLIDE}`,
-          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
-        }}
-      />
-      {[
-        { id: "discord", label: "Discord" },
-        { id: "minecraft", label: "Minecraft" },
-      ].map((tab) => {
-        const selected = value === tab.id;
-        return (
-          <Button
-            key={tab.id}
-            role="tab"
-            id={`member-tab-${tab.id}`}
-            aria-selected={selected}
-            aria-controls={`member-panel-${tab.id}`}
-            onClick={() => onChange(tab.id)}
-            disableRipple
-            sx={{
-              position: "relative",
-              zIndex: 1,
-              color: selected ? "#fff" : theme.palette.text.secondary,
-              fontWeight: selected ? 700 : 500,
-              "&:hover": { bgcolor: "transparent" },
-            }}
-          >
-            {tab.label}
-          </Button>
-        );
-      })}
-    </Box>
-  );
-};
 
 const SlidingPanels = ({ enabled, index, children }) => {
   const panels = React.Children.toArray(children).filter(Boolean);
@@ -426,7 +355,25 @@ const MemberProfile = () => {
       </Button>
 
       {showMinecraftTab ? (
-        <MemberTabBar value={tab} onChange={selectTab} />
+        <CompactTabs
+          value={tab}
+          onChange={selectTab}
+          ariaLabel="Member profile"
+          tabs={[
+            {
+              value: "discord",
+              label: "Discord",
+              id: "member-tab-discord",
+              controls: "member-panel-discord",
+            },
+            {
+              value: "minecraft",
+              label: "Minecraft",
+              id: "member-tab-minecraft",
+              controls: "member-panel-minecraft",
+            },
+          ]}
+        />
       ) : null}
       {isMinecraftError ? (
         <Box mb={2}>

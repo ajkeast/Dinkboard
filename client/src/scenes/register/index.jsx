@@ -108,7 +108,7 @@ const Register = () => {
           <Box
             component="img"
             alt="Peter Dinkboard"
-            src="image.webp"
+            src="/image.webp"
             height={56}
             width={56}
             sx={{ mb: 1 }}
