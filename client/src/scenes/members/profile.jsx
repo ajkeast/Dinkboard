@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import {
   Box,
@@ -29,8 +30,11 @@ import {
   useGetScoreQuery,
   useGetJuiceByMemberQuery,
   useGetMemberVibeQuery,
+  useGetMemberMinecraftQuery,
+  useGetMemberMinecraftLoginsQuery,
   getApiErrorMessage,
 } from "state/api";
+import { selectCurrentUser } from "state/authSlice";
 import {
   buildYearOptions,
   computeStreaks,
@@ -38,6 +42,8 @@ import {
   rollingYearRange,
 } from "utils/memberActivity";
 import { formatDate } from "utils/datetime";
+
+const MinecraftSection = lazy(() => import("components/MinecraftSection"));
 
 const StatTile = ({ label, value, icon }) => {
   const theme = useTheme();
@@ -126,6 +132,8 @@ const MemberProfile = () => {
   const { id } = useParams();
   const theme = useTheme();
   const isMd = useMediaQuery("(min-width: 900px)");
+  const currentUser = useSelector(selectCurrentUser);
+  const isAdmin = currentUser?.role === "admin";
 
   const {
     data: member,
@@ -147,6 +155,17 @@ const MemberProfile = () => {
     error: channelsError,
     refetch: refetchChannels,
   } = useGetMessagesChannelsByMemberQuery(id, { skip: !id });
+
+  const {
+    data: minecraft,
+    isError: isMinecraftError,
+    error: minecraftError,
+    refetch: refetchMinecraft,
+  } = useGetMemberMinecraftQuery(id, { skip: !id });
+
+  const { data: minecraftLogins } = useGetMemberMinecraftLoginsQuery(id, {
+    skip: !id || !isAdmin || !minecraft?.linked,
+  });
 
   const { data: scoreData } = useGetScoreQuery();
   const { data: juiceData } = useGetJuiceByMemberQuery();
@@ -660,6 +679,37 @@ const MemberProfile = () => {
           </DashCard>
         </Box>
       </Box>
+
+      {minecraft?.linked ? (
+        <Suspense
+          fallback={
+            <Box
+              mt={2}
+              height={280}
+              borderRadius={1}
+              sx={{ bgcolor: theme.palette.action.hover }}
+            />
+          }
+        >
+          <Box mt={2}>
+            <MinecraftSection
+              profile={minecraft}
+              logins={minecraftLogins}
+              isAdmin={isAdmin}
+            />
+          </Box>
+        </Suspense>
+      ) : null}
+
+      {isMinecraftError ? (
+        <Box mt={2}>
+          <QueryState
+            isLoading={false}
+            error={minecraftError}
+            onRetry={refetchMinecraft}
+          />
+        </Box>
+      ) : null}
     </Box>
   );
 };

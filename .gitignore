@@ -34,6 +34,8 @@ e2e/screenshots/
 !**/.env.example
 
 # misc
+__pycache__/
+*.pyc
 .DS_Store
 .env.local
 .env.development.local

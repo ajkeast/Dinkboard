@@ -2,6 +2,9 @@
 # From repo root on the VPS:
 #   docker network create edge   # once
 #   docker compose -f docker-compose.prod.yml up --build -d
+#
+# Minecraft telemetry is not part of this deploy. After the minecraft schema
+# is applied by hand, start it with the overlay in minecraft-collector/.
 
 services:
   postgres:

@@ -40,7 +40,7 @@ export const getApiErrorMessage = (error, fallback = "Something went wrong") =>
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
   reducerPath: "adminApi",
-  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Usage", "Users", "Vibes"],
+  tagTypes: ["Firsts", "Members", "Emojis", "Messages", "AI", "Dinkcoin", "Auth", "Usage", "Users", "Vibes", "Minecraft"],
   endpoints: (build) => ({
     // AUTH
     login: build.mutation({
@@ -150,6 +150,14 @@ export const api = createApi({
     getMembers: build.query({
       query: () => "api/members",
       providesTags: ["Members"],
+    }),
+    getMemberMinecraft: build.query({
+      query: (id) => `api/members/${id}/minecraft`,
+      providesTags: ["Minecraft"],
+    }),
+    getMemberMinecraftLogins: build.query({
+      query: (id) => `api/members/${id}/minecraft/logins`,
+      providesTags: ["Minecraft"],
     }),
 
     // EMOJIS
@@ -342,6 +350,8 @@ export const {
   useGetJuiceByMemberQuery,
   useGetMemberQuery,
   useGetMembersQuery,
+  useGetMemberMinecraftQuery,
+  useGetMemberMinecraftLoginsQuery,
   useGetEmojiQuery,
   useGetEmojisQuery,
   useGetEmojisCountQuery,

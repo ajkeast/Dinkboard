@@ -78,6 +78,38 @@ All success shapes unchanged from the legacy API except `/api/ai/stats` (now an 
 
 - `GET /api/members` → `[{id:string, user_name, display_name, avatar, created_at, last_updated}]`
 - `GET /api/members/:id` (`^\d{1,20}$`) → single member object, or `null`
+- `GET /api/members/:id/minecraft` → `{linked:false}` when `minecraft.player_links` has no row for this Discord id (also when the minecraft schema has not been applied yet). When linked:
+
+  ```json
+  {
+    "linked": true,
+    "player": { "uuid": "…", "name": "…" },
+    "skinUrl": "https://textures.minecraft.net/texture/…" ,
+    "windowNote": "…",
+    "windows": {
+      "latestPlayday": "2026-11-20",
+      "day": { "from": "2026-11-20", "to": "2026-11-20" },
+      "week": { "from": "2026-11-14", "to": "2026-11-20" },
+      "month": { "from": "2026-10-22", "to": "2026-11-20" }
+    },
+    "stats": { "day": {}, "week": {}, "month": {}, "all": {} },
+    "advancements": [{ "id": "minecraft:story/mine_stone", "name": "Stone Age", "earnedAt": "…" }]
+  }
+  ```
+
+  Each stats object: `playtimeTicks`, `playtimeSeconds` (vanilla `minecraft:play_time` / 20, includes idle), `activeSeconds`, `afkSeconds`, `onlineSeconds` (from `public.minecraft_sessions`; null if that bot table is absent), `deaths` (snapshot or daily delta minus `rolled_back` deaths), `jumps`, `blocksMined`, `blocksPlaced` (`minecraft:used` for block items), `mobKills`, `playerKills`, `distanceCm` (sum of `*_one_cm`), `itemsCrafted`, `diamondsMined` (diamond ore + deepslate diamond ore), `villagerTrades`, `animalsBred`, `fishCaught`, `damageDealt`, `damageTaken` (raw stat, tenths of a health point; 20 = 1 heart), `topMinedBlock`, `topKillerMob` (`{id, name, count}` or null).
+
+  **Windows.** A playday is 05:00–05:00 America/New_York, labeled by the morning it starts (same window as the collector and as the bot's `activity_date`). Daily is the latest `playday` in `minecraft.daily_stats`. Weekly is that day and the 6 before it. Monthly is that day and the 29 before it. All-time is the latest `stats_snapshots` row, not the sum of daily deltas (deltas start 2026-11-20). Active time sums bot session slices with `likely_afk = false`. The bot sets that flag when the unbroken session is longer than 6 hours. All-time active time only covers days the bot has stored.
+
+  This response never includes IP addresses, geolocation, chat, commands, or rejected logins. `skinUrl` is omitted (`null`) when Mojang's session server does not answer; tests skip the lookup.
+
+- `GET /api/members/:id/minecraft/logins` — **admin only** (`app_users.role = 'admin'`). 401 logged out, 403 for viewers, 404 when the member has no Minecraft link. Aggregates `minecraft.logins` + `minecraft.ip_geo` by IP:
+
+  `{ player: {uuid, name}, logins: [{ ip, country, region, city, isp, org, asn, mobile, proxy, hosting, count, firstSeen, lastSeen, flags: string[] }] }`
+
+  Chat, commands, and rejected logins are not included.
+
+  Admins are the existing `app_users.role` values (`admin` | `viewer`, default `viewer`). An admin promotes accounts on the Users page (`PATCH /api/users/:id/role`). The first admin is set in SQL: `UPDATE app_users SET role = 'admin' WHERE email = '…'`. Sign in again so the access token picks up the role. The login table is shown on that member's Minecraft section.
 
 ### /api/emojis
 
