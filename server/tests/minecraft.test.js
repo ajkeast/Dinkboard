@@ -66,8 +66,7 @@ describe('Minecraft member profile', () => {
                 slice_started_at TIMESTAMPTZ NOT NULL,
                 slice_ended_at TIMESTAMPTZ NOT NULL,
                 duration_seconds INTEGER NOT NULL,
-                end_reason TEXT NOT NULL,
-                likely_afk BOOLEAN NOT NULL
+                end_reason TEXT NOT NULL
             )
         `);
 
@@ -203,12 +202,12 @@ describe('Minecraft member profile', () => {
         await db.query(
             `INSERT INTO minecraft_sessions (
                 activity_date, player_name, player_uuid, started_at, ended_at,
-                slice_started_at, slice_ended_at, duration_seconds, end_reason, likely_afk
+                slice_started_at, slice_ended_at, duration_seconds, end_reason
              ) VALUES
              ('2026-11-20', 'FixtureSteve', ?, '2026-11-20T12:00:00-05:00', '2026-11-20T12:10:00-05:00',
-              '2026-11-20T12:00:00-05:00', '2026-11-20T12:10:00-05:00', 600, 'leave', FALSE),
+              '2026-11-20T12:00:00-05:00', '2026-11-20T12:10:00-05:00', 600, 'leave'),
              ('2026-11-20', 'FixtureSteve', ?, '2026-11-20T13:00:00-05:00', '2026-11-20T15:00:00-05:00',
-              '2026-11-20T13:00:00-05:00', '2026-11-20T15:00:00-05:00', 6000, 'leave', TRUE)`,
+              '2026-11-20T13:00:00-05:00', '2026-11-20T15:00:00-05:00', 6000, 'leave')`,
             [UUID, UUID]
         );
 
@@ -265,7 +264,7 @@ describe('Minecraft member profile', () => {
         expect(res.body.stats.all.diamondsMined).toBe(3);
         expect(res.body.stats.all.topMinedBlock.name).toBe('Stone');
         expect(res.body.stats.all.topKillerMob.id).toBe('minecraft:zombie');
-        expect(res.body.stats.all.activeSeconds).toBe(600);
+        expect(res.body.stats.all.activeSeconds).toBe(6600);
         expect(res.body.stats.all).not.toHaveProperty('afkSeconds');
         expect(res.body.stats.all).not.toHaveProperty('onlineSeconds');
 
@@ -273,7 +272,7 @@ describe('Minecraft member profile', () => {
         expect(res.body.stats.day.deaths).toBe(1);
         expect(res.body.stats.day.blocksPlaced).toBe(3);
         expect(res.body.stats.day.jumps).toBe(10);
-        expect(res.body.stats.day.activeSeconds).toBe(600);
+        expect(res.body.stats.day.activeSeconds).toBe(6600);
         expect(res.body.stats.week.playtimeSeconds).toBe(1200);
 
         expect(res.body.advancements.map((row) => row.name)).toContain('Stone Age');

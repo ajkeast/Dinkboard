@@ -115,14 +115,14 @@ export class MinecraftProfile {
     }
 
     /**
-     * Active seconds from the Discord bot's recap table (likely_afk slices excluded).
+     * Session seconds from the Discord bot's recap table (all slices).
      * Read-only. null when that table is not installed.
      */
     async presence(uuid, name, from, to) {
         const ranged = Boolean(from && to);
         const sql = `
             SELECT
-              COALESCE(SUM(duration_seconds) FILTER (WHERE NOT likely_afk), 0)::float8 AS active_seconds
+              COALESCE(SUM(duration_seconds), 0)::float8 AS active_seconds
             FROM minecraft_sessions
             WHERE (
               replace(lower(COALESCE(player_uuid, '')), '-', '') = replace(lower(?), '-', '')

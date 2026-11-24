@@ -19,9 +19,8 @@ const ADVANCEMENT_TITLES = JSON.parse(
  * Weekly is that playday and the 6 before it. Monthly is that playday and the
  * 29 before it. All-time is the latest stats snapshot, not the sum of deltas
  * (deltas start 2026-11-20; the first snapshot is a baseline only).
- * activeSeconds is public.minecraft_sessions where likely_afk is false. The bot
- * sets that flag when the unbroken session is longer than 6 hours. The profile
- * does not expose the AFK portion.
+ * activeSeconds is the sum of public.minecraft_sessions.duration_seconds
+ * (null if that bot table is absent).
  */
 export const WINDOW_NOTE =
     'Daily, weekly, and monthly are playdays (05:00–05:00 America/New_York), labeled by the morning they start. '

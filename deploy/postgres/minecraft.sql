@@ -16,8 +16,7 @@
 --   public.minecraft_daily_posts
 -- The bot (ajkeast/DiscordBot utils/minecraft_job.py) deletes and rewrites
 -- those rows per activity_date for the Discord recap. The site only SELECTs
--- public.minecraft_sessions to show active vs likely-AFK playtime.
--- likely_afk means the unbroken session was longer than 6 hours.
+-- public.minecraft_sessions to sum duration_seconds for active playtime.
 --
 -- Private tables (logins, ip_geo, rejected_logins, chat, commands, sessions)
 -- are stored here and are not returned by member profile endpoints.

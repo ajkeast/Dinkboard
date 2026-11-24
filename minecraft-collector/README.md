@@ -36,8 +36,7 @@ Same behavior as the previous SQLite collector:
 It does **not** create tables and it does **not** write `public.minecraft_sessions`,
 `public.minecraft_deaths`, `public.minecraft_advancements`, or
 `public.minecraft_daily_posts`. Those belong to the Discord bot recap. The site
-reads `public.minecraft_sessions.likely_afk` (unbroken session longer than 6 hours)
-to show active playtime.
+sums `public.minecraft_sessions.duration_seconds` for active playtime.
 
 ## Apply the schema (manual)
 
@@ -111,8 +110,8 @@ That is the same window the bot stores as `minecraft_sessions.activity_date`.
 | All-time | Latest `stats_snapshots` row (lifetime vanilla stats), not the sum of daily deltas. |
 
 Death totals subtract `minecraft.deaths.rolled_back`. Active playtime is the sum of
-`public.minecraft_sessions.duration_seconds` where `likely_afk` is false. Vanilla
-`minecraft:play_time` is shown separately as time in world (it includes idle time).
+`public.minecraft_sessions.duration_seconds`. Vanilla `minecraft:play_time` is shown
+separately as time in world (it includes idle time).
 
 ## Admins
 
